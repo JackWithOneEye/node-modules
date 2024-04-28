@@ -1,25 +1,14 @@
 <script lang="ts" setup>
-import { VueFlow, useVueFlow, type Node, type Edge, useNodesInitialized } from '@vue-flow/core'
-import { Background } from '@vue-flow/background'
-import { Controls } from '@vue-flow/controls'
+import type { Node, Edge, ViewportTransform } from '@vue-flow/core'
+
+const { initialData } = defineProps<{ initialData: { nodes: Node[], edges: Edge[], viewport?: ViewportTransform } }>()
 
 const audioCtxStore = useAudioContextStore()
 
-const { onPaneReady, onConnect, onEdgesChange, addEdges } = useVueFlow()
-const nodes = ref<Node[]>([
-  { id: '1', type: 'audio-source', label: 'Node 2', position: { x: 100, y: 100 } },
-  { id: '2', type: 'destination', label: 'Node 2', position: { x: 200, y: 200 } },
-  { id: '3', type: 'oscilloscope', label: 'Node 2', position: { x: 500, y: 200 } },
-])
-
-const edges = ref<Edge[]>([
-  { id: 'e1', source: '1', sourceHandle: 'output', target: '2', targetHandle: 'input' },
-  { id: 'e2', source: '1', sourceHandle: 'output', target: '3', targetHandle: 'input' },
-])
-
-onPaneReady(({ fitView }) => {
-  fitView()
-})
+const { onConnect, onEdgesChange, addEdges } = useVueFlow()
+const nodes = ref(initialData.nodes)
+const edges = ref(initialData.edges)
+const viewport = ref(initialData.viewport)
 
 onConnect((connection) => {
   addEdges(connection)
@@ -57,97 +46,57 @@ watch(init, (curr) => {
     }
   }
 }, { once: true })
+
+const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
 </script>
 
 <template>
-  <MegaMenu>
-    <template #end>
-      <Button
-        class="h-10 w-10"
-        @click="() => {
-          if (audioCtxStore.state === 'suspended') {
-            audioCtxStore.resume()
-          }
-          else {
-            audioCtxStore.suspend()
-          }
-        }"
-      >
-        <template #icon>
-          <i :class="`pi ${audioCtxStore.state === 'suspended' ? 'pi-play' : 'pi-stop'}`" />
-        </template>
-      </Button>
-    </template>
-  </MegaMenu>
-  <VueFlow
-    :nodes="nodes"
-    :edges="edges"
-    class="dark"
+  <div
+    class="contents"
+    @drop="onDrop"
+    @dragover="onDragOver"
+    @dragleave="onDragLeave"
   >
-    <template #node-audio-source="{ id }">
-      <AudioSourceModule :id="id" />
-    </template>
-    <template #node-destination="{ id }">
-      <DestinationModule :id="id" />
-    </template>
-    <template #node-oscilloscope="{ id }">
-      <OscilloscopeModule :id="id" />
-    </template>
-    <Background />
-    <Controls />
-  </VueFlow>
+    <VueFlow
+      :nodes="nodes"
+      :edges="edges"
+      :default-viewport="viewport"
+      class="flex-1 bg-black text-white"
+    >
+      <template #[`node-${AudioModuleType.AudioSource}`]="{ id, type }">
+        <AudioSourceModule
+          :id="id"
+          :type="type"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.Destination}`]="{ id, type, data }">
+        <DestinationModule
+          :id="id"
+          :type="type"
+          :gain="data.gain"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.Gain}`]="{ id, type, data }">
+        <GainModule
+          :id="id"
+          :type="type"
+          :gain="data.gain"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.MidiInput}`]="{ id, type, data }">
+        <MidiInputModule
+          :id="id"
+          :type="type"
+          :channel="data.channel"
+          :device-id="data.deviceId"
+          :priority="data.priority"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.Oscilloscope}`]="{ id }">
+        <OscilloscopeModule :id="id" />
+      </template>
+      <Background :class="{ 'bg-slate-900': isDragOver }" />
+      <Controls />
+    </VueFlow>
+  </div>
 </template>
-
-<style>
-@import '@vue-flow/core/dist/style.css';
-@import '@vue-flow/core/dist/theme-default.css';
-@import '@vue-flow/controls/dist/style.css';
-
-.dark {
-  background: #000000;
-  color: #fffffb
-}
-
-.dark .vue-flow__node {
-  background: hsl(0, 0%, 10%);
-  color: #fffffb
-}
-
-.dark .vue-flow__node.selected {
-  background: hsl(0, 0%, 20%);
-  border: 1px solid hotpink
-}
-
-.vue-flow__controls {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center
-}
-
-.dark .vue-flow__controls {
-  border: 1px solid #FFFFFB
-}
-
-.vue-flow__controls .vue-flow__controls-button {
-  border: none;
-  border-right: 1px solid #eee
-}
-
-.dark .vue-flow__controls .vue-flow__controls-button {
-  background: hsl(0, 0%, 20%);
-  fill: #fffffb;
-  border: none
-}
-
-.dark .vue-flow__controls .vue-flow__controls-button:hover {
-  background: hsl(0, 0%, 30%)
-}
-
-.dark .vue-flow__edge-textbg {
-  fill: #292524
-}
-
-.dark .vue-flow__edge-text {
-  fill: #fffffb
-}
-</style>

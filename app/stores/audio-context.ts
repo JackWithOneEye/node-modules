@@ -20,10 +20,11 @@ export type ModuleRegistration = {
 
 type ModuleId = string
 
+type Ramp = 'none' | 'lin' | 'exp' | 'pulse'
+
 export const useAudioContextStore = defineStore('audioContextStore', () => {
   const ctx = ref(new AudioContext({ latencyHint: 0 }))
   const audioContext = computed(() => ctx.value)
-  const sampleRate = computed(() => ctx.value.sampleRate)
   const state = ref(ctx.value.state)
 
   async function suspend() {
@@ -40,6 +41,40 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
     }
     await ctx.value.resume()
     state.value = ctx.value.state
+  }
+
+  function setParamValue(param: AudioParam, value: number, ramp: Ramp = 'none') {
+    internalSetParamValue(param, value, ramp ?? 'none', ctx.value.currentTime)
+  }
+
+  function setMultipleParamValues(...args: Parameters<typeof setParamValue>[]) {
+    const currentTime = ctx.value.currentTime
+    for (const [param, value, ramp] of args) {
+      internalSetParamValue(param, value, ramp ?? 'none', currentTime)
+    }
+  }
+
+  function internalSetParamValue(param: AudioParam, value: number, ramp: Ramp, currentTime: number) {
+    const clampedVal = Math.max(param.minValue, Math.min(param.maxValue, value))
+    if (ramp === 'none') {
+      param.setValueAtTime(clampedVal, currentTime)
+      return
+    }
+    if (ramp === 'pulse') {
+      param.setValueAtTime(clampedVal, currentTime)
+        .setValueAtTime(0, currentTime + (2 / ctx.value.sampleRate))
+      return
+    }
+
+    param.setValueAtTime(param.value, currentTime)
+    if (ramp === 'exp') {
+      param.exponentialRampToValueAtTime(clampedVal, currentTime + 0.05)
+      return
+    }
+    if (ramp === 'lin') {
+      param.linearRampToValueAtTime(clampedVal, currentTime + 0.05)
+      return
+    }
   }
 
   const moduleRegistry = ref<Map<ModuleId, ModuleRegistration>>(new Map())
@@ -112,10 +147,13 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
 
   return {
     audioContext,
-    sampleRate,
     state,
+
     suspend,
     resume,
+    setParamValue,
+    setMultipleParamValues,
+
     connectModules,
     disconnectModules,
     registerModule,
