@@ -1,24 +1,27 @@
 <script lang="ts" setup>
+import { Handle } from '@vue-flow/core'
+
 export type DestinationModuleProps = {
   id: string
   type: string
   gain?: number
 }
-const props = defineProps<DestinationModuleProps>()
-const defaultGain = props.gain ?? 1.4013e-10
-const gainValue = ref(Math.trunc(gain2DB(defaultGain)))
+const props = withDefaults(defineProps<DestinationModuleProps>(), {
+  gain: 1.4013e-10,
+})
+const gain = useGainParam(props.gain)
 const minGain = -100
 const maxGain = 0
 
 const store = useAudioContextStore()
 
-const gainNode = new GainNode(store.audioContext, { gain: defaultGain })
+const gainNode = new GainNode(store.audioContext, { gain: props.gain })
 const destinationNode = store.audioContext.destination
 gainNode.connect(destinationNode)
 
 const { updateNodeData } = useVueFlow()
 
-watch(gainValue, (value) => {
+watch(gain, (value) => {
   value = db2Gain(value)
   store.setParamValue(gainNode.gain, value, 'exp')
   updateNodeData<DestinationModuleProps>(props.id, { gain: value })
@@ -63,13 +66,6 @@ onUnmounted(() => {
           type="target"
           :position="Position.Left"
         />
-        <!-- <HandleLabel>gain</HandleLabel>
-        <Handle
-          id="gain"
-          class="!top-16"
-          type="target"
-          :position="Position.Left"
-        /> -->
       </div>
       <div class="nodrag flex gap-1 border border-slate-500 rounded-md p-2">
         <div class="flex flex-col gap-2">
@@ -77,20 +73,20 @@ onUnmounted(() => {
             class="w-5 text-xs"
             icon="pi pi-plus"
             icon-class="!text-xs"
-            :disabled="gainValue >= maxGain"
-            @click="gainValue++"
+            :disabled="gain >= maxGain"
+            @click="gain++"
           />
           <Button
             class="w-5 text-xs"
             icon="pi pi-minus"
             icon-class="!text-xs"
-            :disabled="gainValue <= minGain"
-            @click="gainValue--"
+            :disabled="gain <= minGain"
+            @click="gain--"
           />
         </div>
         <div class="flex flex-col items-center">
           <Knob
-            v-model="gainValue"
+            v-model="gain"
             :size="40"
             :min="minGain"
             :max="maxGain"

@@ -1,21 +1,24 @@
 <script lang="ts" setup>
+import { Handle } from '@vue-flow/core'
+
 export type GainModuleProps = {
   id: string
   type: string
   gain?: number
 }
-const props = defineProps<GainModuleProps>()
-const defaultGain = props.gain ?? 0
-const gainValue = ref(Math.trunc(gain2DB(defaultGain)))
+const props = withDefaults(defineProps<GainModuleProps>(), {
+  gain: 1,
+})
+const gain = useGainParam(props.gain)
 const minGain = -100
 const maxGain = 60
 
 const store = useAudioContextStore()
-const gainNode = new GainNode(store.audioContext, { gain: defaultGain })
+const gainNode = new GainNode(store.audioContext, { gain: props.gain })
 
 const { updateNodeData } = useVueFlow()
 
-watch(gainValue, (value) => {
+watch(gain, (value) => {
   value = db2Gain(value)
   store.setParamValue(gainNode.gain, value, 'exp')
   updateNodeData<GainModuleProps>(props.id, { gain: value })
@@ -88,20 +91,20 @@ onUnmounted(() => {
             class="w-5 text-xs"
             icon="pi pi-plus"
             icon-class="!text-xs"
-            :disabled="gainValue >= maxGain"
-            @click="gainValue++"
+            :disabled="gain >= maxGain"
+            @click="gain++"
           />
           <Button
             class="w-5 text-xs"
             icon="pi pi-minus"
             icon-class="!text-xs"
-            :disabled="gainValue <= minGain"
-            @click="gainValue--"
+            :disabled="gain <= minGain"
+            @click="gain--"
           />
         </div>
         <div class="flex flex-col items-center">
           <Knob
-            v-model="gainValue"
+            v-model="gain"
             :size="40"
             :min="minGain"
             :max="maxGain"

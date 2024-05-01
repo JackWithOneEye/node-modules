@@ -1,8 +1,10 @@
 <script lang="ts" setup>
+import { Handle } from '@vue-flow/core'
 import { type CanvasForm, CanvasSpace, Sound } from 'pts'
 
 export type OscilloscopeModuleProps = {
   id: string
+  type: string
 }
 const props = defineProps<OscilloscopeModuleProps>()
 
@@ -11,7 +13,7 @@ const store = useAudioContextStore()
 const gainNode = new GainNode(store.audioContext, { gain: 0.5 })
 const sound = Sound.from(gainNode, store.audioContext).analyze(1024)
 store.registerModule(props.id, {
-  meta: { id: props.id, type: 'oscilloscope' },
+  meta: { id: props.id, type: props.type },
   getTarget: () => {
     return {
       type: 'audioNode',
@@ -26,7 +28,7 @@ let space: CanvasSpace
 let form: CanvasForm
 watch(wrapper, () => {
   space = new CanvasSpace(wrapper.value!).setup({
-    bgcolor: '#90caf9',
+    bgcolor: '#000000',
     resize: true,
   })
   form = space.getForm()

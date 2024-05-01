@@ -10,25 +10,11 @@ export default defineNuxtConfig({
   imports: {
     presets: [
       {
-        from: '@vue-flow/background',
-        imports: [
-          'Background',
-        ],
-      },
-      {
-        from: '@vue-flow/controls',
-        imports: [
-          'Controls',
-        ],
-      },
-      {
         from: '@vue-flow/core',
         imports: [
-          'Handle',
           'Position',
           'useNodesInitialized',
           'useVueFlow',
-          'VueFlow',
         ],
       },
     ],

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { Handle } from '@vue-flow/core'
+
 export type AudioSourceModuleProps = {
   id: string
   type: string

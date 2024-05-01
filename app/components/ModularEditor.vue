@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import { Background } from '@vue-flow/background'
+import { Controls } from '@vue-flow/controls'
+import { VueFlow } from '@vue-flow/core'
 import type { Node, Edge, ViewportTransform } from '@vue-flow/core'
 
 const { initialData } = defineProps<{ initialData: { nodes: Node[], edges: Edge[], viewport?: ViewportTransform } }>()
@@ -92,8 +95,34 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :priority="data.priority"
         />
       </template>
-      <template #[`node-${AudioModuleType.Oscilloscope}`]="{ id }">
-        <OscilloscopeModule :id="id" />
+      <template #[`node-${AudioModuleType.MultiFilter}`]="{ id, type, data }">
+        <MultiFilterModule
+          :id="id"
+          :type="type"
+          :cutoff="data.cutoff"
+          :q="data.q"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.Multiplier}`]="{ id, type }">
+        <MultiplierModule
+          :id="id"
+          :type="type"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.Oscillator}`]="{ id, type, data }">
+        <OscillatorModule
+          :id="id"
+          :type="type"
+          :frequency="data.frequency"
+          :detune="data.detune"
+          :waveform="data.waveform"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.Oscilloscope}`]="{ id, type }">
+        <OscilloscopeModule
+          :id="id"
+          :type="type"
+        />
       </template>
       <Background :class="{ 'bg-slate-900': isDragOver }" />
       <Controls />

@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { moduleOptions } from '~/utils/module'
+
 const { loading, save } = useDataStore()
 const toast = useToast()
 
@@ -12,61 +14,7 @@ const items = ref([
     label: 'Modules',
     icon: 'pi pi-box',
     root: true,
-    items: [
-      [
-        {
-          label: 'Inputs',
-          items: [
-            {
-              type: AudioModuleType.AudioSource,
-              icon: 'pi pi-microphone',
-              label: 'Audio Source',
-            },
-            {
-              type: AudioModuleType.MidiInput,
-              icon: 'pi pi-th-large',
-              label: 'MIDI Input',
-            },
-          ],
-        },
-      ],
-      [
-        {
-          label: 'Ananlysis',
-          items: [
-            {
-              type: AudioModuleType.Oscilloscope,
-              icon: 'pi pi-wave-pulse',
-              label: 'Oscilloscope',
-            },
-          ],
-        },
-      ],
-      [
-        {
-          label: 'Effects',
-          items: [
-            {
-              type: AudioModuleType.Gain,
-              icon: 'pi pi-gauge',
-              label: 'Gain',
-            },
-          ],
-        },
-      ],
-      [
-        {
-          label: 'Outputs',
-          items: [
-            {
-              type: AudioModuleType.Destination,
-              icon: 'pi pi-volume-up',
-              label: 'Destination',
-            },
-          ],
-        },
-      ],
-    ],
+    items: moduleOptions,
   },
 ])
 </script>
@@ -74,14 +22,14 @@ const items = ref([
 <template>
   <div class="flex flex-col min-h-screen">
     <MegaMenu
-      class="sticky w-full z-10"
+      class="h-full z-10"
       :model="items"
     >
       <template #item="{ item }">
         <div
           v-if="item.root"
           v-ripple
-          class="flex items-center cursor-pointer p-2 gap-2 border rounded-md"
+          class="flex items-center cursor-pointer p-2 gap-2 border rounded-md max-w-screen-sm"
         >
           <i :class="item.icon" />
           <span>{{ item.label }}</span>

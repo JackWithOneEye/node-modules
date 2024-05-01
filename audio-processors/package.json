@@ -1,0 +1,19 @@
+{
+  "name": "audio-processors",
+  "module": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "bun --env-file=..\/.env run build.mjs",
+    "build:watch": "bun run build -- --watch",
+    "build:go": "cd build && go run cmd/main.go --env=../../.env "
+  },
+  "devDependencies": {
+    "@types/audioworklet": "^0.0.55",
+    "@types/bun": "latest",
+    "esbuild": "^0.20.2",
+    "fastestsmallesttextencoderdecoder": "^1.0.22"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

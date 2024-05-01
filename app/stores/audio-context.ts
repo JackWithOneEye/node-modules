@@ -5,8 +5,10 @@ export interface SourceInterfaces {
   disconnect: (outputId: string, target: AudioNode | AudioWorkletNode | AudioParam, tagetIndex: number) => void
 }
 
+export type Target = { type: 'audioNode', node: AudioNode | AudioWorkletNode, inputIndex: number } | { type: 'param', param: AudioParam }
+
 export interface GetTarget {
-  (inputId: string): ({ type: 'audioNode', node: AudioNode | AudioWorkletNode, inputIndex: number } | { type: 'param', param: AudioParam }) | undefined
+  (inputId: string): Target | undefined
 }
 
 export type ModuleRegistration = {
@@ -16,39 +18,62 @@ export type ModuleRegistration = {
   }
   sourceInterfaces?: SourceInterfaces
   getTarget?: GetTarget
+  onResume?: () => void
+  onSuspend?: () => void
 }
 
 type ModuleId = string
 
 type Ramp = 'none' | 'lin' | 'exp' | 'pulse'
 
+const audioContext = new AudioContext({ latencyHint: 0 })
+await audioContext.audioWorklet.addModule('/api/audio-processors-script')
+
 export const useAudioContextStore = defineStore('audioContextStore', () => {
-  const ctx = ref(new AudioContext({ latencyHint: 0 }))
-  const audioContext = computed(() => ctx.value)
-  const state = ref(ctx.value.state)
+  // const ctx = ref(audioCtx)
+  // const audioContext = computed(() => ctx.value)
+  const state = ref(audioContext.state)
+  const moduleRegistry = ref<Map<ModuleId, ModuleRegistration>>(new Map())
 
   async function suspend() {
-    if (ctx.value.state === 'suspended') {
+    if (audioContext.state === 'suspended') {
       return
     }
-    await ctx.value.suspend()
-    state.value = ctx.value.state
+
+    await audioContext.suspend()
+    for (const { onSuspend } of moduleRegistry.value.values()) {
+      try {
+        onSuspend?.()
+      }
+      catch (e) {
+        console.warn(e)
+      }
+    }
+    state.value = audioContext.state
   }
 
   async function resume() {
-    if (ctx.value.state === 'running') {
+    if (audioContext.state === 'running') {
       return
     }
-    await ctx.value.resume()
-    state.value = ctx.value.state
+    await audioContext.resume()
+    for (const { onResume } of moduleRegistry.value.values()) {
+      try {
+        onResume?.()
+      }
+      catch (e) {
+        console.warn(e)
+      }
+    }
+    state.value = audioContext.state
   }
 
   function setParamValue(param: AudioParam, value: number, ramp: Ramp = 'none') {
-    internalSetParamValue(param, value, ramp ?? 'none', ctx.value.currentTime)
+    internalSetParamValue(param, value, ramp ?? 'none', audioContext.currentTime)
   }
 
   function setMultipleParamValues(...args: Parameters<typeof setParamValue>[]) {
-    const currentTime = ctx.value.currentTime
+    const currentTime = audioContext.currentTime
     for (const [param, value, ramp] of args) {
       internalSetParamValue(param, value, ramp ?? 'none', currentTime)
     }
@@ -62,7 +87,7 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
     }
     if (ramp === 'pulse') {
       param.setValueAtTime(clampedVal, currentTime)
-        .setValueAtTime(0, currentTime + (2 / ctx.value.sampleRate))
+        .setValueAtTime(0, currentTime + (2 / audioContext.sampleRate))
       return
     }
 
@@ -76,8 +101,6 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
       return
     }
   }
-
-  const moduleRegistry = ref<Map<ModuleId, ModuleRegistration>>(new Map())
 
   function registerModule(id: string, registration: ModuleRegistration) {
     console.log(`register module ${id} of type ${registration.meta.type}`)

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Handle } from '@vue-flow/core'
 import { WebMidi, type NoteMessageEvent } from 'webmidi'
 
 export type MidiInputModuleProps = {
@@ -8,7 +9,9 @@ export type MidiInputModuleProps = {
   deviceId?: string
   priority?: 0 | 1 // newest | oldest
 }
-const props = defineProps<MidiInputModuleProps>()
+const props = withDefaults(defineProps<MidiInputModuleProps>(), {
+  priority: 0,
+})
 
 if (!WebMidi.enabled) {
   await WebMidi.enable()
@@ -59,7 +62,7 @@ store.registerModule(props.id, {
 const selectedMidiInput = ref(props.deviceId)
 const midiInputs = WebMidi.inputs
 
-const selectedPriority = ref(props.priority ?? 0)
+const selectedPriority = ref(props.priority)
 const priorities = [{ label: 'Newest', value: 0 }, { label: 'Oldest', value: 1 }]
 
 const currentOnNote = ref(-1)
