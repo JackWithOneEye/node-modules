@@ -1,21 +1,32 @@
 <script lang="ts" setup>
 import { Handle } from '@vue-flow/core'
-import { WebMidi, type NoteMessageEvent } from 'webmidi'
+import { type NoteMessageEvent } from 'webmidi'
+import { useMidiStore } from '~/stores/midi'
+
+// const NotePriority = {
+//   Newest: 0,
+//   Oldest: 1,
+//   Highest: 2,
+//   Lowest: 3,
+// } as const
+type NotePriority = 0 | 1 | 2 | 3
 
 export type MidiInputModuleProps = {
   id: string
   type: string
+  title: string
   channel?: number // not yet used!
   deviceId?: string
-  priority?: 0 | 1 // newest | oldest
+  priority?: NotePriority// (typeof NotePriority)[keyof typeof NotePriority]
 }
 const props = withDefaults(defineProps<MidiInputModuleProps>(), {
+  title: 'MIDI Input',
   priority: 0,
 })
 
-if (!WebMidi.enabled) {
-  await WebMidi.enable()
-}
+const midiStore = useMidiStore()
+
+await midiStore.enable()
 
 const store = useAudioContextStore()
 const gateNode = new ConstantSourceNode(store.audioContext, { offset: 0 })
@@ -59,23 +70,44 @@ store.registerModule(props.id, {
   },
 })
 
-const selectedMidiInput = ref(props.deviceId)
-const midiInputs = WebMidi.inputs
+const selectedMidiInput = useParam('deviceId', props.deviceId)
 
-const selectedPriority = ref(props.priority)
-const priorities = [{ label: 'Newest', value: 0 }, { label: 'Oldest', value: 1 }]
+const selectedPriority = useParam('priority', props.priority)
+const priorities: { label: string, value: NotePriority }[] = [
+  { label: 'Newest', value: 0 },
+  { label: 'Oldest', value: 1 },
+  { label: 'Highest', value: 2 },
+  { label: 'Lowest', value: 3 },
+]
 
 const currentOnNote = ref(-1)
 const onNoteOn = ({ note }: NoteMessageEvent) => {
-  if (currentOnNote.value >= 0 && selectedPriority.value === 1) {
-    return
+  if (currentOnNote.value >= 0) {
+    // pattern matching would have been nice here
+    switch (selectedPriority.value) {
+      case 0:
+        break
+      case 1:
+        return
+      case 2:
+        if (note.number <= currentOnNote.value) {
+          return
+        }
+        break
+      case 3:
+        if (note.number >= currentOnNote.value) {
+          return
+        }
+        break
+    }
   }
-  console.log('NOTE ON?', note, midiNote2FreqLUT[note.number])
+
+  console.log('NOTE ON?', note)
 
   currentOnNote.value = note.number
   store.setMultipleParamValues(
     [gateNode.offset, 1],
-    [noteNode.offset, midiNote2FreqLUT[note.number]],
+    [noteNode.offset, midiStore.midiNote2FreqLUT[note.number]],
     [retriggerNode.offset, 1, 'pulse'],
   )
 }
@@ -86,10 +118,10 @@ const onNoteOff = ({ note }: NoteMessageEvent) => {
   }
   console.log('NOTE OFF?', note)
   currentOnNote.value = -1
-  gateNode.offset.setValueAtTime(0, store.audioContext.currentTime)
+  store.setParamValue(gateNode.offset, 0)
 }
 
-const currentInput = computed(() => WebMidi.inputs.find(({ id }) => id === selectedMidiInput.value))
+const currentInput = computed(() => midiStore.midiInputs.find(({ id }) => id === selectedMidiInput.value))
 watch(currentInput, (curr, prev) => {
   if (prev) {
     prev.removeListener('noteon', onNoteOn)
@@ -99,12 +131,7 @@ watch(currentInput, (curr, prev) => {
     curr.addListener('noteon', onNoteOn)
     curr.addListener('noteoff', onNoteOff)
   }
-})
-
-const { updateNodeData } = useVueFlow()
-watch([selectedMidiInput, selectedPriority], ([deviceId, priority]) => {
-  updateNodeData<MidiInputModuleProps>(props.id, { deviceId, priority })
-})
+}, { immediate: true })
 
 onUnmounted(() => {
   gateNode.disconnect()
@@ -117,14 +144,15 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <ModuleToolbar />
   <div class="flex flex-col gap-2 border pl-2 pr-1 py-2">
-    <span class="text-sm">MIDI Input</span>
+    <span class="text-sm">{{ title }}</span>
     <div class="flex">
       <div class="flex flex-col gap-2">
         <Dropdown
           v-model="selectedMidiInput"
           class="border h-8 text-xs w-full"
-          :options="midiInputs"
+          :options="midiStore.midiInputs"
           option-label="name"
           option-value="id"
           placeholder="Input Device"

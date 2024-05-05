@@ -1,37 +1,7 @@
-import { defineStore } from 'pinia'
-
-export interface SourceInterfaces {
-  connect: (outputId: string, target: AudioNode | AudioWorkletNode | AudioParam, tagetIndex: number) => void
-  disconnect: (outputId: string, target: AudioNode | AudioWorkletNode | AudioParam, tagetIndex: number) => void
-}
-
-export type Target = { type: 'audioNode', node: AudioNode | AudioWorkletNode, inputIndex: number } | { type: 'param', param: AudioParam }
-
-export interface GetTarget {
-  (inputId: string): Target | undefined
-}
-
-export type ModuleRegistration = {
-  meta: {
-    id: string
-    type: string
-  }
-  sourceInterfaces?: SourceInterfaces
-  getTarget?: GetTarget
-  onResume?: () => void
-  onSuspend?: () => void
-}
-
-type ModuleId = string
-
-type Ramp = 'none' | 'lin' | 'exp' | 'pulse'
-
 const audioContext = new AudioContext({ latencyHint: 0 })
 await audioContext.audioWorklet.addModule('/api/audio-processors-script')
 
 export const useAudioContextStore = defineStore('audioContextStore', () => {
-  // const ctx = ref(audioCtx)
-  // const audioContext = computed(() => ctx.value)
   const state = ref(audioContext.state)
   const moduleRegistry = ref<Map<ModuleId, ModuleRegistration>>(new Map())
 
@@ -183,3 +153,32 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
     unregisterModule,
   }
 })
+
+export interface SourceInterfaces {
+  connect: (outputId: string, target: AudioNode | AudioWorkletNode | AudioParam, tagetIndex: number) => void
+  disconnect: (outputId: string, target: AudioNode | AudioWorkletNode | AudioParam, tagetIndex: number) => void
+}
+
+export type Target = { type: 'audioNode', node: AudioNode | AudioWorkletNode, inputIndex: number } | { type: 'param', param: AudioParam }
+
+export interface GetTarget {
+  (inputId: string): Target | undefined
+}
+
+export type ModuleRegistration = {
+  meta: {
+    id: string
+    type: string
+  }
+  sourceInterfaces?: {
+    connect: (outputId: string, target: AudioNode | AudioWorkletNode | AudioParam, tagetIndex: number) => void
+    disconnect: (outputId: string, target: AudioNode | AudioWorkletNode | AudioParam, tagetIndex: number) => void
+  }
+  getTarget?: GetTarget
+  onResume?: () => void
+  onSuspend?: () => void
+}
+
+type ModuleId = string
+
+type Ramp = 'none' | 'lin' | 'exp' | 'pulse'

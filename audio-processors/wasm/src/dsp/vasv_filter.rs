@@ -25,10 +25,10 @@ struct FilterCoeffs {
 struct FilterParams {
     f_c: f32,
     q: f32,
-    // bsf_mix: f32,
-    // bpf_mix: f32,
-    // hpf_mix: f32,
-    // lpf_mix: f32,
+    bsf_mix: f32,
+    bpf_mix: f32,
+    hpf_mix: f32,
+    lpf_mix: f32,
 }
 
 pub struct VASVFilter {
@@ -55,10 +55,10 @@ impl VASVFilter {
             params: FilterParams {
                 f_c: 1000.0,
                 q: 0.707,
-                // bsf_mix: 0.0,
-                // bpf_mix: 0.0,
-                // hpf_mix: 0.0,
-                // lpf_mix: 0.0,
+                bsf_mix: 0.0,
+                bpf_mix: 0.0,
+                hpf_mix: 0.0,
+                lpf_mix: 0.0,
             },
             state: (0.0, 0.0),
         }
@@ -72,32 +72,32 @@ impl VASVFilter {
         &mut self,
         f_c: f32,
         q: f32,
-        // bpf_mix: f32,
-        // bsf_mix: f32,
-        // hpf_mix: f32,
-        // lpf_mix: f32,
+        bpf_mix: f32,
+        bsf_mix: f32,
+        hpf_mix: f32,
+        lpf_mix: f32,
     ) {
         let f_c_changed = self.params.f_c != f_c;
         let q_changed = self.params.q != q;
         self.params = FilterParams {
             f_c,
             q,
-            // bpf_mix,
-            // bsf_mix,
-            // hpf_mix,
-            // lpf_mix,
+            bpf_mix,
+            bsf_mix,
+            hpf_mix,
+            lpf_mix,
         };
         self.calc_coeffs(f_c_changed, q_changed);
     }
 
-    // pub fn process(&mut self, x: f32) -> f32 {
-    //     let (bpf, bsf, hpf, lpf) = self.process_multi_out(x);
+    pub fn process(&mut self, x: f32) -> f32 {
+        let (bpf, bsf, hpf, lpf) = self.process_multi_out(x);
 
-    //     // self.params.bpf_mix * bpf
-    //     //     + self.params.bsf_mix * bsf
-    //     //     + self.params.hpf_mix * hpf
-    //     //     + self.params.lpf_mix * lpf
-    // }
+        self.params.bpf_mix * bpf
+            + self.params.bsf_mix * bsf
+            + self.params.hpf_mix * hpf
+            + self.params.lpf_mix * lpf
+    }
 
     pub fn process_multi_out(&mut self, x: f32) -> (f32, f32, f32, f32) {
         let alpha = self.coeffs.alpha;
@@ -143,3 +143,11 @@ impl VASVFilter {
         self.coeffs.alpha_0 = 1.0 / (1.0 + 2.0 * r * alpha + alpha * alpha);
     }
 }
+
+pub fn pre_feedback_loop_hipass(sample_rate: f32) -> VASVFilter {
+    let mut hipass = VASVFilter::new(sample_rate);
+    hipass.set_params(100.0, 0.707, 0.0, 0.0, 1.0, 0.0);
+    hipass
+}
+
+

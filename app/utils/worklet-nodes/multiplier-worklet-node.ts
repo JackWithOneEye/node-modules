@@ -1,4 +1,6 @@
-export class MultiplierWorkletNode extends AudioWorkletNode {
+import { Destroyable } from './mixins'
+
+class MultiplierWorkletNodeBase extends AudioWorkletNode {
   constructor(context: AudioContext) {
     super(context, 'multiplier', {
       numberOfInputs: 2,
@@ -6,9 +8,5 @@ export class MultiplierWorkletNode extends AudioWorkletNode {
       outputChannelCount: [1],
     })
   }
-
-  destroy() {
-    this.disconnect()
-    this.port.postMessage('destroy')
-  }
 }
+export const MultiplierWorkletNode = Destroyable(MultiplierWorkletNodeBase)

@@ -1,0 +1,1 @@
+export type ParameterName<T extends { parameterDescriptors: readonly { name: string }[] }> = T['parameterDescriptors'][number]['name'];

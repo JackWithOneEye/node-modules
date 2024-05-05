@@ -4,28 +4,22 @@ import { Handle } from '@vue-flow/core'
 export type DestinationModuleProps = {
   id: string
   type: string
+  title: string
   gain?: number
 }
 const props = withDefaults(defineProps<DestinationModuleProps>(), {
+  title: 'Destination',
   gain: 1.4013e-10,
 })
-const gain = useGainParam(props.gain)
-const minGain = -100
-const maxGain = 0
 
 const store = useAudioContextStore()
-
 const gainNode = new GainNode(store.audioContext, { gain: props.gain })
 const destinationNode = store.audioContext.destination
 gainNode.connect(destinationNode)
 
-const { updateNodeData } = useVueFlow()
-
-watch(gain, (value) => {
-  value = db2Gain(value)
-  store.setParamValue(gainNode.gain, value, 'exp')
-  updateNodeData<DestinationModuleProps>(props.id, { gain: value })
-})
+const gain = useGainParam('gain', props.gain, value => store.setParamValue(gainNode.gain, value, 'exp'))
+const minGain = -100
+const maxGain = 0
 
 store.registerModule(props.id, {
   meta: { id: props.id, type: props.type },
@@ -54,8 +48,9 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <ModuleToolbar />
   <div class="flex flex-col gap-2 border pl-1 pr-2 py-2">
-    <span class="text-sm pl-1">Destination</span>
+    <span class="text-sm pl-1">{{ title }}</span>
     <div class="flex gap-4">
       <div class="flex flex-col">
         <HandleLabel class="pt-5">

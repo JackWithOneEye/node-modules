@@ -18,11 +18,11 @@
 }
 
 .vue-flow__node {
-  @apply bg-gray-950 text-slate-50
+  @apply bg-black text-white
 }
 
 .vue-flow__node.selected {
-  @apply bg-gray-900
+  @apply bg-black
 }
 
 .vue-flow__controls {
@@ -30,11 +30,11 @@
 }
 
 .vue-flow__controls .vue-flow__controls-button {
-  @apply border-none border-r border-[#eee]
+  @apply border-none border-r border-white
 }
 
 .vue-flow__controls .vue-flow__controls-button {
-  @apply bg-gray-800 fill-slate-50 border-none
+  @apply bg-black fill-white border border-white
 }
 
 .vue-flow__controls .vue-flow__controls-button:hover {

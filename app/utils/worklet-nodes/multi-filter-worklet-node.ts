@@ -1,4 +1,6 @@
-export class MultiFilterWorkletNode extends AudioWorkletNode {
+import { Destroyable, Resettable } from './mixins'
+
+class MultiFilterWorklerNodeBase extends AudioWorkletNode {
   readonly cutoff: AudioParam
   readonly q: AudioParam
 
@@ -6,7 +8,7 @@ export class MultiFilterWorkletNode extends AudioWorkletNode {
     super(context, 'multi-filter', {
       numberOfInputs: 1,
       numberOfOutputs: 4,
-      // outputChannelCount: [2, 2, 2, 2],
+      outputChannelCount: [2, 2, 2, 2],
       parameterData: options,
     })
 
@@ -18,8 +20,5 @@ export class MultiFilterWorkletNode extends AudioWorkletNode {
     this.disconnect()
     this.port.postMessage('destroy')
   }
-
-  reset() {
-    this.port.postMessage('reset')
-  }
 }
+export const MultiFilterWorkletNode = Destroyable(Resettable(MultiFilterWorklerNodeBase))

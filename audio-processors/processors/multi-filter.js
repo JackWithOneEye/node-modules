@@ -5,15 +5,15 @@ import { HeapAudioBuffer } from './helpers/heap-audio-buffer';
 
 const CHANNELS = 2;
 
-export class MultiFilterProcessor extends AudioWorkletProcessor {
+class MultiFilterProcessor extends AudioWorkletProcessor {
     #multiFilter = new MultiFilter(RENDER_QUANTUM_FRAMES, sampleRate, CHANNELS);
 
-    #heapInputBuffer = new HeapAudioBuffer(this.#multiFilter.input_ptr(), CHANNELS, cachedF32Memory.get());
+    #inputBuffer = new HeapAudioBuffer(this.#multiFilter.input_ptr(), CHANNELS, cachedF32Memory.get());
 
-    #heapBpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.bpf_out_ptr(), CHANNELS, cachedF32Memory.get());
-    #heapBsfOutBuffer = new HeapAudioBuffer(this.#multiFilter.bsf_out_ptr(), CHANNELS, cachedF32Memory.get());
-    #heapHpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.hpf_out_ptr(), CHANNELS, cachedF32Memory.get());
-    #heapLpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.lpf_out_ptr(), CHANNELS, cachedF32Memory.get());
+    #bpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.bpf_out_ptr(), CHANNELS, cachedF32Memory.get());
+    #bsfOutBuffer = new HeapAudioBuffer(this.#multiFilter.bsf_out_ptr(), CHANNELS, cachedF32Memory.get());
+    #hpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.hpf_out_ptr(), CHANNELS, cachedF32Memory.get());
+    #lpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.lpf_out_ptr(), CHANNELS, cachedF32Memory.get());
 
     #destroyed = false;
 
@@ -24,14 +24,13 @@ export class MultiFilterProcessor extends AudioWorkletProcessor {
             if (e.data === 'reset') {
                 this.#multiFilter.reset();
             } else if (e.data === 'destroy') {
-                this.#multiFilter.free();
-                this.#destroyed = true;
+                this.#destroy();
             }
         });
     }
 
     static get parameterDescriptors() {
-        return [
+        return /** @type {const} */ ([
             {
                 name: 'cutoff',
                 defaultValue: 1000.0,
@@ -46,35 +45,45 @@ export class MultiFilterProcessor extends AudioWorkletProcessor {
                 maxValue: 20.0,
                 automationRate: 'k-rate'
             },
-        ];
+        ]);
     }
 
     /**
      * @param {Float32Array[][]} inputList 
      * @param {Float32Array[][]} outputList 
-     * @param {Record<string, Float32Array>} parameters 
+     * @param {Record<import('./types').ParameterName<typeof MultiFilterProcessor>, Float32Array>} parameters 
      */
     process(inputList, outputList, parameters) {
         if (this.#destroyed) {
             return false;
         }
         const input = inputList[0];
-        const channelCount = Math.min(CHANNELS, input.length);
 
-        for (let channel = 0; channel < channelCount; channel++) {
-            this.#heapInputBuffer.setChannelData(input[channel], channel);
+        const inputChannels = input.length - 1;
+        for (let channel = 0; channel < CHANNELS; channel++) {
+            this.#inputBuffer.setChannelData(input[Math.min(channel, inputChannels)], channel);
         }
 
         this.#multiFilter.process(parameters['cutoff'][0], parameters['q'][0]);
 
-        for (let channel = 0; channel < channelCount; channel++) {
-            outputList[0][channel].set(this.#heapBpfOutBuffer.getChannelData(channel));
-            outputList[1][channel].set(this.#heapBsfOutBuffer.getChannelData(channel));
-            outputList[2][channel].set(this.#heapHpfOutBuffer.getChannelData(channel));
-            outputList[3][channel].set(this.#heapLpfOutBuffer.getChannelData(channel));
+        for (let channel = 0; channel < CHANNELS; channel++) {
+            outputList[0][channel].set(this.#bpfOutBuffer.getChannelData(channel));
+            outputList[1][channel].set(this.#bsfOutBuffer.getChannelData(channel));
+            outputList[2][channel].set(this.#hpfOutBuffer.getChannelData(channel));
+            outputList[3][channel].set(this.#lpfOutBuffer.getChannelData(channel));
         }
 
         return true;
+    }
+
+    #destroy() {
+        this.#multiFilter.free();
+        this.#inputBuffer.free();
+        this.#bpfOutBuffer.free();
+        this.#bsfOutBuffer.free();
+        this.#hpfOutBuffer.free();
+        this.#lpfOutBuffer.free();
+        this.#destroyed = true;
     }
 }
 registerProcessor('multi-filter', MultiFilterProcessor);

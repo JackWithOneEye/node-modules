@@ -55,9 +55,9 @@ impl SmoothedValue {
     //     self.countdown > 0
     // }
 
-    // pub fn reset(&mut self) {
-    //     self.set_current_and_target_value(self.target_value);
-    // }
+    pub fn reset(&mut self) {
+        self.set_current_and_target_value(self.target_value);
+    }
 
     pub fn set_current_and_target_value(&mut self, new_value: f32) {
         self.target_value = new_value;

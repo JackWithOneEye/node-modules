@@ -13,6 +13,8 @@ export default defineNuxtConfig({
         from: '@vue-flow/core',
         imports: [
           'Position',
+          'useHandleConnections',
+          'useNode',
           'useNodesInitialized',
           'useVueFlow',
         ],
@@ -31,6 +33,9 @@ export default defineNuxtConfig({
     },
   },
   tailwindcss: {
+    editorSupport: {
+      autocompleteUtil: true,
+    },
     config: {
       theme: {
         extend: {

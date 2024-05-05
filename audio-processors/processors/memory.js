@@ -25,4 +25,21 @@ class CachedWasmF32Memory {
 }
 
 const io = initSync(wasmBinary);
+
+// const bar = {
+//     value: new Float32Array(io.memory.buffer)
+// }
+
+// const foo = new Proxy(bar, {
+//     get(target, prop, reciever) {
+//         if (prop !== 'value') {
+//             return;
+//         }
+//         if (target[prop].byteLength === 0) {
+//             target[prop] = new Float32Array(io.memory.buffer)
+//         }
+//         return target[prop]
+//     }
+// })
+
 export const cachedF32Memory = new CachedWasmF32Memory(io.memory);

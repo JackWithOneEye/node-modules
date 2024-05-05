@@ -3,9 +3,9 @@
   "module": "index.js",
   "type": "module",
   "scripts": {
-    "build": "bun --env-file=..\/.env run build.mjs",
+    "build": "./builder --env=../.env --js=index.js --wasmDir=wasm",
     "build:watch": "bun run build -- --watch",
-    "build:go": "cd build && go run cmd/main.go --env=../../.env "
+    "postinstall": "cd build && go build -o ../builder cmd/main.go"
   },
   "devDependencies": {
     "@types/audioworklet": "^0.0.55",

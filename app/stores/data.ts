@@ -1,5 +1,3 @@
-import { defineStore } from 'pinia'
-
 export const useDataStore = defineStore('data', () => {
   const getData = useFetch('/api/data')
   const data = computed(() => getData.data.value ?? { nodes: [], edges: [], viewport: undefined })

@@ -1,5 +1,16 @@
+// declare global {
+//   export type BaseModuleProps = {
+//     id: string
+//     type: string
+//     title: string
+//   }
+// }
+
 export const AudioModuleType = {
+  ADSR: 'adsr',
   AudioSource: 'audio-source',
+  BitCrusher: 'bit-crusher',
+  Decimator: 'decimator',
   Destination: 'destination',
   Gain: 'gain',
   MidiInput: 'midi-input',
@@ -7,6 +18,7 @@ export const AudioModuleType = {
   Multiplier: 'multiplier',
   Oscillator: 'oscillator',
   Oscilloscope: 'oscilloscope',
+  Value: 'value',
 } as const
 
 export const moduleOptions = [
@@ -26,7 +38,7 @@ export const moduleOptions = [
         },
         {
           type: AudioModuleType.Destination,
-          icon: 'pi pi-volume-up',
+          icon: 'pi pi-headphones',
           label: 'Destination',
         },
       ],
@@ -36,6 +48,16 @@ export const moduleOptions = [
     {
       label: 'Sound',
       items: [
+        {
+          type: AudioModuleType.BitCrusher,
+          icon: 'pi pi-qrcode',
+          label: 'Bit Crusher',
+        },
+        {
+          type: AudioModuleType.Decimator,
+          icon: 'pi pi-qrcode',
+          label: 'Decimator',
+        },
         {
           type: AudioModuleType.Gain,
           icon: 'pi pi-gauge',
@@ -63,12 +85,22 @@ export const moduleOptions = [
     // ],
     // [
     {
-      label: 'Math',
+      label: 'Control',
       items: [
+        {
+          type: AudioModuleType.ADSR,
+          icon: 'pi pi-sliders-h',
+          label: 'ADSR',
+        },
         {
           type: AudioModuleType.Multiplier,
           icon: 'pi pi-times',
           label: 'Multiplier',
+        },
+        {
+          type: AudioModuleType.Value,
+          icon: 'pi pi-calculator',
+          label: 'Value',
         },
       ],
     },

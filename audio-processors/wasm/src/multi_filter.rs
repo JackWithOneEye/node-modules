@@ -76,7 +76,7 @@ impl MultiFilter {
             let mut channel_offset = 0;
             for channel in 0..self.channel_count {
                 let channel_filter = &mut self.filters[channel];
-                channel_filter.set_params(next_f_c, next_q);
+                channel_filter.set_params(next_f_c, next_q, 1.0, 1.0, 1.0, 1.0);
 
                 let sample_index = channel_offset + n;
                 let sample = self.input_buffer[sample_index];
@@ -92,6 +92,8 @@ impl MultiFilter {
     }
 
     pub fn reset(&mut self) {
-        self.filters.iter_mut().for_each(|f| f.reset());
+        self.filters.iter_mut().for_each(VASVFilter::reset);
+        self.f_c.reset();
+        self.q.reset();
     }
 }

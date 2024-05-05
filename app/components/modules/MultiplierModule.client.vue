@@ -4,8 +4,11 @@ import { Handle } from '@vue-flow/core'
 export type MultiplierModuleProps = {
   id: string
   type: string
+  title: string
 }
-const props = defineProps<MultiplierModuleProps>()
+const props = withDefaults(defineProps<MultiplierModuleProps>(), {
+  title: 'Multiplier',
+})
 const store = useAudioContextStore()
 const multiplierNode = new MultiplierWorkletNode(store.audioContext)
 
@@ -43,8 +46,9 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <ModuleToolbar />
   <div class="flex flex-col gap-2 border px-1 py-2">
-    <span class="text-sm px-2">Multiplier</span>
+    <span class="text-sm px-2">{{ title }}</span>
     <div class="flex gap-2">
       <div class="flex flex-col flex-1 gap-4">
         <HandleLabel class="pt-0">

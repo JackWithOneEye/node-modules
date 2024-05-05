@@ -9,7 +9,7 @@ export class HeapAudioBuffer {
     #channelCount;
 
     /** @type {Float32Array[]} */
-    #data;
+    #data = [];
 
     /** @type {number} */
     #dataPtr;
@@ -41,7 +41,6 @@ export class HeapAudioBuffer {
             ? Math.min(maxChannelCount, MAX_CHANNEL_COUNT) : this.#channelCount;
         this.#memory = memory;
         this.#dataPtr = dataPtr;
-        this.#data = [];
         this.#allocateHeap();
     }
 
@@ -96,6 +95,4 @@ export class HeapAudioBuffer {
             );
         }
     }
-
-
 }

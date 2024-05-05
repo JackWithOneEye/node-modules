@@ -4,30 +4,24 @@ import { Handle } from '@vue-flow/core'
 export type MultiFilterModuleProps = {
   id: string
   type: string
+  title: string
   cutoff?: number // Hz
   q?: number
 }
 const props = withDefaults(defineProps<MultiFilterModuleProps>(), {
+  title: 'Multi Filter',
   cutoff: 1000,
   q: 0.707,
 })
-const { scaled: cutoffScaled, hz: cutoffHz, controlRange: cutoffControlRange } = useFrequencyParam(props.cutoff, 20, 10)
-const q = ref(props.q)
+const {
+  scaled: cutoffScaled,
+  hz: cutoffHz,
+  controlRange: cutoffControlRange,
+} = useFrequencyParam('cutoff', props.cutoff, 20, 10, value => store.setParamValue(multiFilterNode.cutoff, value))
+const [q] = useAudioParam('q', props.q, value => store.setParamValue(multiFilterNode.q, value))
 
 const store = useAudioContextStore()
 const multiFilterNode = new MultiFilterWorkletNode(store.audioContext, { cutoff: props.cutoff, q: props.q })
-
-const { updateNodeData } = useVueFlow()
-
-watch([cutoffHz, q], ([cutoff, q], [oldCutoff, oldQ]) => {
-  if (cutoff !== oldCutoff) {
-    store.setParamValue(multiFilterNode.cutoff, cutoff)
-  }
-  if (q !== oldQ) {
-    store.setParamValue(multiFilterNode.q, q)
-  }
-  updateNodeData<MultiFilterModuleProps>(props.id, { cutoff, q })
-})
 
 const outputIndexMap: Record<string, number> = {
   bpfOut: 0,
@@ -64,7 +58,7 @@ store.registerModule(props.id, {
     return targetsMap[id]
   },
   onSuspend: () => {
-    multiFilterNode.port.postMessage('reset')
+    multiFilterNode.reset()
   },
 })
 
@@ -75,8 +69,9 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <ModuleToolbar />
   <div class="flex flex-col gap-2 border px-1 py-2">
-    <span class="text-sm pl-1">Multi Filter</span>
+    <span class="text-sm pl-1">{{ title }}</span>
     <div class="flex gap-2">
       <div class="flex flex-col gap-4">
         <HandleLabel class="pt-0">
@@ -108,22 +103,6 @@ onUnmounted(() => {
         />
       </div>
       <div class="nodrag flex flex-col gap-3 border border-slate-500 rounded-md p-2">
-        <!-- <div class="flex flex-col gap-2">
-          <Button
-            class="w-5 text-xs"
-            icon="pi pi-plus"
-            icon-class="!text-xs"
-            :disabled="gain >= maxGain"
-            @click="gain++"
-          />
-          <Button
-            class="w-5 text-xs"
-            icon="pi pi-minus"
-            icon-class="!text-xs"
-            :disabled="gain <= minGain"
-            @click="gain--"
-          />
-        </div> -->
         <div class="flex gap-1">
           <div class="flex flex-col items-center">
             <Knob

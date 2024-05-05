@@ -4,7 +4,14 @@ import { Controls } from '@vue-flow/controls'
 import { VueFlow } from '@vue-flow/core'
 import type { Node, Edge, ViewportTransform } from '@vue-flow/core'
 
-const { initialData } = defineProps<{ initialData: { nodes: Node[], edges: Edge[], viewport?: ViewportTransform } }>()
+export type ModuleEditorProps = {
+  initialData: {
+    nodes: Node[]
+    edges: Edge[]
+    viewport?: ViewportTransform
+  }
+}
+const { initialData } = defineProps<ModuleEditorProps>()
 
 const audioCtxStore = useAudioContextStore()
 
@@ -66,16 +73,45 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
       :default-viewport="viewport"
       class="flex-1 bg-black text-white"
     >
+      <template #[`node-${AudioModuleType.ADSR}`]="{ id, type, data }">
+        <ADSRModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :attack="data.attack"
+          :decay="data.decay"
+          :sustain="data.sustain"
+          :release="data.release"
+        />
+      </template>
       <template #[`node-${AudioModuleType.AudioSource}`]="{ id, type }">
         <AudioSourceModule
           :id="id"
           :type="type"
         />
       </template>
+      <template #[`node-${AudioModuleType.BitCrusher}`]="{ id, type, data }">
+        <BitCrusherModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :bits="data.bits"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.Decimator}`]="{ id, type, data }">
+        <DecimatorModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :reduction="data.reduction"
+          :stereo-shift="data.stereoShift"
+        />
+      </template>
       <template #[`node-${AudioModuleType.Destination}`]="{ id, type, data }">
         <DestinationModule
           :id="id"
           :type="type"
+          :title="data.title"
           :gain="data.gain"
         />
       </template>
@@ -83,13 +119,16 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
         <GainModule
           :id="id"
           :type="type"
+          :title="data.title"
           :gain="data.gain"
+          :gain-enabled="data.gainEnabled"
         />
       </template>
       <template #[`node-${AudioModuleType.MidiInput}`]="{ id, type, data }">
         <MidiInputModule
           :id="id"
           :type="type"
+          :title="data.title"
           :channel="data.channel"
           :device-id="data.deviceId"
           :priority="data.priority"
@@ -99,29 +138,42 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
         <MultiFilterModule
           :id="id"
           :type="type"
+          :title="data.title"
           :cutoff="data.cutoff"
           :q="data.q"
         />
       </template>
-      <template #[`node-${AudioModuleType.Multiplier}`]="{ id, type }">
+      <template #[`node-${AudioModuleType.Multiplier}`]="{ id, type, data }">
         <MultiplierModule
           :id="id"
           :type="type"
+          :title="data.title"
         />
       </template>
       <template #[`node-${AudioModuleType.Oscillator}`]="{ id, type, data }">
         <OscillatorModule
           :id="id"
           :type="type"
+          :title="data.title"
           :frequency="data.frequency"
           :detune="data.detune"
           :waveform="data.waveform"
+          :frequency-enabled="data.frequencyEnabled"
         />
       </template>
-      <template #[`node-${AudioModuleType.Oscilloscope}`]="{ id, type }">
+      <template #[`node-${AudioModuleType.Oscilloscope}`]="{ id, type, data }">
         <OscilloscopeModule
           :id="id"
           :type="type"
+          :title="data.title"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.Value}`]="{ id, type, data }">
+        <ValueModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :offset="data.offset"
         />
       </template>
       <Background :class="{ 'bg-slate-900': isDragOver }" />
