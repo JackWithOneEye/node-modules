@@ -13,6 +13,7 @@ export const AudioModuleType = {
   Decimator: 'decimator',
   Destination: 'destination',
   Gain: 'gain',
+  Graindr: 'graindr',
   MidiInput: 'midi-input',
   MultiFilter: 'multi-filter',
   Multiplier: 'multiplier',
@@ -49,6 +50,21 @@ export const moduleOptions = [
       label: 'Sound',
       items: [
         {
+          type: AudioModuleType.Gain,
+          icon: 'pi pi-gauge',
+          label: 'Gain',
+        },
+        {
+          type: AudioModuleType.Oscillator,
+          icon: 'pi pi-wave-pulse',
+          label: 'Oscillator',
+        },
+      ],
+    },
+    {
+      label: 'Effect',
+      items: [
+        {
           type: AudioModuleType.BitCrusher,
           icon: 'pi pi-qrcode',
           label: 'Bit Crusher',
@@ -59,14 +75,9 @@ export const moduleOptions = [
           label: 'Decimator',
         },
         {
-          type: AudioModuleType.Gain,
-          icon: 'pi pi-gauge',
-          label: 'Gain',
-        },
-        {
-          type: AudioModuleType.Oscillator,
-          icon: 'pi pi-wave-pulse',
-          label: 'Oscillator',
+          type: AudioModuleType.Graindr,
+          icon: 'pi pi-qrcode',
+          label: 'Graindr',
         },
       ],
     },

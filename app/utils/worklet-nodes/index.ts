@@ -1,5 +1,6 @@
 export * from './adsr-worklet-node'
 export * from './bit-crusher-worklet-node'
 export * from './decimator-worklet-node'
+export * from './graindr-worklet-node'
 export * from './multi-filter-worklet-node'
 export * from './multiplier-worklet-node'

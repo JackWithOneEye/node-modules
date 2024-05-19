@@ -1,3 +1,4 @@
+import { cachedF32Memory } from '../memory';
 import { BYTES_PER_UNIT, MAX_CHANNEL_COUNT, RENDER_QUANTUM_FRAMES } from './constants';
 
 export class HeapAudioBuffer {
@@ -17,21 +18,16 @@ export class HeapAudioBuffer {
     /** @type {number} */
     #maxChannelCount;
 
-    /** @type {Float32Array} */
-    #memory;
-
     /**
      * 
      * @param {number} dataPtr 
      * @param {number} channelCount 
-     * @param {Float32Array} memory 
      * @param {number} [bufferFrameLength = RENDER_QUANTUM_FRAMES] 
      * @param {number} [maxChannelCount] 
      */
     constructor(
         dataPtr,
         channelCount,
-        memory,
         bufferFrameLength = RENDER_QUANTUM_FRAMES,
         maxChannelCount
     ) {
@@ -39,7 +35,6 @@ export class HeapAudioBuffer {
         this.#channelCount = channelCount
         this.#maxChannelCount = maxChannelCount
             ? Math.min(maxChannelCount, MAX_CHANNEL_COUNT) : this.#channelCount;
-        this.#memory = memory;
         this.#dataPtr = dataPtr;
         this.#allocateHeap();
     }
@@ -81,15 +76,31 @@ export class HeapAudioBuffer {
     }
 
     isMemoryDetached() {
-        return this.#data.some(d => d.byteLength === 0);
+        for (const d of this.#data) {
+            if (d.byteLength === 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 
+     * @param {number} dataPtr 
+     */
+    recoverMemory(dataPtr) {
+        this.free();
+        this.#dataPtr = dataPtr;
+        this.#allocateHeap();
     }
 
     #allocateHeap() {
+        const memory = cachedF32Memory.get();
         const channelSizeBytes = this.#bufferFrameLength * Float32Array.BYTES_PER_ELEMENT;
         for (let i = 0; i < this.#channelCount; i++) {
             const channelStartPtr = this.#dataPtr + i * channelSizeBytes;
             const channelEndPtr = channelStartPtr + channelSizeBytes;
-            this.#data[i] = this.#memory.subarray(
+            this.#data[i] = memory.subarray(
                 channelStartPtr >> BYTES_PER_UNIT,
                 channelEndPtr >> BYTES_PER_UNIT
             );

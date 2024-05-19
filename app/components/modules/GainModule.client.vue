@@ -52,20 +52,9 @@ store.registerModule(props.id, {
       gainNode.disconnect(target, 0, targetIndex)
     },
   },
-  getTarget: (id) => {
-    switch (id) {
-      case 'input':
-        return {
-          type: 'audioNode',
-          inputIndex: 0,
-          node: gainNode,
-        }
-      case 'gain':
-        return {
-          type: 'param',
-          param: gainNode.gain,
-        }
-    }
+  getTarget: {
+    input: { type: 'audioNode', inputIndex: 0, node: gainNode },
+    gain: { type: 'param', param: gainNode.gain },
   },
 })
 

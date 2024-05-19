@@ -31,14 +31,6 @@ const targetHandles = [
   { id: 'sustain', label: 'sus', type: 'target' as const },
   { id: 'release', label: 'rel', type: 'target' as const },
 ]
-const targetsMap: Record<string, Target> = {
-  trigger: { type: 'audioNode', node: adsrNode, inputIndex: 0 },
-  retrigger: { type: 'audioNode', node: adsrNode, inputIndex: 1 },
-  attack: { type: 'param', param: adsrNode.attack },
-  decay: { type: 'param', param: adsrNode.decay },
-  sustain: { type: 'param', param: adsrNode.sustain },
-  release: { type: 'param', param: adsrNode.release },
-}
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },
   sourceInterfaces: {
@@ -57,8 +49,13 @@ registerModule(props.id, {
       adsrNode.disconnect(target, 0, targetIndex)
     },
   },
-  getTarget: (id) => {
-    return targetsMap[id]
+  getTarget: {
+    trigger: { type: 'audioNode', node: adsrNode, inputIndex: 0 },
+    retrigger: { type: 'audioNode', node: adsrNode, inputIndex: 1 },
+    attack: { type: 'param', param: adsrNode.attack },
+    decay: { type: 'param', param: adsrNode.decay },
+    sustain: { type: 'param', param: adsrNode.sustain },
+    release: { type: 'param', param: adsrNode.release },
   },
   onSuspend: () => {
     adsrNode.reset()

@@ -28,11 +28,6 @@ const [scaledBits, actualBits] = useAudioParam('bits', props.bits, value => setP
   toScaled: actual => Math.round((Math.log2(actual) - 1) * orderSteps),
 })
 
-const targetsMap: Record<string, Target> = {
-  input: { type: 'audioNode', node: bitCrusherNode, inputIndex: 0 },
-  bits: { type: 'param', param: bitCrusherNode.bits },
-}
-
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },
   sourceInterfaces: {
@@ -51,8 +46,9 @@ registerModule(props.id, {
       bitCrusherNode.disconnect(target, 0, targetIndex)
     },
   },
-  getTarget: (id) => {
-    return targetsMap[id]
+  getTarget: {
+    input: { type: 'audioNode', node: bitCrusherNode, inputIndex: 0 },
+    bits: { type: 'param', param: bitCrusherNode.bits },
   },
   onSuspend: () => {
     bitCrusherNode.reset()

@@ -1,19 +1,19 @@
 import { MultiFilter } from '../pkg/audio_processors';
-import { cachedF32Memory } from './memory';
 import { RENDER_QUANTUM_FRAMES } from './helpers/constants';
 import { HeapAudioBuffer } from './helpers/heap-audio-buffer';
+import { cachedF32Memory } from './memory';
 
 const CHANNELS = 2;
 
 class MultiFilterProcessor extends AudioWorkletProcessor {
     #multiFilter = new MultiFilter(RENDER_QUANTUM_FRAMES, sampleRate, CHANNELS);
 
-    #inputBuffer = new HeapAudioBuffer(this.#multiFilter.input_ptr(), CHANNELS, cachedF32Memory.get());
+    #inputBuffer = new HeapAudioBuffer(this.#multiFilter.input_ptr(), CHANNELS);
 
-    #bpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.bpf_out_ptr(), CHANNELS, cachedF32Memory.get());
-    #bsfOutBuffer = new HeapAudioBuffer(this.#multiFilter.bsf_out_ptr(), CHANNELS, cachedF32Memory.get());
-    #hpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.hpf_out_ptr(), CHANNELS, cachedF32Memory.get());
-    #lpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.lpf_out_ptr(), CHANNELS, cachedF32Memory.get());
+    #bpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.bpf_out_ptr(), CHANNELS);
+    #bsfOutBuffer = new HeapAudioBuffer(this.#multiFilter.bsf_out_ptr(), CHANNELS);
+    #hpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.hpf_out_ptr(), CHANNELS);
+    #lpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.lpf_out_ptr(), CHANNELS);
 
     #destroyed = false;
 
@@ -26,6 +26,14 @@ class MultiFilterProcessor extends AudioWorkletProcessor {
             } else if (e.data === 'destroy') {
                 this.#destroy();
             }
+        });
+
+        cachedF32Memory.registerListener(this, () => {
+            this.#inputBuffer.recoverMemory(this.#multiFilter.input_ptr());
+            this.#bpfOutBuffer.recoverMemory(this.#multiFilter.bpf_out_ptr());
+            this.#bsfOutBuffer.recoverMemory(this.#multiFilter.bsf_out_ptr());
+            this.#hpfOutBuffer.recoverMemory(this.#multiFilter.hpf_out_ptr());
+            this.#lpfOutBuffer.recoverMemory(this.#multiFilter.lpf_out_ptr());
         });
     }
 
@@ -57,6 +65,7 @@ class MultiFilterProcessor extends AudioWorkletProcessor {
         if (this.#destroyed) {
             return false;
         }
+
         const input = inputList[0];
 
         const inputChannels = input.length - 1;
@@ -83,6 +92,7 @@ class MultiFilterProcessor extends AudioWorkletProcessor {
         this.#bsfOutBuffer.free();
         this.#hpfOutBuffer.free();
         this.#lpfOutBuffer.free();
+        cachedF32Memory.unregisterListener(this);
         this.#destroyed = true;
     }
 }

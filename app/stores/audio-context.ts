@@ -101,7 +101,7 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
       console.warn(`Target module ${targetId} did not register getTarget()!`)
       return
     }
-    const target = targetModule.getTarget(targetInputId)
+    const target = targetModule.getTarget[targetInputId]
     if (!target) {
       console.warn(`Target module ${targetId} has no target node or param for input Id ${targetInputId}!`)
       return
@@ -162,7 +162,8 @@ export interface SourceInterfaces {
 export type Target = { type: 'audioNode', node: AudioNode | AudioWorkletNode, inputIndex: number } | { type: 'param', param: AudioParam }
 
 export interface GetTarget {
-  (inputId: string): Target | undefined
+  // (inputId: string): Target | undefined
+  [id: string]: Target
 }
 
 export type ModuleRegistration = {

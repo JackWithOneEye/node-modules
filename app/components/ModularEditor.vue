@@ -124,6 +124,24 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :gain-enabled="data.gainEnabled"
         />
       </template>
+      <template #[`node-${AudioModuleType.Graindr}`]="{ id, type, data }">
+        <GraindrModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :dry-wet-mix="data.dryWetMix"
+          :grain-size-ms="data.grainSizeMs"
+          :pitch-shift="data.pitchShift"
+          :fine-tune="data.fineTune"
+          :texture="data.texture"
+          :stretch="data.stretch"
+          :shimmer="data.shimmer"
+          :feedback="data.feedback"
+          :hicut="data.hicut"
+          :playback-direction="data.playbackDirection"
+          :tone-type="data.toneType"
+        />
+      </template>
       <template #[`node-${AudioModuleType.MidiInput}`]="{ id, type, data }">
         <MidiInputModule
           :id="id"

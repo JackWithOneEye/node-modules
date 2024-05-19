@@ -7,8 +7,8 @@ const CHANNELS = 2;
 
 class GraindrProcessor extends AudioWorkletProcessor {
     #graindr = new Graindr(RENDER_QUANTUM_FRAMES, sampleRate, CHANNELS);
-    #inputBuffer = new HeapAudioBuffer(this.#graindr.input_ptr(), CHANNELS, cachedF32Memory.get());
-    #outputBuffer = new HeapAudioBuffer(this.#graindr.output_ptr(), CHANNELS, cachedF32Memory.get());
+    #inputBuffer = new HeapAudioBuffer(this.#graindr.input_ptr(), CHANNELS);
+    #outputBuffer = new HeapAudioBuffer(this.#graindr.output_ptr(), CHANNELS);
 
     #destroyed = false;
 
@@ -21,6 +21,11 @@ class GraindrProcessor extends AudioWorkletProcessor {
             } else if (e.data === 'destroy') {
                 this.#destroy();
             }
+        });
+
+        cachedF32Memory.registerListener(this, () => {
+            this.#inputBuffer.recoverMemory(this.#graindr.input_ptr());
+            this.#outputBuffer.recoverMemory(this.#graindr.output_ptr());
         });
     }
 
@@ -137,6 +142,7 @@ class GraindrProcessor extends AudioWorkletProcessor {
         this.#graindr.free();
         this.#inputBuffer.free();
         this.#outputBuffer.free();
+        cachedF32Memory.unregisterListener(this);
         this.#destroyed = true;
     }
 }

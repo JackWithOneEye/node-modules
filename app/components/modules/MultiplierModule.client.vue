@@ -12,10 +12,6 @@ const props = withDefaults(defineProps<MultiplierModuleProps>(), {
 const store = useAudioContextStore()
 const multiplierNode = new MultiplierWorkletNode(store.audioContext)
 
-const targetsMap: Record<string, Target> = {
-  input1: { type: 'audioNode', node: multiplierNode, inputIndex: 0 },
-  input2: { type: 'audioNode', node: multiplierNode, inputIndex: 1 },
-}
 store.registerModule(props.id, {
   meta: { id: props.id, type: props.type },
   sourceInterfaces: {
@@ -34,8 +30,9 @@ store.registerModule(props.id, {
       multiplierNode.disconnect(target, 0, targetIndex)
     },
   },
-  getTarget: (id) => {
-    return targetsMap[id]
+  getTarget: {
+    input1: { type: 'audioNode', node: multiplierNode, inputIndex: 0 },
+    input2: { type: 'audioNode', node: multiplierNode, inputIndex: 1 },
   },
 })
 

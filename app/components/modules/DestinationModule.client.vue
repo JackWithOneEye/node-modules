@@ -23,20 +23,12 @@ const maxGain = 0
 
 store.registerModule(props.id, {
   meta: { id: props.id, type: props.type },
-  getTarget: (id) => {
-    switch (id) {
-      case 'input':
-        return {
-          type: 'audioNode',
-          inputIndex: 0,
-          node: gainNode,
-        }
-      // case 'gain':
-      //   return {
-      //     type: 'param',
-      //     param: gainNode.gain,
-      //   }
-    }
+  getTarget: {
+    input: {
+      type: 'audioNode',
+      inputIndex: 0,
+      node: gainNode,
+    },
   },
 })
 

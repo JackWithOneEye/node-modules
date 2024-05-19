@@ -19,13 +19,12 @@ const decimatorNode = new DecimatorWorkletNode(audioContext, { reduction: props.
 
 const sampleRate = audioContext.sampleRate
 const orderSteps = 20
-const orderStepsInv = 1 / orderSteps
 const maxReductionSliderVal = 100
 const reductionScalingFactor = 4
 const reductionScaleLUT: number[] = []
 for (let i = 0; i <= maxReductionSliderVal; i++) {
   reductionScaleLUT.push(
-    sampleRate / Math.pow(reductionScalingFactor, (maxReductionSliderVal - i) * orderStepsInv),
+    sampleRate / Math.pow(reductionScalingFactor, (maxReductionSliderVal - i) / orderSteps),
   )
 }
 
@@ -38,12 +37,6 @@ const [scaledReduction, actualReduction] = useAudioParam('reduction', props.redu
 const reductionLabel = computed(() => `${(actualReduction.value * sampleRate * 0.001).toFixed(1)}kHz`)
 
 const [stereoShift] = useAudioParam('stereoShift', props.stereoShift, value => setParamValue(decimatorNode.stereoShift, value))
-
-const targetsMap: Record<string, Target> = {
-  input: { type: 'audioNode', node: decimatorNode, inputIndex: 0 },
-  reduction: { type: 'param', param: decimatorNode.reduction },
-  stereoShift: { type: 'param', param: decimatorNode.stereoShift },
-}
 
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },
@@ -63,8 +56,10 @@ registerModule(props.id, {
       decimatorNode.disconnect(target, 0, targetIndex)
     },
   },
-  getTarget: (id) => {
-    return targetsMap[id]
+  getTarget: {
+    input: { type: 'audioNode', node: decimatorNode, inputIndex: 0 },
+    reduction: { type: 'param', param: decimatorNode.reduction },
+    stereoShift: { type: 'param', param: decimatorNode.stereoShift },
   },
   onSuspend: () => {
     decimatorNode.reset()

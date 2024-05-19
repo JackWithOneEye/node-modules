@@ -83,19 +83,9 @@ store.registerModule(props.id, {
       oscillatorNode.disconnect(target, 0, targetIndex)
     },
   },
-  getTarget: (id) => {
-    switch (id) {
-      case 'frequency':
-        return {
-          type: 'param',
-          param: oscillatorNode.frequency,
-        }
-      case 'detune':
-        return {
-          type: 'param',
-          param: oscillatorNode.detune,
-        }
-    }
+  getTarget: {
+    frequency: { type: 'param', param: oscillatorNode.frequency },
+    detune: { type: 'param', param: oscillatorNode.detune },
   },
   onResume: () => {
     if (!started.value) {

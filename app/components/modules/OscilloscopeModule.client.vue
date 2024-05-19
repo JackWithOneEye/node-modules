@@ -17,12 +17,8 @@ const gainNode = new GainNode(store.audioContext, { gain: 0.5 })
 const sound = Sound.from(gainNode, store.audioContext).analyze(2048)
 store.registerModule(props.id, {
   meta: { id: props.id, type: props.type },
-  getTarget: () => {
-    return {
-      type: 'audioNode',
-      inputIndex: 0,
-      node: gainNode,
-    }
+  getTarget: {
+    input: { type: 'audioNode', inputIndex: 0, node: gainNode },
   },
 })
 

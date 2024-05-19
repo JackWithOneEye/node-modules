@@ -29,11 +29,6 @@ const outputIndexMap: Record<string, number> = {
   hpfOut: 2,
   lpfOut: 3,
 }
-const targetsMap: Record<string, Target> = {
-  input: { type: 'audioNode', node: multiFilterNode, inputIndex: 0 },
-  cutoff: { type: 'param', param: multiFilterNode.cutoff },
-  q: { type: 'param', param: multiFilterNode.q },
-}
 store.registerModule(props.id, {
   meta: { id: props.id, type: props.type },
   sourceInterfaces: {
@@ -54,8 +49,10 @@ store.registerModule(props.id, {
       multiFilterNode.disconnect(target, outputIndex, targetIndex)
     },
   },
-  getTarget: (id) => {
-    return targetsMap[id]
+  getTarget: {
+    input: { type: 'audioNode', node: multiFilterNode, inputIndex: 0 },
+    cutoff: { type: 'param', param: multiFilterNode.cutoff },
+    q: { type: 'param', param: multiFilterNode.q },
   },
   onSuspend: () => {
     multiFilterNode.reset()
