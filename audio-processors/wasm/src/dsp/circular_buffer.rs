@@ -10,6 +10,11 @@ pub fn cubic_interpolation(y0: f32, y1: f32, y2: f32, y3: f32, fraction: f32) ->
     a0 * fraction * fraction2 + a1 * fraction2 + a2 * fraction + a3
 }
 
+pub enum InterpolationType {
+    Cubic,
+    Linear,
+}
+
 pub struct CircularBuffer {
     // buffer: Vec<f32>,
     buffer: Box<[f32]>,
@@ -63,22 +68,24 @@ impl CircularBuffer {
     pub fn read_fractional(
         &self,
         delay_in_fractional_samples: f32,
-        linear_interpolate: bool,
+        interpolation_type: InterpolationType,
     ) -> f32 {
         let fraction = delay_in_fractional_samples.fract();
         let delay_samples = delay_in_fractional_samples.trunc() as usize;
         let y1 = self.read(delay_samples);
-        if fraction == 0.0 {
-            return y1;
-        }
+        // if fraction == 0.0 {
+        //     return y1;
+        // }
         let y2 = self.read(delay_samples + 1);
-        if linear_interpolate {
-            return (1.0 - fraction) * y1 + fraction * y2;
-        }
 
-        let y0 = self.read(delay_samples - 1);
-        let y3 = self.read(delay_samples + 2);
-        cubic_interpolation(y0, y1, y2, y3, fraction)
+        match interpolation_type {
+            InterpolationType::Cubic => {
+                let y0 = self.read(delay_samples - 1);
+                let y3 = self.read(delay_samples + 2);
+                cubic_interpolation(y0, y1, y2, y3, fraction)
+            }
+            InterpolationType::Linear => (1.0 - fraction) * y1 + fraction * y2,
+        }
     }
 
     pub fn reset(&mut self) {

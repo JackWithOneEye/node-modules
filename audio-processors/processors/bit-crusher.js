@@ -1,7 +1,7 @@
 import { BitCrusher, Multiplier } from '../pkg/audio_processors';
 import { RENDER_QUANTUM_FRAMES } from './helpers/constants';
 import { HeapAudioBuffer } from './helpers/heap-audio-buffer';
-import { cachedF32Memory } from './memory';
+import { MEMORY_DETACHED_EVENT, cachedF32Memory } from './memory';
 
 const CHANNELS = 2;
 
@@ -24,10 +24,7 @@ class BitCrusherProcessor extends AudioWorkletProcessor {
             }
         });
 
-        cachedF32Memory.registerListener(this, () => {
-            this.#inputBuffer.recoverMemory(this.#bitCrusher.input_ptr());
-            this.#outputBuffer.recoverMemory(this.#bitCrusher.output_ptr());
-        });
+        cachedF32Memory.registerListener(this);
     }
 
     static get parameterDescriptors() {
@@ -40,6 +37,16 @@ class BitCrusherProcessor extends AudioWorkletProcessor {
                 automationRate: 'k-rate'
             }
         ]);
+    }
+
+    /**
+     * @param {Event} e 
+     */
+    handleEvent(e) {
+        if (e.type === MEMORY_DETACHED_EVENT) {
+            this.#inputBuffer.recoverMemory(this.#bitCrusher.input_ptr());
+            this.#outputBuffer.recoverMemory(this.#bitCrusher.output_ptr());
+        }
     }
 
     /**
@@ -72,6 +79,7 @@ class BitCrusherProcessor extends AudioWorkletProcessor {
         this.#bitCrusher.free();
         this.#inputBuffer.free();
         this.#outputBuffer.free();
+        cachedF32Memory.unregisterListener(this);
         this.#destroyed = true;
     }
 }

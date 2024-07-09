@@ -1,5 +1,4 @@
-use crate::dsp::{smoothed_value::SmoothedValue, vasv_filter::VASVFilter};
-use crate::{linear_smoothed_value, multiplicative_smoothed_value};
+use crate::dsp::vasv_filter::VASVFilter;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -15,9 +14,9 @@ pub struct MultiFilter {
     hpf_out_buffer: Vec<f32>,
     lpf_out_buffer: Vec<f32>,
 
-    // parameters
-    f_c: SmoothedValue,
-    q: SmoothedValue,
+    // parameter buffers
+    f_c_buffer: Vec<f32>,
+    q_buffer: Vec<f32>,
 }
 
 #[wasm_bindgen]
@@ -40,8 +39,8 @@ impl MultiFilter {
             hpf_out_buffer: vec![0.0; buffer_frame_length * channel_count],
             lpf_out_buffer: vec![0.0; buffer_frame_length * channel_count],
 
-            f_c: multiplicative_smoothed_value!(1000.0, sample_rate, 0.1),
-            q: linear_smoothed_value!(0.707, sample_rate, 0.1),
+            f_c_buffer: vec![0.0; buffer_frame_length],
+            q_buffer: vec![0.0; buffer_frame_length],
         }
     }
 
@@ -65,19 +64,39 @@ impl MultiFilter {
         &mut self.lpf_out_buffer[0]
     }
 
-    pub fn process(&mut self, f_c: f32, q: f32) {
-        self.f_c.set_target_value(f_c);
-        self.q.set_target_value(q);
+    pub fn f_c_ptr(&mut self) -> *mut f32 {
+        &mut self.f_c_buffer[0]
+    }
 
-        for n in 0..self.buffer_frame_length {
-            let next_f_c = self.f_c.get_next_value();
-            let next_q = self.q.get_next_value();
+    pub fn q_ptr(&mut self) -> *mut f32 {
+        &mut self.q_buffer[0]
+    }
 
-            let mut channel_offset = 0;
-            for channel in 0..self.channel_count {
-                let channel_filter = &mut self.filters[channel];
-                channel_filter.set_params(next_f_c, next_q, 1.0, 1.0, 1.0, 1.0);
+    pub fn process(&mut self) {
+        // for n in 0..self.buffer_frame_length {
+        //     let mut channel_offset = 0;
+        //     for channel in 0..self.channel_count {
+        //         let channel_filter = &mut self.filters[channel];
+        //         channel_filter.set_params(self.f_c_buffer[n], self.q_buffer[n], 1.0, 1.0, 1.0, 1.0);
 
+        //         let sample_index = channel_offset + n;
+        //         let sample = self.input_buffer[sample_index];
+        //         let (bpf, bsf, hpf, lpf) = channel_filter.process_multi_out(sample);
+        //         self.bpf_out_buffer[sample_index] = bpf;
+        //         self.bsf_out_buffer[sample_index] = bsf;
+        //         self.hpf_out_buffer[sample_index] = hpf;
+        //         self.lpf_out_buffer[sample_index] = lpf;
+
+        //         channel_offset += self.buffer_frame_length;
+        //     }
+        // }
+
+        let mut channel_offset = 0;
+        for channel in 0..self.channel_count {
+            let channel_filter = &mut self.filters[channel];
+
+            for n in 0..self.buffer_frame_length {
+                channel_filter.set_params(self.f_c_buffer[n], self.q_buffer[n], 1.0, 1.0, 1.0, 1.0);
                 let sample_index = channel_offset + n;
                 let sample = self.input_buffer[sample_index];
                 let (bpf, bsf, hpf, lpf) = channel_filter.process_multi_out(sample);
@@ -85,15 +104,13 @@ impl MultiFilter {
                 self.bsf_out_buffer[sample_index] = bsf;
                 self.hpf_out_buffer[sample_index] = hpf;
                 self.lpf_out_buffer[sample_index] = lpf;
-
-                channel_offset += self.buffer_frame_length;
             }
+
+            channel_offset += self.buffer_frame_length;
         }
     }
 
     pub fn reset(&mut self) {
         self.filters.iter_mut().for_each(VASVFilter::reset);
-        self.f_c.reset();
-        self.q.reset();
     }
 }

@@ -77,7 +77,7 @@ onUnmounted(() => {
             :size="40"
             :min="minGain"
             :max="maxGain"
-            value-template="{value}dB"
+            :value-template="(value) => `${value}dB`"
           />
           <span class="text-xs">Gain</span>
         </div>

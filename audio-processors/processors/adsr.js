@@ -1,7 +1,7 @@
 import { ADSR } from '../pkg/audio_processors';
 import { RENDER_QUANTUM_FRAMES } from './helpers/constants';
 import { HeapAudioBuffer } from './helpers/heap-audio-buffer';
-import { cachedF32Memory } from './memory';
+import { MEMORY_DETACHED_EVENT, cachedF32Memory } from './memory';
 
 class ADSRProcessor extends AudioWorkletProcessor {
     #adsr = new ADSR(RENDER_QUANTUM_FRAMES, sampleRate);
@@ -23,11 +23,7 @@ class ADSRProcessor extends AudioWorkletProcessor {
             }
         });
 
-        cachedF32Memory.registerListener(this, () => {
-            this.#triggerInputBuffer.recoverMemory(this.#adsr.trigger_input_ptr());
-            this.#retriggerInputBuffer.recoverMemory(this.#adsr.retrigger_input_ptr());
-            this.#outputBuffer.recoverMemory(this.#adsr.output_ptr());
-        });
+        cachedF32Memory.registerListener(this);
     }
 
     static get parameterDescriptors() {
@@ -57,6 +53,17 @@ class ADSRProcessor extends AudioWorkletProcessor {
                 maxValue: 2.0
             }
         ]);
+    }
+
+    /**
+     * @param {Event} e 
+     */
+    handleEvent(e) {
+        if (e.type === MEMORY_DETACHED_EVENT) {
+            this.#triggerInputBuffer.recoverMemory(this.#adsr.trigger_input_ptr());
+            this.#retriggerInputBuffer.recoverMemory(this.#adsr.retrigger_input_ptr());
+            this.#outputBuffer.recoverMemory(this.#adsr.output_ptr());
+        }
     }
 
     /**

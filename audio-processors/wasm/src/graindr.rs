@@ -29,16 +29,21 @@ pub struct Graindr {
     dry_wet_mix: f32,
     dry_gain: SmoothedValue,
     wet_gain: SmoothedValue,
-    grain_size_samples: SmoothedValue,
+
     pitch_factor: SmoothedValue,
-    texture: SmoothedValue,
-    feedback: SmoothedValue,
-    shimmer: SmoothedValue,
-    hi_cut_freq: SmoothedValue,
+
+    ms_to_samples_factor: f32,
 
     // IO buffers
     input_buffer: Vec<f32>,
     output_buffer: Vec<f32>,
+
+    // parameter buffers
+    feedback_buffer: Vec<f32>,
+    grain_size_ms_buffer: Vec<f32>,
+    hi_cut_freq_buffer: Vec<f32>,
+    shimmer_buffer: Vec<f32>,
+    texture_buffer: Vec<f32>,
 }
 
 #[wasm_bindgen]
@@ -62,16 +67,31 @@ impl Graindr {
             dry_wet_mix: 0.0,
             dry_gain: linear_smoothed_value!(1.0, sample_rate, 0.05),
             wet_gain: linear_smoothed_value!(0.0, sample_rate, 0.05),
-            grain_size_samples: multiplicative_smoothed_value!(2205.0, sample_rate, 1.0),
             pitch_factor: multiplicative_smoothed_value!(1.0, sample_rate, 0.05),
-            texture: linear_smoothed_value!(0.5, sample_rate, 0.05),
-            shimmer: linear_smoothed_value!(0.0, sample_rate, 0.05),
-            feedback: linear_smoothed_value!(0.0, sample_rate, 0.05),
-            hi_cut_freq: linear_smoothed_value!(22000.0, sample_rate, 0.05),
+
+            ms_to_samples_factor: 0.001 * sample_rate,
 
             input_buffer: vec![0.0; buffer_frame_length * channel_count],
             output_buffer: vec![0.0; buffer_frame_length * channel_count],
+
+            feedback_buffer: vec![0.0; buffer_frame_length],
+            grain_size_ms_buffer: vec![0.0; buffer_frame_length],
+            hi_cut_freq_buffer: vec![0.0; buffer_frame_length],
+            shimmer_buffer: vec![0.0; buffer_frame_length],
+            texture_buffer: vec![0.0; buffer_frame_length],
         }
+    }
+
+    pub fn feedback_ptr(&mut self) -> *mut f32 {
+        &mut self.feedback_buffer[0]
+    }
+
+    pub fn grain_size_ms_ptr(&mut self) -> *mut f32 {
+        &mut self.grain_size_ms_buffer[0]
+    }
+
+    pub fn hi_cut_freq_ptr(&mut self) -> *mut f32 {
+        &mut self.hi_cut_freq_buffer[0]
     }
 
     pub fn input_ptr(&mut self) -> *mut f32 {
@@ -82,17 +102,20 @@ impl Graindr {
         &mut self.output_buffer[0]
     }
 
+    pub fn shimmer_ptr(&mut self) -> *mut f32 {
+        &mut self.shimmer_buffer[0]
+    }
+
+    pub fn texture_ptr(&mut self) -> *mut f32 {
+        &mut self.texture_buffer[0]
+    }
+
     pub fn process(
         &mut self,
         dry_wet_mix: f32,
-        grain_size_ms: f32,
         pitch_shift: i32,
         fine_tune: i32,
-        texture: f32,
         stretch: u8,
-        shimmer: f32,
-        feedback: f32,
-        hi_cut_freq: f32,
         playback_direction: u8,
         tone_type: u8,
     ) {
@@ -104,31 +127,24 @@ impl Graindr {
             self.dry_wet_mix = dry_wet_mix;
         }
 
-        self.grain_size_samples
-            .set_target_value(grain_size_ms * 0.001 * self.sample_rate);
-
         let pitch_shift_factor = self.pitch_factors.get(&pitch_shift).unwrap_or(&1.0);
         let fine_tune_factor = self.fine_tune_factors.get(&fine_tune).unwrap_or(&1.0);
 
         self.pitch_factor
             .set_target_value(pitch_shift_factor * fine_tune_factor);
 
-        self.texture.set_target_value(texture);
-        self.shimmer.set_target_value(shimmer);
-        self.feedback.set_target_value(feedback);
-        self.hi_cut_freq.set_target_value(hi_cut_freq);
         let playback_direction = playback_direction.into();
         let tone_type = tone_type.into();
 
         for n in 0..self.buffer_frame_length {
             let next_dry_gain = self.dry_gain.get_next_value();
             let next_wet_gain = self.wet_gain.get_next_value();
-            let next_grain_size = self.grain_size_samples.get_next_value();
+            let next_grain_size = self.grain_size_ms_buffer[n] * self.ms_to_samples_factor;
             let next_pitch_factor = self.pitch_factor.get_next_value();
-            let next_texture = self.texture.get_next_value();
-            let next_shimmer = self.shimmer.get_next_value();
-            let next_feedback = self.feedback.get_next_value();
-            let next_hi_cut_freq = self.hi_cut_freq.get_next_value();
+            let next_texture = self.texture_buffer[n];
+            let next_shimmer = self.shimmer_buffer[n];
+            let next_feedback = self.feedback_buffer[n];
+            let next_hi_cut_freq = self.hi_cut_freq_buffer[n];
 
             let mut channel_offset = 0;
             for channel in 0..self.channel_count {
@@ -162,12 +178,7 @@ impl Graindr {
         self.graindr.iter_mut().for_each(GraindrProcessor::reset);
         self.dry_gain.reset();
         self.wet_gain.reset();
-        self.grain_size_samples.reset();
         self.pitch_factor.reset();
-        self.texture.reset();
-        self.feedback.reset();
-        self.shimmer.reset();
-        self.hi_cut_freq.reset();
     }
 }
 

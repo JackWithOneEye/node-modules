@@ -1,5 +1,5 @@
 use super::{
-    circular_buffer::CircularBuffer,
+    circular_buffer::{CircularBuffer, InterpolationType},
     tape_sim::TapeSimFilter,
     vasv_filter::{pre_feedback_loop_hipass, VASVFilter},
 };
@@ -20,7 +20,7 @@ impl Delay {
             pre_feedback_hipass: pre_feedback_loop_hipass(sample_rate),
         }
     }
-    
+
     pub fn reset(&mut self) {
         self.buffer.reset();
         self.output_tape_sim_filter.reset();
@@ -35,7 +35,9 @@ impl Delay {
         tape_sim: bool,
     ) -> f32 {
         // TODO modulation
-        let mut buffer_out = self.buffer.read_fractional(delay_samples, false);
+        let mut buffer_out = self
+            .buffer
+            .read_fractional(delay_samples, InterpolationType::Cubic);
 
         if tape_sim {
             buffer_out = self.output_tape_sim_filter.process(buffer_out);

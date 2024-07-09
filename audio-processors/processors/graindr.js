@@ -1,14 +1,22 @@
 import { Graindr } from '../pkg/audio_processors';
 import { RENDER_QUANTUM_FRAMES } from './helpers/constants';
 import { HeapAudioBuffer } from './helpers/heap-audio-buffer';
-import { cachedF32Memory } from './memory';
+import { HeapParameterBuffer } from './helpers/heap-parameter-buffer';
+import { MEMORY_DETACHED_EVENT, cachedF32Memory } from './memory';
 
 const CHANNELS = 2;
 
 class GraindrProcessor extends AudioWorkletProcessor {
     #graindr = new Graindr(RENDER_QUANTUM_FRAMES, sampleRate, CHANNELS);
+
     #inputBuffer = new HeapAudioBuffer(this.#graindr.input_ptr(), CHANNELS);
     #outputBuffer = new HeapAudioBuffer(this.#graindr.output_ptr(), CHANNELS);
+
+    #feedbackBuffer = new HeapParameterBuffer(this.#graindr.feedback_ptr());
+    #grainSizeMsBuffer = new HeapParameterBuffer(this.#graindr.grain_size_ms_ptr());
+    #hiCutFreqBuffer = new HeapParameterBuffer(this.#graindr.hi_cut_freq_ptr());
+    #shimmerBuffer = new HeapParameterBuffer(this.#graindr.shimmer_ptr());
+    #textureBuffer = new HeapParameterBuffer(this.#graindr.texture_ptr());
 
     #destroyed = false;
 
@@ -23,10 +31,7 @@ class GraindrProcessor extends AudioWorkletProcessor {
             }
         });
 
-        cachedF32Memory.registerListener(this, () => {
-            this.#inputBuffer.recoverMemory(this.#graindr.input_ptr());
-            this.#outputBuffer.recoverMemory(this.#graindr.output_ptr());
-        });
+        cachedF32Memory.registerListener(this);
     }
 
     static get parameterDescriptors() {
@@ -103,6 +108,21 @@ class GraindrProcessor extends AudioWorkletProcessor {
     }
 
     /**
+     * @param {Event} e 
+     */
+    handleEvent(e) {
+        if (e.type === MEMORY_DETACHED_EVENT) {
+            this.#inputBuffer.recoverMemory(this.#graindr.input_ptr());
+            this.#outputBuffer.recoverMemory(this.#graindr.output_ptr());
+            this.#feedbackBuffer.recoverMemory(this.#graindr.feedback_ptr());
+            this.#grainSizeMsBuffer.recoverMemory(this.#graindr.grain_size_ms_ptr());
+            this.#hiCutFreqBuffer.recoverMemory(this.#graindr.hi_cut_freq_ptr());
+            this.#shimmerBuffer.recoverMemory(this.#graindr.shimmer_ptr());
+            this.#textureBuffer.recoverMemory(this.#graindr.texture_ptr());
+        }
+    }
+
+    /**
      * @param {Float32Array[][]} inputList 
      * @param {Float32Array[][]} outputList 
      * @param {Record<import('./types').ParameterName<typeof GraindrProcessor>, Float32Array>} parameters 
@@ -118,16 +138,17 @@ class GraindrProcessor extends AudioWorkletProcessor {
             this.#inputBuffer.setChannelData(input[Math.min(channel, inputChannels)], channel);
         }
 
+        this.#feedbackBuffer.setData(parameters.feedback);
+        this.#grainSizeMsBuffer.setData(parameters.grainSizeMs);
+        this.#hiCutFreqBuffer.setData(parameters.hiCut);
+        this.#shimmerBuffer.setData(parameters.shimmer);
+        this.#textureBuffer.setData(parameters.texture);
+
         this.#graindr.process(
             parameters.dryWetMix[0],
-            parameters.grainSizeMs[0],
             parameters.pitchShift[0],
             parameters.fineTune[0],
-            parameters.texture[0],
             parameters.stretch[0],
-            parameters.shimmer[0],
-            parameters.feedback[0],
-            parameters.hiCut[0],
             parameters.playbackDirection[0],
             parameters.toneType[0],
         );

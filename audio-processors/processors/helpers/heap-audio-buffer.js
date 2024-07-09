@@ -2,7 +2,6 @@ import { cachedF32Memory } from '../memory';
 import { BYTES_PER_UNIT, MAX_CHANNEL_COUNT, RENDER_QUANTUM_FRAMES } from './constants';
 
 export class HeapAudioBuffer {
-
     /** @type {number} */
     #bufferFrameLength;
 
@@ -19,7 +18,6 @@ export class HeapAudioBuffer {
     #maxChannelCount;
 
     /**
-     * 
      * @param {number} dataPtr 
      * @param {number} channelCount 
      * @param {number} [bufferFrameLength = RENDER_QUANTUM_FRAMES] 
@@ -63,7 +61,6 @@ export class HeapAudioBuffer {
     }
 
     /**
-     * 
      * @param {Float32Array} buffer 
      * @param {number} channelIndex 
      * @returns 

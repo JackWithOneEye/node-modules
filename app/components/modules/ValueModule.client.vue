@@ -50,8 +50,7 @@ onUnmounted(() => {
   <div class="flex flex-col gap-2 border px-2 py-2">
     <span class="text-sm pl-1">{{ title }}</span>
     <div class="flex gap-2">
-      <div>
-        <!-- <div class="nodrag flex gap-1 border border-white/80 rounded-md p-2"> -->
+      <div class="nodrag">
         <InputNumber
           v-model="offset"
           :pt="{
@@ -61,8 +60,8 @@ onUnmounted(() => {
           show-buttons
           :min="0"
           :max="10000"
+          :step="0.1"
         />
-        <!-- </div> -->
       </div>
       <div class="flex flex-col">
         <HandleLabel class="pt-1">

@@ -43,13 +43,13 @@ const pctConv = {
   toScaled: (actual: number) => actual * 100,
 }
 const [dryWetMix] = useAudioParam('dryWetMix', props.dryWetMix, value => setParamValue(graindrNode.dryWetMix, value), pctConv)
-const [grainSizeMs] = useAudioParam('grainSizeMs', props.grainSizeMs, value => setParamValue(graindrNode.grainSizeMs, value))
+const [grainSizeMs] = useAudioParam('grainSizeMs', props.grainSizeMs, value => setParamValue(graindrNode.grainSizeMs, value, 'exp', 0.5))
 const [pitchShift] = useAudioParam('pitchShift', props.pitchShift, value => setParamValue(graindrNode.pitchShift, value))
-const [fineTune] = useAudioParam('fineTune', props.fineTune, value => setParamValue(graindrNode.fineTune, value))
-const [texture] = useAudioParam('texture', props.texture, value => setParamValue(graindrNode.texture, value), pctConv)
+const [fineTune] = useAudioParam('fineTune', props.fineTune, value => setParamValue(graindrNode.fineTune, value, 'lin'))
+const [texture] = useAudioParam('texture', props.texture, value => setParamValue(graindrNode.texture, value, 'lin'), pctConv)
 const [stretch] = useAudioParam('stretch', props.stretch, value => setParamValue(graindrNode.stretch, value))
-const [shimmer] = useAudioParam('shimmer', props.shimmer, value => setParamValue(graindrNode.shimmer, value), pctConv)
-const [feedback] = useAudioParam('feedback', props.feedback, value => setParamValue(graindrNode.feedback, value), pctConv)
+const [shimmer] = useAudioParam('shimmer', props.shimmer, value => setParamValue(graindrNode.shimmer, value, 'lin'), pctConv)
+const [feedback] = useAudioParam('feedback', props.feedback, value => setParamValue(graindrNode.feedback, value, 'lin'), pctConv)
 const { scaled: hicutScaled, hz: hicutHz, controlRange: hicutControlRange } = useFrequencyParam('hicut', props.hicut, 20, 10, value => setParamValue(graindrNode.hiCut, value))
 const playbackDirection = useOptionParam('playbackDirection', props.playbackDirection, value => setParamValue(graindrNode.playbackDirection, value))
 const playbackOptions = [
@@ -84,6 +84,7 @@ registerModule(id, {
   getTarget: {
     input: { type: 'audioNode', node: graindrNode, inputIndex: 0 },
     dryWetMix: { type: 'param', param: graindrNode.dryWetMix },
+    grainSizeMs: { type: 'param', param: graindrNode.grainSizeMs },
     pitchShift: { type: 'param', param: graindrNode.pitchShift },
     fineTune: { type: 'param', param: graindrNode.fineTune },
     texture: { type: 'param', param: graindrNode.texture },
@@ -130,7 +131,7 @@ onUnmounted(() => {
               :size="40"
               :min="0"
               :max="100"
-              value-template="{value}%"
+              :value-template="(value) => `${value}%`"
             />
             <span class="text-handle">Mix</span>
           </div>
@@ -140,7 +141,7 @@ onUnmounted(() => {
               :size="40"
               :min="1"
               :max="1000"
-              value-template="{value}ms"
+              :value-template="(value) => `${value}ms`"
             />
             <span class="text-handle">Grain Size</span>
           </div>
@@ -170,7 +171,6 @@ onUnmounted(() => {
               :size="40"
               :min="0"
               :max="100"
-              value-template="{value}"
             />
             <span class="text-handle">Texture</span>
           </div>
@@ -180,7 +180,6 @@ onUnmounted(() => {
               :size="40"
               :min="1"
               :max="4"
-              value-template="{value}"
             />
             <span class="text-handle">Stretch</span>
           </div>
@@ -190,7 +189,7 @@ onUnmounted(() => {
               :size="40"
               :min="0"
               :max="100"
-              value-template="{value}%"
+              :value-template="(value) => `${value}%`"
             />
             <span class="text-handle">Shimmer</span>
           </div>
@@ -200,7 +199,7 @@ onUnmounted(() => {
               :size="40"
               :min="0"
               :max="100"
-              value-template="{value}%"
+              :value-template="(value) => `${value}%`"
             />
             <span class="text-handle">Feedback</span>
           </div>
@@ -212,7 +211,7 @@ onUnmounted(() => {
               :size="40"
               :min="0"
               :max="hicutControlRange"
-              :value-template="`${(hicutHz * 0.001).toFixed(1)}kHz`"
+              :value-template="() => `${(hicutHz * 0.001).toFixed(1)}kHz`"
             />
             <span class="text-handle">Hi Cut</span>
           </div>

@@ -1,7 +1,7 @@
 import { Multiplier } from '../pkg/audio_processors';
 import { RENDER_QUANTUM_FRAMES } from './helpers/constants';
 import { HeapAudioBuffer } from './helpers/heap-audio-buffer';
-import { cachedF32Memory } from './memory';
+import { MEMORY_DETACHED_EVENT, cachedF32Memory } from './memory';
 
 const CHANNELS = 1;
 
@@ -20,19 +20,22 @@ class MultiplierProcessor extends AudioWorkletProcessor {
 
         this.port.onmessage = ((e) => {
             if (e.data === 'destroy') {
-                this.#multiplier.free();
-                this.#input1Buffer.free();
-                this.#input2Buffer.free();
-                this.#outputBuffer.free();
-                this.#destroyed = true;
+                this.#destroy();
             }
         });
 
-        cachedF32Memory.registerListener(this, () => {
+        cachedF32Memory.registerListener(this);
+    }
+
+    /**
+     * @param {Event} e 
+     */
+    handleEvent(e) {
+        if (e.type === MEMORY_DETACHED_EVENT) {
             this.#input1Buffer.recoverMemory(this.#multiplier.input_1_ptr());
             this.#input2Buffer.recoverMemory(this.#multiplier.input_2_ptr());
             this.#outputBuffer.recoverMemory(this.#multiplier.output_ptr());
-        });
+        }
     }
 
     /**
@@ -61,6 +64,15 @@ class MultiplierProcessor extends AudioWorkletProcessor {
         }
 
         return true;
+    }
+
+    #destroy() {
+        this.#multiplier.free();
+        this.#input1Buffer.free();
+        this.#input2Buffer.free();
+        this.#outputBuffer.free();
+        cachedF32Memory.unregisterListener(this);
+        this.#destroyed = true;
     }
 }
 registerProcessor('multiplier', MultiplierProcessor);

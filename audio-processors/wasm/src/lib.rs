@@ -9,8 +9,11 @@ pub mod bit_crusher;
 pub mod bypasser;
 pub mod decimator;
 pub mod graindr;
+pub mod lfo;
 pub mod multi_filter;
 pub mod multiplier;
+pub mod sequencer;
+pub mod toggle_util;
 
 mod dsp;
 mod utils;

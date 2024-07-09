@@ -14,6 +14,7 @@ export function Destroyable<N extends AudioWorkletNodeConstructor>(WorkletNode: 
     destroy() {
       this.disconnect()
       this.port.postMessage('destroy')
+      this.port.close()
     }
   }
 }

@@ -31,7 +31,7 @@ watch(wrapper, () => {
     // retina: true,
     pixelDensity: 10,
     offscreen: true,
-    resize: true,
+    // resize: true,
   })
   form = space.getForm()
 

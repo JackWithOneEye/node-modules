@@ -142,6 +142,17 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :tone-type="data.toneType"
         />
       </template>
+      <template #[`node-${AudioModuleType.LFO}`]="{ id, type, data }">
+        <LFOModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :frequency="data.frequency"
+          :phase="data.phase"
+          :polarity="data.polarity"
+          :waveform="data.waveform"
+        />
+      </template>
       <template #[`node-${AudioModuleType.MidiInput}`]="{ id, type, data }">
         <MidiInputModule
           :id="id"
@@ -168,6 +179,14 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :title="data.title"
         />
       </template>
+      <template #[`node-${AudioModuleType.Noise}`]="{ id, type, data }">
+        <NoiseModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :noise-type="data.noiseType"
+        />
+      </template>
       <template #[`node-${AudioModuleType.Oscillator}`]="{ id, type, data }">
         <OscillatorModule
           :id="id"
@@ -186,12 +205,31 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :title="data.title"
         />
       </template>
+      <template #[`node-${AudioModuleType.Sequencer}`]="{ id, type, data }">
+        <SequencerModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :gate-threshold="data.gateThreshold"
+          :num-steps="data.numSteps"
+          :values="data.values"
+        />
+      </template>
       <template #[`node-${AudioModuleType.Value}`]="{ id, type, data }">
         <ValueModule
           :id="id"
           :type="type"
           :title="data.title"
           :offset="data.offset"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.Waveshaper}`]="{ id, type, data }">
+        <WaveshaperModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :modifier="data.modifier"
+          :waveshaper="data.waveshaper"
         />
       </template>
       <Background :class="{ 'bg-slate-900': isDragOver }" />

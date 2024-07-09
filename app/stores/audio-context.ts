@@ -38,18 +38,18 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
     state.value = audioContext.state
   }
 
-  function setParamValue(param: AudioParam, value: number, ramp: Ramp = 'none') {
-    internalSetParamValue(param, value, ramp ?? 'none', audioContext.currentTime)
+  function setParamValue(param: AudioParam, value: number, ramp: Ramp = 'none', rampTime = 0.5) {
+    internalSetParamValue(param, value, ramp ?? 'none', audioContext.currentTime, rampTime)
   }
 
   function setMultipleParamValues(...args: Parameters<typeof setParamValue>[]) {
     const currentTime = audioContext.currentTime
-    for (const [param, value, ramp] of args) {
-      internalSetParamValue(param, value, ramp ?? 'none', currentTime)
+    for (const [param, value, ramp, rampTime] of args) {
+      internalSetParamValue(param, value, ramp ?? 'none', currentTime, rampTime ?? 0.5)
     }
   }
 
-  function internalSetParamValue(param: AudioParam, value: number, ramp: Ramp, currentTime: number) {
+  function internalSetParamValue(param: AudioParam, value: number, ramp: Ramp, currentTime: number, rampTime: number) {
     const clampedVal = Math.max(param.minValue, Math.min(param.maxValue, value))
     if (ramp === 'none') {
       param.setValueAtTime(clampedVal, currentTime)
@@ -63,11 +63,11 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
 
     param.setValueAtTime(param.value, currentTime)
     if (ramp === 'exp') {
-      param.exponentialRampToValueAtTime(clampedVal, currentTime + 0.05)
+      param.exponentialRampToValueAtTime(clampedVal, currentTime + rampTime)
       return
     }
     if (ramp === 'lin') {
-      param.linearRampToValueAtTime(clampedVal, currentTime + 0.05)
+      param.linearRampToValueAtTime(clampedVal, currentTime + rampTime)
       return
     }
   }

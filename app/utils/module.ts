@@ -14,12 +14,16 @@ export const AudioModuleType = {
   Destination: 'destination',
   Gain: 'gain',
   Graindr: 'graindr',
+  LFO: 'lfo',
   MidiInput: 'midi-input',
   MultiFilter: 'multi-filter',
   Multiplier: 'multiplier',
+  Noise: 'noise',
   Oscillator: 'oscillator',
   Oscilloscope: 'oscilloscope',
+  Sequencer: 'sequencer',
   Value: 'value',
+  Waveshaper: 'waveshaper',
 } as const
 
 export const moduleOptions = [
@@ -55,6 +59,11 @@ export const moduleOptions = [
           label: 'Gain',
         },
         {
+          type: AudioModuleType.Noise,
+          icon: 'pi pi-wave-pulse',
+          label: 'Noise',
+        },
+        {
           type: AudioModuleType.Oscillator,
           icon: 'pi pi-wave-pulse',
           label: 'Oscillator',
@@ -79,6 +88,11 @@ export const moduleOptions = [
           icon: 'pi pi-qrcode',
           label: 'Graindr',
         },
+        {
+          type: AudioModuleType.Waveshaper,
+          icon: 'pi pi-wave-pulse',
+          label: 'Waveshaper',
+        },
       ],
     },
   ],
@@ -93,8 +107,6 @@ export const moduleOptions = [
         },
       ],
     },
-    // ],
-    // [
     {
       label: 'Control',
       items: [
@@ -107,6 +119,16 @@ export const moduleOptions = [
           type: AudioModuleType.Multiplier,
           icon: 'pi pi-times',
           label: 'Multiplier',
+        },
+        {
+          type: AudioModuleType.LFO,
+          icon: 'pi pi-wave-pulse',
+          label: 'LFO',
+        },
+        {
+          type: AudioModuleType.Sequencer,
+          icon: 'pi pi-forward',
+          label: 'Sequencer',
         },
         {
           type: AudioModuleType.Value,

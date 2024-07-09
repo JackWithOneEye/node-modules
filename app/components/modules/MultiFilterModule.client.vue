@@ -17,8 +17,8 @@ const {
   scaled: cutoffScaled,
   hz: cutoffHz,
   controlRange: cutoffControlRange,
-} = useFrequencyParam('cutoff', props.cutoff, 20, 10, value => store.setParamValue(multiFilterNode.cutoff, value))
-const [q] = useAudioParam('q', props.q, value => store.setParamValue(multiFilterNode.q, value))
+} = useFrequencyParam('cutoff', props.cutoff, 20, 10, value => store.setParamValue(multiFilterNode.cutoff, value, 'lin'))
+const [q] = useAudioParam('q', props.q, value => store.setParamValue(multiFilterNode.q, value, 'lin'))
 
 const store = useAudioContextStore()
 const multiFilterNode = new MultiFilterWorkletNode(store.audioContext, { cutoff: props.cutoff, q: props.q })
@@ -107,7 +107,7 @@ onUnmounted(() => {
               :size="60"
               :min="0"
               :max="cutoffControlRange"
-              :value-template="`${cutoffHz.toFixed()}Hz`"
+              :value-template="() => `${cutoffHz.toFixed()}Hz`"
             />
             <span class="text-handle">Cutoff</span>
           </div>
@@ -118,7 +118,7 @@ onUnmounted(() => {
               :min="0.707"
               :max="20"
               :step="0.001"
-              :value-template="`${q.toFixed()}`"
+              :value-template="() => `${q.toFixed()}`"
             />
             <span class="text-handle">Q</span>
           </div>

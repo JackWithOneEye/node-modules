@@ -141,7 +141,7 @@ onUnmounted(() => {
               :size="60"
               :min="0"
               :max="freqControlRange"
-              :value-template="`${frequencyHz.toFixed()}Hz`"
+              :value-template="() => `${frequencyHz.toFixed()}Hz`"
             />
             <span class="text-handle">Frequency</span>
             <InputSwitch
@@ -155,7 +155,7 @@ onUnmounted(() => {
               :size="60"
               :min="0"
               :max="100"
-              value-template="{value}ct"
+              :value-template="(value) => `${value}ct`"
             />
             <span class="text-handle">Detune</span>
           </div>
