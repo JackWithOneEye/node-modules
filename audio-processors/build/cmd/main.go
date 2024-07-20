@@ -103,6 +103,7 @@ func build(esbuildOptions *api.BuildOptions, wasmDir, wasmOutDir string) error {
 
 func watchBuild(esbuildOptions *api.BuildOptions, wasmDir, wasmOutDir string) error {
 	ctx, ctxErr := api.Context(*esbuildOptions)
+	defer ctx.Dispose()
 	if ctxErr != nil {
 		return fmt.Errorf("could not create esbuild context (%w)", ctxErr)
 	}
