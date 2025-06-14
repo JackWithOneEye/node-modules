@@ -48,8 +48,6 @@ export const moduleOptions = [
         },
       ],
     },
-  ],
-  [
     {
       label: 'Sound',
       items: [
@@ -70,6 +68,8 @@ export const moduleOptions = [
         },
       ],
     },
+  ],
+  [
     {
       label: 'Effect',
       items: [
@@ -95,8 +95,6 @@ export const moduleOptions = [
         },
       ],
     },
-  ],
-  [
     {
       label: 'Filter',
       items: [
@@ -107,6 +105,8 @@ export const moduleOptions = [
         },
       ],
     },
+  ],
+  [
     {
       label: 'Control',
       items: [
@@ -137,8 +137,6 @@ export const moduleOptions = [
         },
       ],
     },
-  ],
-  [
     {
       label: 'Visual',
       items: [

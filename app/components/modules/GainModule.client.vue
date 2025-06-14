@@ -4,7 +4,7 @@ import { Handle } from '@vue-flow/core'
 export type GainModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
   gain?: number
   gainEnabled?: boolean
 }

@@ -4,7 +4,7 @@ import { Handle } from '@vue-flow/core'
 export type MultiFilterModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
   cutoff?: number // Hz
   q?: number
 }

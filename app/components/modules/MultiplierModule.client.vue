@@ -4,7 +4,7 @@ import { Handle } from '@vue-flow/core'
 export type MultiplierModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
 }
 const props = withDefaults(defineProps<MultiplierModuleProps>(), {
   title: 'Multiplier',

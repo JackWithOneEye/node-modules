@@ -2,12 +2,12 @@
 export type ADSRModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
 
-  attack: number
-  decay: number
-  sustain: number
-  release: number
+  attack?: number
+  decay?: number
+  sustain?: number
+  release?: number
 }
 const props = withDefaults(defineProps<ADSRModuleProps>(), {
   title: 'ADSR',

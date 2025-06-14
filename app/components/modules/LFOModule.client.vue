@@ -5,7 +5,7 @@ import { LFOPolarity, LFOWaveform } from '~/utils'
 export type LFOModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
   frequency?: number
   phase?: number
   polarity?: LFOPolarity

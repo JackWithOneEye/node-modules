@@ -4,7 +4,7 @@ import { Handle } from '@vue-flow/core'
 export type ValueModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
   offset?: number
 }
 const props = withDefaults(defineProps<ValueModuleProps>(), {

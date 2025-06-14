@@ -4,7 +4,7 @@ import { Handle } from '@vue-flow/core'
 export type BitCrusherModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
   bits?: number
 }
 const props = withDefaults(defineProps<BitCrusherModuleProps>(), {
@@ -89,7 +89,7 @@ onUnmounted(() => {
             :size="40"
             :min="0"
             :max="maxBitSliderVal"
-            :value-template="`${actualBits.toFixed()} bits`"
+            :value-template="() => `${actualBits.toFixed()} bits`"
           />
         </div>
       </div>

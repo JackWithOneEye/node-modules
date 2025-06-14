@@ -1,12 +1,20 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+
+  modules: [
+    '@nuxt/eslint',
+    '@nuxtjs/tailwindcss',
+    '@pinia/nuxt',
+    'nuxt-primevue',
+  ],
+
   components: [
     {
       path: '~/components',
       pathPrefix: false,
     },
   ],
+
   imports: {
     presets: [
       {
@@ -21,20 +29,22 @@ export default defineNuxtConfig({
       },
     ],
   },
-  modules: [
-    '@nuxt/eslint',
-    '@nuxtjs/tailwindcss',
-    '@pinia/nuxt',
-    'nuxt-primevue',
-  ],
+  devtools: { enabled: true },
+
+  compatibilityDate: '2024-11-23',
+
   eslint: {
     config: {
       stylistic: true,
     },
   },
+
+  // primevue: {
+  //   importPT: { as: 'Tailwind', from: 'primevue/passthrough/tailwind' },
+  // },
   tailwindcss: {
     editorSupport: {
-      autocompleteUtil: true,
+      autocompleteUtil: { as: 'tw' },
     },
     config: {
       theme: {
@@ -46,7 +56,4 @@ export default defineNuxtConfig({
       },
     },
   },
-  // primevue: {
-  //   importPT: { as: 'Tailwind', from: 'primevue/passthrough/tailwind' },
-  // },
 })

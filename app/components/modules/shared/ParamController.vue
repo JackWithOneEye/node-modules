@@ -28,7 +28,7 @@ const [param] = useAudioParam(props.name, props.defaultValue, value => emit('onC
       :min="min"
       :max="max"
       :step="step"
-      :value-template="`${param.toFixed()}${unit}`"
+      :value-template="() => `${param.toFixed()}${unit}`"
     />
     <span class="text-handle">{{ label }}</span>
   </div>

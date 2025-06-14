@@ -4,9 +4,9 @@ import { Handle } from '@vue-flow/core'
 export type WaveshaperNodeModuleProps = {
   id: string
   type: string
-  title: string
-  waveshaper: 'sin' | 'sigmoid' | 'tanh' | 'x-root'
-  modifier: number // 0 - 100
+  title?: string
+  waveshaper?: 'sin' | 'sigmoid' | 'tanh' | 'x-root'
+  modifier?: number // 0 - 100
 }
 const props = withDefaults(defineProps<WaveshaperNodeModuleProps>(), {
   title: 'Waveshaper',

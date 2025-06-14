@@ -5,7 +5,7 @@ import { type CanvasForm, CanvasSpace, Sound } from 'pts'
 export type OscilloscopeModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
 }
 const props = withDefaults(defineProps<OscilloscopeModuleProps>(), {
   title: 'Oscilloscope',

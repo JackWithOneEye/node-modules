@@ -5,7 +5,7 @@ import { NoiseType } from '~/utils'
 export type NoiseModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
   noiseType?: NoiseType
 }
 const props = withDefaults(defineProps<NoiseModuleProps>(), {

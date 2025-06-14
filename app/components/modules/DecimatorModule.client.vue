@@ -4,7 +4,7 @@ import { Handle } from '@vue-flow/core'
 export type DecimatorModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
   reduction?: number
   stereoShift?: number
 }
@@ -100,7 +100,7 @@ onUnmounted(() => {
             :size="40"
             :min="0"
             :max="maxReductionSliderVal"
-            :value-template="reductionLabel"
+            :value-template="() => reductionLabel"
           />
           <span class="text-handle">Reduction</span>
         </div>
@@ -111,7 +111,7 @@ onUnmounted(() => {
             :min="0"
             :max="1"
             :step="0.1"
-            :value-template="`${stereoShift.toFixed(1)}`"
+            :value-template="() => `${stereoShift.toFixed(1)}`"
           />
           <span class="text-handle">Shift</span>
         </div>

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { Handle } from '@vue-flow/core'
+import { Handle, Position } from '@vue-flow/core'
 import { Direction, ToneType } from '~/utils'
 
 export type GraindrModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
   dryWetMix?: number
   grainSizeMs?: number
   pitchShift?: number

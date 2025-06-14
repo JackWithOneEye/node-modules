@@ -4,7 +4,7 @@ import { Handle } from '@vue-flow/core'
 export type SequencerModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
   gateThreshold?: number
   numSteps?: number
   values?: number[]
@@ -30,12 +30,12 @@ const sequencerNode = new SequencerWorkletNode(
     currentStep.value = step
   },
 )
-const [gateThreshold] = useAudioParam('gateThreshold', props.gateThreshold, value => setParamValue(sequencerNode.gateThreshold, value))
+const [_gateThreshold] = useAudioParam('gateThreshold', props.gateThreshold, value => setParamValue(sequencerNode.gateThreshold, value))
 const [numSteps] = useAudioParam('numSteps', props.numSteps, value => setParamValue(sequencerNode.numSteps, value))
 const values = reactive(props.values)
 
-const valueScales = ['note', 'value'] as const
-const scale = ref<typeof valueScales[number]>('note')
+const _valueScales = ['note', 'value'] as const
+const scale = ref<typeof _valueScales[number]>('note')
 const max = computed(() => scale.value === 'note' ? notes.length - 1 : 1)
 function valueLabel(value: number) {
   if (scale.value === 'note') {

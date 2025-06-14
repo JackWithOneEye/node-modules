@@ -4,7 +4,7 @@ import { Handle } from '@vue-flow/core'
 export type DestinationModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
   gain?: number
 }
 const props = withDefaults(defineProps<DestinationModuleProps>(), {

@@ -4,7 +4,7 @@ import { Handle } from '@vue-flow/core'
 export type OscillatorModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
   frequency?: number // Hz
   detune?: number // ct
   waveform?: Exclude<OscillatorType, 'custom'>

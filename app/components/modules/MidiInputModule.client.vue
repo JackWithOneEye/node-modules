@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Handle } from '@vue-flow/core'
-import { type NoteMessageEvent } from 'webmidi'
+import type { NoteMessageEvent } from 'webmidi'
 import { useMidiStore } from '~/stores/midi'
 
 // const NotePriority = {
@@ -14,7 +14,7 @@ type NotePriority = 0 | 1 | 2 | 3
 export type MidiInputModuleProps = {
   id: string
   type: string
-  title: string
+  title?: string
   channel?: number // not yet used!
   deviceId?: string
   priority?: NotePriority// (typeof NotePriority)[keyof typeof NotePriority]

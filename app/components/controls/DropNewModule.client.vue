@@ -5,7 +5,7 @@ const { onDragStart } = useDnDModule()
 
 <template>
   <div
-    class="flex items-center w-fit gap-2 p-3"
+    class="flex items-center w-fit gap-1.5 px-2 py-1.5"
     :draggable="true"
     @dragstart="onDragStart($event, props.type)"
   >
