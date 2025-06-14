@@ -1,6 +1,6 @@
 import { Destroyable, Resettable } from './mixins'
 
-const NUM_VALUES = 4
+const NUM_VALUES = 16
 
 type ParamOptions = {
   gateThreshold: number
@@ -19,7 +19,7 @@ class SequencerWorkletNodeBase extends AudioWorkletNode {
   set values(vals: number[]) {
     const currentTime = this.context.currentTime
     for (let i = 0; i < NUM_VALUES; i++) {
-      this.valueParams[i].setValueAtTime(vals[i], currentTime)
+      this.valueParams[i].setValueAtTime(vals[i] ?? 0, currentTime)
     }
   }
 

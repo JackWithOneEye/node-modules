@@ -38,7 +38,7 @@ class SequencerProcessor extends AudioWorkletProcessor {
                 name: 'numSteps',
                 defaultValue: 4,
                 minValue: 1,
-                maxValue: 4,
+                maxValue: 16,
             },
             {
                 name: 'value0',
@@ -57,6 +57,66 @@ class SequencerProcessor extends AudioWorkletProcessor {
             },
             {
                 name: 'value3',
+                defaultValue: 0,
+                automationRate: 'k-rate'
+            },
+            {
+                name: 'value4',
+                defaultValue: 0,
+                automationRate: 'k-rate'
+            },
+            {
+                name: 'value5',
+                defaultValue: 0,
+                automationRate: 'k-rate'
+            },
+            {
+                name: 'value6',
+                defaultValue: 0,
+                automationRate: 'k-rate'
+            },
+            {
+                name: 'value7',
+                defaultValue: 0,
+                automationRate: 'k-rate'
+            },
+            {
+                name: 'value8',
+                defaultValue: 0,
+                automationRate: 'k-rate'
+            },
+            {
+                name: 'value9',
+                defaultValue: 0,
+                automationRate: 'k-rate'
+            },
+            {
+                name: 'value10',
+                defaultValue: 0,
+                automationRate: 'k-rate'
+            },
+            {
+                name: 'value11',
+                defaultValue: 0,
+                automationRate: 'k-rate'
+            },
+            {
+                name: 'value12',
+                defaultValue: 0,
+                automationRate: 'k-rate'
+            },
+            {
+                name: 'value13',
+                defaultValue: 0,
+                automationRate: 'k-rate'
+            },
+            {
+                name: 'value14',
+                defaultValue: 0,
+                automationRate: 'k-rate'
+            },
+            {
+                name: 'value15',
                 defaultValue: 0,
                 automationRate: 'k-rate'
             },
@@ -92,6 +152,18 @@ class SequencerProcessor extends AudioWorkletProcessor {
         values[1] = parameters.value1[0]
         values[2] = parameters.value2[0]
         values[3] = parameters.value3[0]
+        values[4] = parameters.value4[0]
+        values[5] = parameters.value5[0]
+        values[6] = parameters.value6[0]
+        values[7] = parameters.value7[0]
+        values[8] = parameters.value8[0]
+        values[9] = parameters.value9[0]
+        values[10] = parameters.value10[0]
+        values[11] = parameters.value11[0]
+        values[12] = parameters.value12[0]
+        values[13] = parameters.value13[0]
+        values[14] = parameters.value14[0]
+        values[15] = parameters.value15[0]
 
         const currentStep = this.#sequencer.process(parameters.gateThreshold[0], parameters.numSteps[0]);
 

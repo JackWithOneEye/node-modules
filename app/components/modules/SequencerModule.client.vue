@@ -12,9 +12,12 @@ export type SequencerModuleProps = {
 const props = withDefaults(defineProps<SequencerModuleProps>(), {
   title: 'Sequencer',
   gateThreshold: 0,
-  numSteps: 4,
-  values: () => [0, 0, 0, 0],
+  numSteps: 8,
+  values: () => [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 })
+
+const ROWS = 4
+const COLUMNS = 4
 
 const notes = Object.keys(noteFrequencies) as (keyof typeof noteFrequencies)[]
 const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
@@ -24,7 +27,7 @@ const sequencerNode = new SequencerWorkletNode(
   {
     gateThreshold: props.gateThreshold,
     numSteps: props.numSteps,
-    values: props.values.map(val => noteFrequencies[notes[val]]),
+    values: props.values.map(val => val === 0 ? 0 : noteFrequencies[notes[val - 1]]),
   },
   (step) => {
     currentStep.value = step
@@ -36,10 +39,10 @@ const values = reactive(props.values)
 
 const _valueScales = ['note', 'value'] as const
 const scale = ref<typeof _valueScales[number]>('note')
-const max = computed(() => scale.value === 'note' ? notes.length - 1 : 1)
+const max = computed(() => scale.value === 'note' ? notes.length : 1)
 function valueLabel(value: number) {
   if (scale.value === 'note') {
-    return notes[value]
+    return value === 0 ? '-' : notes[value - 1]
   }
   return `${value}`
 }
@@ -49,7 +52,7 @@ watch(values, (curr) => {
   const submit = []
   if (scale.value === 'note') {
     for (const v of curr) {
-      submit.push(noteFrequencies[notes[v]])
+      submit.push(v === 0 ? 0 : noteFrequencies[notes[v - 1]])
     }
   }
   else {
@@ -106,18 +109,38 @@ onUnmounted(() => {
         type="target"
         :position="Position.Left"
       />
-      <div class="nodrag flex items-center gap-1 border border-white/80 rounded-md p-2">
-        <div class="flex gap-2">
+      <div class="nodrag flex flex-col items-center gap-2 border border-white/80 rounded-md p-2">
+        <div class="flex items-center gap-2">
+          <span class="text-xs">Steps:</span>
           <Knob
-            v-for="n in numSteps"
-            :key="n"
-            v-model="values[n - 1]"
-            :class="{ 'bg-red-400': currentStep === n - 1 }"
-            :size="40"
-            :min="0"
-            :max="max"
-            :value-template="valueLabel"
+            v-model="numSteps"
+            :size="30"
+            :min="1"
+            :max="16"
           />
+        </div>
+        <div class="flex flex-col gap-2">
+          <div
+            v-for="row in ROWS"
+            :key="row"
+            class="flex gap-2"
+          >
+            <Knob
+              v-for="col in COLUMNS"
+              :key="`${row}-${col}`"
+              v-model="values[(row - 1) * COLUMNS + (col - 1)]"
+              :class="{
+                'bg-red-400': currentStep === (row - 1) * COLUMNS + (col - 1) && values[(row - 1) * COLUMNS + (col - 1)] !== 0,
+                'bg-gray-400': currentStep === (row - 1) * COLUMNS + (col - 1) && values[(row - 1) * COLUMNS + (col - 1)] === 0,
+                'opacity-50': (row - 1) * COLUMNS + (col - 1) >= numSteps,
+              }"
+              :size="40"
+              :min="0"
+              :max="max"
+              :value-template="(row - 1) * COLUMNS + (col - 1) >= numSteps ? () => '' : valueLabel"
+              :disabled="(row - 1) * COLUMNS + (col - 1) >= numSteps"
+            />
+          </div>
         </div>
       </div>
       <div class="flex flex-col">

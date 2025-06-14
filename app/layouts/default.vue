@@ -22,8 +22,22 @@ const items = ref([
 <template>
   <div class="flex flex-col min-h-screen">
     <MegaMenu
-      class="h-full z-10"
+      class="h-full z-10 bg-gray-800 border-b border-gray-600"
       :model="items"
+      :pt="{
+        panel: {
+          class: tw`p-2`,
+        },
+        submenuLabel: {
+          class: tw`px-2 py-1 text-sm font-semibold mb-1`,
+        },
+        submenu: {
+          class: tw`gap-1`,
+        },
+        grid: {
+          class: tw`gap-4`,
+        },
+      }"
     >
       <template #item="{ item }">
         <div
