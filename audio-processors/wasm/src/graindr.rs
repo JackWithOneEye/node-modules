@@ -18,7 +18,6 @@ use std::{collections::HashMap, f32::consts::FRAC_PI_2};
 pub struct Graindr {
     buffer_frame_length: usize,
     channel_count: usize,
-    sample_rate: f32,
 
     graindr: Vec<GraindrProcessor>,
 
@@ -59,7 +58,6 @@ impl Graindr {
         Graindr {
             buffer_frame_length,
             channel_count,
-            sample_rate,
             graindr: proc_vec,
             fine_tune_factors: make_fine_tune_factors(),
             pitch_factors: make_pitch_factors(),
@@ -304,14 +302,12 @@ impl GraindrProcessor {
             trigger_stretch,
         );
 
-        let delay_out = self.delay.process(
+        self.delay.process(
             granular_proc_out,
             self.granular_processor.input_size(),
             feedback,
             tape_sim,
-        );
-
-        delay_out
+        )
     }
 
     pub fn reset(&mut self) {

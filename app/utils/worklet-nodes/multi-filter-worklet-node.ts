@@ -15,10 +15,5 @@ class MultiFilterWorklerNodeBase extends AudioWorkletNode {
     this.cutoff = this.parameters.get('cutoff')!
     this.q = this.parameters.get('q')!
   }
-
-  destroy() {
-    this.disconnect()
-    this.port.postMessage('destroy')
-  }
 }
 export const MultiFilterWorkletNode = Destroyable(Resettable(MultiFilterWorklerNodeBase))

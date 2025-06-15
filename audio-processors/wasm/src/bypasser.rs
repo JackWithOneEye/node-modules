@@ -17,3 +17,9 @@ impl Bypasser {
         })
     }
 }
+
+impl Default for Bypasser {
+    fn default() -> Self {
+        Self::new()
+    }
+}

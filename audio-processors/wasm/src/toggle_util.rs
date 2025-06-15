@@ -22,7 +22,7 @@ impl ToggleUtil {
     }
 
     pub fn mix(&mut self, a_sample: f32, b_sample: f32) -> f32 {
-        return a_sample * self.a_gain.get_next_value() + b_sample * self.b_gain.get_next_value();
+        a_sample * self.a_gain.get_next_value() + b_sample * self.b_gain.get_next_value()
     }
 
     pub fn to_a(&mut self) {

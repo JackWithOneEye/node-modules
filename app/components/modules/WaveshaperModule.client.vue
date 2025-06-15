@@ -18,7 +18,7 @@ const { audioContext, registerModule, unregisterModule } = useAudioContextStore(
 
 const waveshaperTables = useWaveshapersStore()
 
-const waveshaperNode = new WaveShaperNode(audioContext, { curve: waveshaperTables[props.waveshaper][props.modifier], oversample: '2x' })
+const waveshaperNode = new WaveShaperNode(audioContext, { curve: waveshaperTables[props.waveshaper][props.modifier], oversample: '4x' })
 const waveshaper = useOptionParam('waveshaper', props.waveshaper, (value) => {
   waveshaperNode.curve = waveshaperTables[value][modifier.value]
 })
@@ -69,39 +69,18 @@ onUnmounted(() => {
       <HandleLabel class="pt-3">
         in
       </HandleLabel>
-      <Handle
-        id="input"
-        type="target"
-        :position="Position.Left"
-      />
+      <Handle id="input" type="target" :position="Position.Left" />
       <div class="nodrag flex items-center gap-1 border border-white/80 rounded-md p-2">
-        <Knob
-          v-model="modifier"
-          :size="40"
-          :min="0"
-          :max="100"
-        />
-        <Dropdown
-          v-model="waveshaper"
-          class="border h-6 w-full"
-          :pt="{
-            input: tw`p-1 text-xs`,
-          }"
-          :options="waveshaperOptions"
-          option-label="label"
-          option-value="value"
-          placeholder="Waveshaper"
-        />
+        <Knob v-model="modifier" :size="40" :min="0" :max="100" />
+        <Dropdown v-model="waveshaper" class="border h-6 w-full" :pt="{
+          input: tw`p-1 text-xs`,
+        }" :options="waveshaperOptions" option-label="label" option-value="value" placeholder="Waveshaper" />
       </div>
       <div class="flex flex-col">
         <HandleLabel class="pt-3">
           out
         </HandleLabel>
-        <Handle
-          id="output"
-          type="source"
-          :position="Position.Right"
-        />
+        <Handle id="output" type="source" :position="Position.Right" />
       </div>
     </div>
   </div>

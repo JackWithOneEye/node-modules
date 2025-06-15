@@ -11,7 +11,10 @@ export const AudioModuleType = {
   AudioSource: 'audio-source',
   BitCrusher: 'bit-crusher',
   Decimator: 'decimator',
+  DelayLine: 'delay-line',
   Destination: 'destination',
+  DynamicsCompressor: 'dynamics-compressor',
+  EnvelopeTracker: 'envelope-tracker',
   Gain: 'gain',
   Graindr: 'graindr',
   LFO: 'lfo',
@@ -21,6 +24,7 @@ export const AudioModuleType = {
   Noise: 'noise',
   Oscillator: 'oscillator',
   Oscilloscope: 'oscilloscope',
+  PitchTracker: 'pitch-tracker',
   Sequencer: 'sequencer',
   Value: 'value',
   Waveshaper: 'waveshaper',
@@ -84,6 +88,16 @@ export const moduleOptions = [
           label: 'Decimator',
         },
         {
+          type: AudioModuleType.DelayLine,
+          icon: 'pi pi-clock',
+          label: 'Delay Line',
+        },
+        {
+          type: AudioModuleType.DynamicsCompressor,
+          icon: 'pi pi-compress',
+          label: 'Dynamics Compressor',
+        },
+        {
           type: AudioModuleType.Graindr,
           icon: 'pi pi-qrcode',
           label: 'Graindr',
@@ -114,6 +128,16 @@ export const moduleOptions = [
           type: AudioModuleType.ADSR,
           icon: 'pi pi-sliders-h',
           label: 'ADSR',
+        },
+        {
+          type: AudioModuleType.EnvelopeTracker,
+          icon: 'pi pi-chart-line',
+          label: 'Envelope Tracker',
+        },
+        {
+          type: AudioModuleType.PitchTracker,
+          icon: 'pi pi-wave-pulse',
+          label: 'Pitch Tracker',
         },
         {
           type: AudioModuleType.Multiplier,

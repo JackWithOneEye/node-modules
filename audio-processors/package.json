@@ -8,12 +8,12 @@
     "postinstall": "cd build && go build -o ../builder cmd/main.go"
   },
   "devDependencies": {
-    "@types/audioworklet": "^0.0.55",
+    "@types/audioworklet": "^0.0.77",
     "@types/bun": "latest",
-    "esbuild": "^0.20.2",
+    "esbuild": "^0.25.5",
     "fastestsmallesttextencoderdecoder": "^1.0.22"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.8.3"
   }
 }

@@ -3,11 +3,13 @@ import './polyfills';
 import './processors/adsr';
 import './processors/bit-crusher';
 import './processors/decimator';
+import './processors/envelope-tracker';
 import './processors/graindr';
 import './processors/lfo';
 import './processors/multi-filter';
 import './processors/multiplier';
-import './processors/sequencer';
 import './processors/noise-generator';
+import './processors/pitch-tracker';
+import './processors/sequencer';
 
 console.log('AUDIO PROCESSORS!');

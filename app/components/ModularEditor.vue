@@ -107,12 +107,41 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :stereo-shift="data.stereoShift"
         />
       </template>
+      <template #[`node-${AudioModuleType.DelayLine}`]="{ id, type, data }">
+        <DelayLineModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :delay-time="data.delayTime"
+        />
+      </template>
       <template #[`node-${AudioModuleType.Destination}`]="{ id, type, data }">
         <DestinationModule
           :id="id"
           :type="type"
           :title="data.title"
           :gain="data.gain"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.DynamicsCompressor}`]="{ id, type, data }">
+        <DynamicsCompressorModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :threshold="data.threshold"
+          :knee="data.knee"
+          :ratio="data.ratio"
+          :attack="data.attack"
+          :release="data.release"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.EnvelopeTracker}`]="{ id, type, data }">
+        <EnvelopeTrackerModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :sensitivity="data.sensitivity"
+          :threshold="data.threshold"
         />
       </template>
       <template #[`node-${AudioModuleType.Gain}`]="{ id, type, data }">
@@ -203,6 +232,14 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :id="id"
           :type="type"
           :title="data.title"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.PitchTracker}`]="{ id, type, data }">
+        <PitchTrackerModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :harmonic-threshold="data.harmonicThreshold"
         />
       </template>
       <template #[`node-${AudioModuleType.Sequencer}`]="{ id, type, data }">

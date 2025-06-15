@@ -11,6 +11,7 @@ pub mod lofi;
 pub mod noise;
 pub mod phase_counter;
 pub mod pinking_filter;
+pub mod pitch_tracker;
 pub mod smoothed_value;
 pub mod tape_sim;
 pub mod vasv_filter;
