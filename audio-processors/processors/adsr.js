@@ -4,98 +4,100 @@ import { HeapAudioBuffer } from './helpers/heap-audio-buffer';
 import { MEMORY_DETACHED_EVENT, cachedF32Memory } from './memory';
 
 class ADSRProcessor extends AudioWorkletProcessor {
-    #adsr = new ADSR(RENDER_QUANTUM_FRAMES, sampleRate);
+  #adsr = new ADSR(RENDER_QUANTUM_FRAMES, sampleRate);
 
-    #triggerInputBuffer = new HeapAudioBuffer(this.#adsr.trigger_input_ptr(), 1);
-    #retriggerInputBuffer = new HeapAudioBuffer(this.#adsr.retrigger_input_ptr(), 1);
-    #outputBuffer = new HeapAudioBuffer(this.#adsr.output_ptr(), 1);
+  #triggerInputBuffer = new HeapAudioBuffer(this.#adsr.trigger_input_ptr(), 1);
+  #retriggerInputBuffer = new HeapAudioBuffer(this.#adsr.retrigger_input_ptr(), 1);
+  #outputBuffer = new HeapAudioBuffer(this.#adsr.output_ptr(), 1);
 
-    #destroyed = false;
+  #destroyed = false;
 
-    constructor() {
-        super();
+  constructor() {
+    super();
 
-        this.port.onmessage = ((e) => {
-            if (e.data === 'reset') {
-                this.#adsr.reset();
-            } else if (e.data === 'destroy') {
-                this.#destroy();
-            }
-        });
+    this.port.onmessage = ((e) => {
+      if (e.data === 'reset') {
+        this.#adsr.reset();
+      } else if (e.data === 'destroy') {
+        this.#destroy();
+      }
+    });
 
-        cachedF32Memory.registerListener(this);
+    cachedF32Memory.registerListener(this);
+  }
+
+  static get parameterDescriptors() {
+    return /** @type {const} */ ([
+      {
+        name: 'attack',
+        defaultValue: 0.01,
+        minValue: 0.0,
+        maxValue: 2.0
+      },
+      {
+        name: 'decay',
+        defaultValue: 0.0,
+        minValue: 0.0,
+        maxValue: 2.0
+      },
+      {
+        name: 'sustain',
+        defaultValue: 1.0,
+        minValue: 0.0,
+        maxValue: 1.0
+      },
+      {
+        name: 'release',
+        defaultValue: 0.1,
+        minValue: 0.001,
+        maxValue: 2.0
+      }
+    ]);
+  }
+
+  /**
+   * @param {Event} e 
+   */
+  handleEvent(e) {
+    if (e.type === MEMORY_DETACHED_EVENT) {
+      this.#triggerInputBuffer.recoverMemory(this.#adsr.trigger_input_ptr());
+      this.#retriggerInputBuffer.recoverMemory(this.#adsr.retrigger_input_ptr());
+      this.#outputBuffer.recoverMemory(this.#adsr.output_ptr());
+    }
+  }
+
+  /**
+   * @param {Float32Array[][]} inputList 
+   * @param {Float32Array[][]} outputList 
+   * @param {Record<import('./types').ParameterName<typeof ADSRProcessor>, Float32Array>} parameters 
+   */
+  process(inputList, outputList, parameters) {
+    if (this.#destroyed) {
+      return false;
     }
 
-    static get parameterDescriptors() {
-        return /** @type {const} */ ([
-            {
-                name: 'attack',
-                defaultValue: 0.01,
-                minValue: 0.0,
-                maxValue: 2.0
-            },
-            {
-                name: 'decay',
-                defaultValue: 0.0,
-                minValue: 0.0,
-                maxValue: 2.0
-            },
-            {
-                name: 'sustain',
-                defaultValue: 1.0,
-                minValue: 0.0,
-                maxValue: 1.0
-            },
-            {
-                name: 'release',
-                defaultValue: 0.1,
-                minValue: 0.001,
-                maxValue: 2.0
-            }
-        ]);
-    }
+    this.#triggerInputBuffer.setChannelData(inputList[0][0], 0);
+    this.#retriggerInputBuffer.setChannelData(inputList[1][0], 0);
 
-    /**
-     * @param {Event} e 
-     */
-    handleEvent(e) {
-        if (e.type === MEMORY_DETACHED_EVENT) {
-            this.#triggerInputBuffer.recoverMemory(this.#adsr.trigger_input_ptr());
-            this.#retriggerInputBuffer.recoverMemory(this.#adsr.retrigger_input_ptr());
-            this.#outputBuffer.recoverMemory(this.#adsr.output_ptr());
-        }
-    }
+    this.#adsr.process(
+      parameters['attack'][0],
+      parameters['decay'][0],
+      parameters['sustain'][0],
+      parameters['release'][0]
+    );
 
-    /**
-     * @param {Float32Array[][]} inputList 
-     * @param {Float32Array[][]} outputList 
-     * @param {Record<import('./types').ParameterName<typeof ADSRProcessor>, Float32Array>} parameters 
-     */
-    process(inputList, outputList, parameters) {
-        if (this.#destroyed) {
-            return false;
-        }
+    outputList[0][0].set(this.#outputBuffer.getChannelData(0));
 
-        this.#triggerInputBuffer.setChannelData(inputList[0][0], 0);
-        this.#retriggerInputBuffer.setChannelData(inputList[1][0], 0);
+    return true;
+  }
 
-        this.#adsr.process(
-            parameters['attack'][0],
-            parameters['decay'][0],
-            parameters['sustain'][0],
-            parameters['release'][0]
-        );
-
-        outputList[0][0].set(this.#outputBuffer.getChannelData(0));
-
-        return true;
-    }
-
-    #destroy() {
-        this.#adsr.free();
-        this.#triggerInputBuffer.free();
-        this.#retriggerInputBuffer.free();
-        this.#outputBuffer.free();
-    }
+  #destroy() {
+    this.#adsr.free();
+    this.#triggerInputBuffer.free();
+    this.#retriggerInputBuffer.free();
+    this.#outputBuffer.free();
+    cachedF32Memory.unregisterListener(this);
+    this.#destroyed = true;
+  }
 }
 registerProcessor('adsr', ADSRProcessor);

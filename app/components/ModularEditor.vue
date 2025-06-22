@@ -190,6 +190,8 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :channel="data.channel"
           :device-id="data.deviceId"
           :priority="data.priority"
+          :outputs="data.outputs"
+          :pitch-bend-range="data.pitchBendRange"
         />
       </template>
       <template #[`node-${AudioModuleType.MultiFilter}`]="{ id, type, data }">
@@ -225,6 +227,65 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :detune="data.detune"
           :waveform="data.waveform"
           :frequency-enabled="data.frequencyEnabled"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.FMOscillator}`]="{ id, type, data }">
+        <FMOscillatorModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :frequency="data.frequency"
+          :pitch-shift="data.pitchShift"
+        />
+      </template>
+      <template #[`node-${AudioModuleType.FMVoice}`]="{ id, type, data }">
+        <FMVoiceModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :algorithm="data.algorithm"
+          :op1-pitch-shift="data.op1PitchShift"
+          :op2-pitch-shift="data.op2PitchShift"
+          :op3-pitch-shift="data.op3PitchShift"
+          :op4-pitch-shift="data.op4PitchShift"
+          :op5-pitch-shift="data.op5PitchShift"
+          :op6-pitch-shift="data.op6PitchShift"
+          :op1-fine-tune="data.op1FineTune"
+          :op2-fine-tune="data.op2FineTune"
+          :op3-fine-tune="data.op3FineTune"
+          :op4-fine-tune="data.op4FineTune"
+          :op5-fine-tune="data.op5FineTune"
+          :op6-fine-tune="data.op6FineTune"
+          :op1-level="data.op1Level"
+          :op2-level="data.op2Level"
+          :op3-level="data.op3Level"
+          :op4-level="data.op4Level"
+          :op5-level="data.op5Level"
+          :op6-level="data.op6Level"
+          :op1-attack="data.op1Attack"
+          :op2-attack="data.op2Attack"
+          :op3-attack="data.op3Attack"
+          :op4-attack="data.op4Attack"
+          :op5-attack="data.op5Attack"
+          :op6-attack="data.op6Attack"
+          :op1-decay="data.op1Decay"
+          :op2-decay="data.op2Decay"
+          :op3-decay="data.op3Decay"
+          :op4-decay="data.op4Decay"
+          :op5-decay="data.op5Decay"
+          :op6-decay="data.op6Decay"
+          :op1-sustain="data.op1Sustain"
+          :op2-sustain="data.op2Sustain"
+          :op3-sustain="data.op3Sustain"
+          :op4-sustain="data.op4Sustain"
+          :op5-sustain="data.op5Sustain"
+          :op6-sustain="data.op6Sustain"
+          :op1-release="data.op1Release"
+          :op2-release="data.op2Release"
+          :op3-release="data.op3Release"
+          :op4-release="data.op4Release"
+          :op5-release="data.op5Release"
+          :op6-release="data.op6Release"
         />
       </template>
       <template #[`node-${AudioModuleType.Oscilloscope}`]="{ id, type, data }">

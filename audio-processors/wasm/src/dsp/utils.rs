@@ -10,9 +10,9 @@ pub fn make_fine_tune_factors() -> HashMap<i32, f32> {
     fine_tune_factors
 }
 
-pub fn make_pitch_factors() -> HashMap<i32, f32> {
-    let mut pitch_factors: HashMap<i32, f32> = HashMap::with_capacity(25);
-    for p in -12..=12 {
+pub fn make_pitch_factors(octaves: usize) -> HashMap<i32, f32> {
+    let mut pitch_factors: HashMap<i32, f32> = HashMap::with_capacity(octaves * 2 * 12 + 1);
+    for p in ((octaves as i32) * -12)..=((octaves as i32) * 12) {
         pitch_factors.insert(p, 2.0_f32.powf((p as f32) * ONE_TWELFTH));
     }
     pitch_factors

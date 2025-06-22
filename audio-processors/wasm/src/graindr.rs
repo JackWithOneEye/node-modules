@@ -60,7 +60,7 @@ impl Graindr {
             channel_count,
             graindr: proc_vec,
             fine_tune_factors: make_fine_tune_factors(),
-            pitch_factors: make_pitch_factors(),
+            pitch_factors: make_pitch_factors(1),
 
             dry_wet_mix: 0.0,
             dry_gain: linear_smoothed_value!(1.0, sample_rate, 0.05),

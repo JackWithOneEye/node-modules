@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Handle } from '@vue-flow/core'
+import { Handle, Position } from '@vue-flow/core'
 
 export type HandleBarItem = { id: string, label: string, type: 'source' | 'target' }
 export type HandleBarProps = {

@@ -5,6 +5,7 @@ pub mod envelope_filter;
 pub mod envelope_follower;
 pub mod fast_math;
 pub mod fft_helper;
+pub mod fm_voice;
 pub mod granular;
 pub mod linkwitz_riley_filter;
 pub mod lofi;

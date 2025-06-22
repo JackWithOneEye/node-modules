@@ -9,6 +9,8 @@ pub mod bit_crusher;
 pub mod bypasser;
 pub mod decimator;
 pub mod envelope_tracker;
+pub mod fm_oscillator;
+pub mod fm_voice;
 pub mod graindr;
 pub mod lfo;
 pub mod multi_filter;

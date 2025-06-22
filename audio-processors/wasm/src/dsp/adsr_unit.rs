@@ -131,7 +131,6 @@ impl ADSRUnit {
         match self.state {
             ADSRState::Attack if self.decay_rate > 0.0 => {
                 self.state = ADSRState::Decay;
-            
             }
             ADSRState::Attack => {
                 self.state = ADSRState::Sustain;
