@@ -52,7 +52,6 @@ onUnmounted(() => {
   if (space) {
     space.removeAll()
     space.stop()
-    space.dispose()
   }
   gainNode.disconnect()
   store.unregisterModule(props.id)
