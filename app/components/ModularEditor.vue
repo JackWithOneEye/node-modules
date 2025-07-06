@@ -295,6 +295,14 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :title="data.title"
         />
       </template>
+      <template #[`node-${AudioModuleType.SpectrumAnalyzer}`]="{ id, type, data }">
+        <SpectrumAnalyzerModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :fft-size="data.fftSize"
+        />
+      </template>
       <template #[`node-${AudioModuleType.PitchTracker}`]="{ id, type, data }">
         <PitchTrackerModule
           :id="id"

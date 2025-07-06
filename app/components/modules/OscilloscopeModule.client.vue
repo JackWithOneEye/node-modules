@@ -28,10 +28,8 @@ let form: CanvasForm
 watch(wrapper, () => {
   space = new CanvasSpace(wrapper.value!).setup({
     bgcolor: '#000000',
-    // retina: true,
     pixelDensity: 10,
     offscreen: true,
-    // resize: true,
   })
   form = space.getForm()
 
