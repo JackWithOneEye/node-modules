@@ -329,6 +329,13 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :offset="data.offset"
         />
       </template>
+      <template #[`node-${AudioModuleType.KaossPad}`]="{ id, type, data }">
+        <KaossPadModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+        />
+      </template>
       <template #[`node-${AudioModuleType.Waveshaper}`]="{ id, type, data }">
         <WaveshaperModule
           :id="id"

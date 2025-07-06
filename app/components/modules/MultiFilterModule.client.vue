@@ -17,7 +17,7 @@ const {
   scaled: cutoffScaled,
   hz: cutoffHz,
   controlRange: cutoffControlRange,
-} = useFrequencyParam('cutoff', props.cutoff, 20, 10, value => store.setParamValue(multiFilterNode.cutoff, value, 'lin'))
+} = useFrequencyParam('cutoff', props.cutoff, 20, 10, value => store.setParamValue(multiFilterNode.cutoff, value, 'lin', 0.01))
 const [q] = useAudioParam('q', props.q, value => store.setParamValue(multiFilterNode.q, value, 'lin'))
 
 const store = useAudioContextStore()
