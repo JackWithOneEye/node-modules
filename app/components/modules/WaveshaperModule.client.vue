@@ -18,7 +18,7 @@ const { audioContext, registerModule, unregisterModule } = useAudioContextStore(
 
 const waveshaperTables = useWaveshapersStore()
 
-const { onViewportChange } = useVueFlow()
+const { onViewportChange, getViewport } = useVueFlow()
 
 const waveshaperNode = new WaveShaperNode(audioContext, {
   curve: waveshaperTables[props.waveshaper][props.modifier],
@@ -67,15 +67,15 @@ const ctx = shallowRef<CanvasRenderingContext2D | null>(null)
 function resizeCanvas() {
   const wrap = canvasWrap.value!
   const canvas = canvasEl.value!
-  const dpr = window.devicePixelRatio || 1
+  const scale = (window.devicePixelRatio || 1) * getViewport().zoom
 
-  const width = wrap.clientWidth * dpr
-  const height = wrap.clientHeight * dpr
+  const width = wrap.clientWidth * scale
+  const height = wrap.clientHeight * scale
   if (canvas.width !== width || canvas.height !== height) {
     canvas.width = width
     canvas.height = height
     const c = ctx.value!
-    c.setTransform(dpr, 0, 0, dpr, 0, 0)
+    c.setTransform(scale, 0, 0, scale, 0, 0)
   }
 }
 
@@ -153,51 +153,23 @@ onUnmounted(() => {
         <HandleLabel>
           in
         </HandleLabel>
-        <Handle
-          id="input"
-          class="!top-10"
-          type="target"
-          :position="Position.Left"
-        />
+        <Handle id="input" class="!top-10" type="target" :position="Position.Left" />
         <div class="flex items-center gap-1 border border-white/80 rounded-md p-2 nodrag mt-2">
-          <Knob
-            v-model="modifier"
-            :size="40"
-            :min="0"
-            :max="100"
-          />
-          <Dropdown
-            v-model="waveshaper"
-            class="border h-6 w-full"
-            :pt="{
-              input: tw`p-1 text-xs`,
-            }"
-            :options="waveshaperOptions"
-            option-label="label"
-            option-value="value"
-            placeholder="Waveshaper"
-          />
+          <Knob v-model="modifier" :size="40" :min="0" :max="100" />
+          <Dropdown v-model="waveshaper" class="border h-6 w-full" :pt="{
+            input: tw`p-1 text-xs`,
+          }" :options="waveshaperOptions" option-label="label" option-value="value" placeholder="Waveshaper" />
         </div>
       </div>
-      <div
-        ref="canvasWrap"
-        class="relative flex-1 min-w-[180px] min-h-[120px] max-h-[200px] max-w-[320px] border border-white/30 rounded overflow-hidden"
-      >
-        <canvas
-          ref="canvasEl"
-          class="absolute inset-0 w-full h-full bg-[#111]"
-        />
+      <div ref="canvasWrap"
+        class="relative flex-1 min-w-[180px] min-h-[120px] max-h-[200px] max-w-[320px] border border-white/30 rounded overflow-hidden">
+        <canvas ref="canvasEl" class="absolute inset-0 w-full h-full bg-[#111]" />
       </div>
       <div class="flex flex-col gap-4">
         <HandleLabel>
           out
         </HandleLabel>
-        <Handle
-          id="output"
-          class="!top-10"
-          type="source"
-          :position="Position.Right"
-        />
+        <Handle id="output" class="!top-10" type="source" :position="Position.Right" />
       </div>
     </div>
   </div>

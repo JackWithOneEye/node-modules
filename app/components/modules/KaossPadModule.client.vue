@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Handle } from '@vue-flow/core'
+import { Handle, Position, useVueFlow } from '@vue-flow/core'
 
 export type KaossPadModuleProps = {
   id: string
@@ -18,22 +18,85 @@ const {
   unregisterModule,
 } = useAudioContextStore()
 
-const xyNodes = { x: new ConstantSourceNode(audioContext, { offset: 0 }), y: new ConstantSourceNode(audioContext, { offset: 0 }) }
-xyNodes.x.start()
-xyNodes.y.start()
+const { onViewportChange, getViewport } = useVueFlow()
+
+const nodes = {
+  x: new ConstantSourceNode(audioContext, { offset: 0 }),
+  y: new ConstantSourceNode(audioContext, { offset: 0 }),
+}
+nodes.x.start()
+nodes.y.start()
 
 const x = ref(0)
 const y = ref(0)
 
-const padRef = ref<HTMLDivElement>()
+const canvasWrap = ref<HTMLDivElement>()
+const canvasEl = ref<HTMLCanvasElement>()
+const ctx = shallowRef<CanvasRenderingContext2D | null>(null)
 const isDragging = ref(false)
 
-const updateFromPointer = (event: PointerEvent) => {
-  if (!padRef.value) {
+function resizeCanvas() {
+  const wrap = canvasWrap.value!
+  const canvas = canvasEl.value!
+  const scale = (window.devicePixelRatio || 1) * getViewport().zoom
+
+  const width = wrap.clientWidth * scale
+  const height = wrap.clientHeight * scale
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width
+    canvas.height = height
+    const c = ctx.value!
+    c.setTransform(scale, 0, 0, scale, 0, 0)
+  }
+}
+
+function drawPad() {
+  if (!ctx.value || !canvasWrap.value) {
     return
   }
 
-  const rect = padRef.value.getBoundingClientRect()
+  const wrap = canvasWrap.value
+  const c = ctx.value
+  const width = wrap.clientWidth
+  const height = wrap.clientHeight
+
+  // Clear canvas
+  c.clearRect(0, 0, width, height)
+
+  // Draw background
+  c.fillStyle = '#000'
+  c.fillRect(0, 0, width, height)
+
+  // Draw grid lines
+  c.strokeStyle = 'rgba(255, 255, 255, 0.2)'
+  c.lineWidth = 1
+  c.beginPath()
+  // Center horizontal line
+  const halfHeight = height * 0.5
+  c.moveTo(0, halfHeight)
+  c.lineTo(width, halfHeight)
+  // Center vertical line
+  const halfWidth = width * 0.5
+  c.moveTo(halfWidth, 0)
+  c.lineTo(halfWidth, height)
+  c.stroke()
+
+  // Draw crosshair
+  const crosshairX = (x.value + 1) * halfWidth
+  const crosshairY = (1 - y.value) * halfHeight
+
+  c.fillStyle = '#fff'
+  c.beginPath()
+  c.arc(crosshairX, crosshairY, 4, 0, 2 * Math.PI)
+  c.fill()
+}
+
+const updateFromPointer = (event: PointerEvent) => {
+  if (!canvasWrap.value) {
+    return
+  }
+
+  const rect = canvasWrap.value.getBoundingClientRect()
   const relativeX = (event.clientX - rect.left) / rect.width
   const relativeY = (event.clientY - rect.top) / rect.height
 
@@ -47,8 +110,8 @@ const updateFromPointer = (event: PointerEvent) => {
 
   // Update the ConstantSourceNode offsets
   setMultipleParamValues(
-    [xyNodes.x.offset, x.value, 'lin', 0.0001],
-    [xyNodes.y.offset, y.value, 'lin', 0.0001],
+    [nodes.x.offset, x.value, 'none'],
+    [nodes.y.offset, y.value, 'none'],
   )
 }
 
@@ -58,6 +121,8 @@ const onPointerDown = (event: PointerEvent) => {
   }
   isDragging.value = true
   updateFromPointer(event)
+  document.addEventListener('pointermove', onPointerMove, { signal: abortCtrlr.signal })
+  document.addEventListener('pointerup', onPointerUp, { signal: abortCtrlr.signal })
 }
 
 const onPointerMove = (event: PointerEvent) => {
@@ -68,13 +133,15 @@ const onPointerMove = (event: PointerEvent) => {
 
 const onPointerUp = () => {
   isDragging.value = false
+  document.removeEventListener('pointermove', onPointerMove)
+  document.removeEventListener('pointerup', onPointerUp)
 }
 
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },
   sourceInterfaces: {
     connect: (sourceHandle, target, targetIndex) => {
-      const node = xyNodes[sourceHandle as 'x' | 'y']
+      const node = nodes[sourceHandle as 'x' | 'y']
       if (target instanceof AudioParam) {
         node.connect(target, 0)
         return
@@ -82,7 +149,7 @@ registerModule(props.id, {
       node.connect(target, 0, targetIndex)
     },
     disconnect: (sourceHandle, target, targetIndex) => {
-      const node = xyNodes[sourceHandle as 'x' | 'y']
+      const node = nodes[sourceHandle as 'x' | 'y']
       if (target instanceof AudioParam) {
         node.disconnect(target, 0)
         return
@@ -92,11 +159,41 @@ registerModule(props.id, {
   },
 })
 
+const abortCtrlr = new AbortController()
+let raf = 0
+watch(
+  canvasEl,
+  () => {
+    ctx.value = canvasEl.value!.getContext('2d')!
+    resizeCanvas()
+    drawPad()
+
+    window.addEventListener('resize', resizeCanvas, { signal: abortCtrlr.signal })
+  },
+  { once: true },
+)
+
+watch([x, y], () => {
+  cancelAnimationFrame(raf)
+  raf = requestAnimationFrame(drawPad)
+})
+
+onViewportChange(() => {
+  cancelAnimationFrame(raf)
+  raf = requestAnimationFrame(() => {
+    resizeCanvas()
+    drawPad()
+  })
+})
+
 onUnmounted(() => {
-  xyNodes.x.disconnect()
-  xyNodes.x.stop()
-  xyNodes.y.disconnect()
-  xyNodes.y.stop()
+  cancelAnimationFrame(raf)
+  abortCtrlr.abort()
+  ctx.value = null
+  nodes.x.disconnect()
+  nodes.x.stop()
+  nodes.y.disconnect()
+  nodes.y.stop()
   unregisterModule(props.id)
 })
 </script>
@@ -108,26 +205,16 @@ onUnmounted(() => {
     <div class="flex gap-2">
       <div class="flex flex-col gap-2">
         <div
-          ref="padRef"
-          class="nodrag w-48 h-48 bg-black border-2 border-white/50 relative cursor-crosshair select-none"
+          ref="canvasWrap"
+          class="nodrag w-48 h-48 border-2 border-white/50 relative cursor-crosshair select-none"
           @pointerdown="onPointerDown"
           @pointermove="onPointerMove"
           @pointerup="onPointerUp"
-          @pointerleave="onPointerUp"
         >
-          <!-- Crosshair indicator -->
-          <div
-            class="absolute w-2 h-2 bg-white rounded-full transform -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-            :style="{
-              left: `${((x + 1) / 2) * 100}%`,
-              top: `${((1 - y) / 2) * 100}%`,
-            }"
+          <canvas
+            ref="canvasEl"
+            class="absolute inset-0 w-full h-full"
           />
-          <!-- Grid lines -->
-          <div class="absolute inset-0 border-white/20">
-            <div class="absolute top-1/2 left-0 w-full h-px bg-white/20" />
-            <div class="absolute left-1/2 top-0 w-px h-full bg-white/20" />
-          </div>
         </div>
         <div class="flex gap-4 text-xs">
           <div class="flex items-center gap-1">
@@ -141,18 +228,14 @@ onUnmounted(() => {
         </div>
       </div>
       <div class="flex flex-col gap-2">
-        <HandleLabel>
-          X
-        </HandleLabel>
+        <HandleLabel> X </HandleLabel>
         <Handle
           id="x"
           class="!top-12"
           type="source"
           :position="Position.Right"
         />
-        <HandleLabel>
-          Y
-        </HandleLabel>
+        <HandleLabel> Y </HandleLabel>
         <Handle
           id="y"
           class="!top-20"
