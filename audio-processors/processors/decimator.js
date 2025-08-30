@@ -1,4 +1,4 @@
-import { BitCrusher, Decimator, Multiplier } from '../pkg/audio_processors';
+import { Decimator } from '../pkg/audio_processors';
 import { RENDER_QUANTUM_FRAMES } from './helpers/constants';
 import { HeapAudioBuffer } from './helpers/heap-audio-buffer';
 import { MEMORY_DETACHED_EVENT, cachedF32Memory } from './memory';
@@ -8,8 +8,8 @@ const CHANNELS = 2;
 class DecimatorProcessor extends AudioWorkletProcessor {
     #decimator = new Decimator(RENDER_QUANTUM_FRAMES, sampleRate, CHANNELS);
 
-    #inputBuffer = new HeapAudioBuffer(this.#decimator.input_ptr(), CHANNELS);
-    #outputBuffer = new HeapAudioBuffer(this.#decimator.output_ptr(), CHANNELS);;
+    #inputBuffer = new HeapAudioBuffer(this.#decimator.input_buffer_ptr(), CHANNELS);
+    #outputBuffer = new HeapAudioBuffer(this.#decimator.output_buffer_ptr(), CHANNELS);;
 
     #destroyed = false;
 
@@ -51,8 +51,8 @@ class DecimatorProcessor extends AudioWorkletProcessor {
      */
     handleEvent(e) {
         if (e.type === MEMORY_DETACHED_EVENT) {
-            this.#inputBuffer.recoverMemory(this.#decimator.input_ptr());
-            this.#outputBuffer.recoverMemory(this.#decimator.output_ptr());
+            this.#inputBuffer.recoverMemory(this.#decimator.input_buffer_ptr());
+            this.#outputBuffer.recoverMemory(this.#decimator.output_buffer_ptr());
         }
     }
 

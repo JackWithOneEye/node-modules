@@ -9,14 +9,14 @@ const CHANNELS = 2;
 class GraindrProcessor extends AudioWorkletProcessor {
     #graindr = new Graindr(RENDER_QUANTUM_FRAMES, sampleRate, CHANNELS);
 
-    #inputBuffer = new HeapAudioBuffer(this.#graindr.input_ptr(), CHANNELS);
-    #outputBuffer = new HeapAudioBuffer(this.#graindr.output_ptr(), CHANNELS);
+    #inputBuffer = new HeapAudioBuffer(this.#graindr.input_buffer_ptr(), CHANNELS);
+    #outputBuffer = new HeapAudioBuffer(this.#graindr.output_buffer_ptr(), CHANNELS);
 
-    #feedbackBuffer = new HeapParameterBuffer(this.#graindr.feedback_ptr());
-    #grainSizeMsBuffer = new HeapParameterBuffer(this.#graindr.grain_size_ms_ptr());
-    #hiCutFreqBuffer = new HeapParameterBuffer(this.#graindr.hi_cut_freq_ptr());
-    #shimmerBuffer = new HeapParameterBuffer(this.#graindr.shimmer_ptr());
-    #textureBuffer = new HeapParameterBuffer(this.#graindr.texture_ptr());
+    #feedbackBuffer = new HeapParameterBuffer(this.#graindr.feedback_buffer_ptr());
+    #grainSizeMsBuffer = new HeapParameterBuffer(this.#graindr.grain_size_ms_buffer_ptr());
+    #hiCutFreqBuffer = new HeapParameterBuffer(this.#graindr.hi_cut_freq_buffer_ptr());
+    #shimmerBuffer = new HeapParameterBuffer(this.#graindr.shimmer_buffer_ptr());
+    #textureBuffer = new HeapParameterBuffer(this.#graindr.texture_buffer_ptr());
 
     #destroyed = false;
 
@@ -112,13 +112,13 @@ class GraindrProcessor extends AudioWorkletProcessor {
      */
     handleEvent(e) {
         if (e.type === MEMORY_DETACHED_EVENT) {
-            this.#inputBuffer.recoverMemory(this.#graindr.input_ptr());
-            this.#outputBuffer.recoverMemory(this.#graindr.output_ptr());
-            this.#feedbackBuffer.recoverMemory(this.#graindr.feedback_ptr());
-            this.#grainSizeMsBuffer.recoverMemory(this.#graindr.grain_size_ms_ptr());
-            this.#hiCutFreqBuffer.recoverMemory(this.#graindr.hi_cut_freq_ptr());
-            this.#shimmerBuffer.recoverMemory(this.#graindr.shimmer_ptr());
-            this.#textureBuffer.recoverMemory(this.#graindr.texture_ptr());
+            this.#inputBuffer.recoverMemory(this.#graindr.input_buffer_ptr());
+            this.#outputBuffer.recoverMemory(this.#graindr.output_buffer_ptr());
+            this.#feedbackBuffer.recoverMemory(this.#graindr.feedback_buffer_ptr());
+            this.#grainSizeMsBuffer.recoverMemory(this.#graindr.grain_size_ms_buffer_ptr());
+            this.#hiCutFreqBuffer.recoverMemory(this.#graindr.hi_cut_freq_buffer_ptr());
+            this.#shimmerBuffer.recoverMemory(this.#graindr.shimmer_buffer_ptr());
+            this.#textureBuffer.recoverMemory(this.#graindr.texture_buffer_ptr());
         }
     }
 

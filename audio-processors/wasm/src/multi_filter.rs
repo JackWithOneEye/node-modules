@@ -1,21 +1,30 @@
 use crate::dsp::vasv_filter::VASVFilter;
 use wasm_bindgen::prelude::*;
+use wasm_utils::IOBufferPtrs;
 
 #[wasm_bindgen]
+#[derive(IOBufferPtrs)]
 pub struct MultiFilter {
     buffer_frame_length: usize,
     channel_count: usize,
     filters: Vec<VASVFilter>,
 
     // IO buffers
+    #[io_buffer]
     input_buffer: Vec<f32>,
+    #[io_buffer]
     bpf_out_buffer: Vec<f32>,
+    #[io_buffer]
     bsf_out_buffer: Vec<f32>,
+    #[io_buffer]
     hpf_out_buffer: Vec<f32>,
+    #[io_buffer]
     lpf_out_buffer: Vec<f32>,
 
     // parameter buffers
+    #[io_buffer]
     f_c_buffer: Vec<f32>,
+    #[io_buffer]
     q_buffer: Vec<f32>,
 }
 
@@ -42,34 +51,6 @@ impl MultiFilter {
             f_c_buffer: vec![0.0; buffer_frame_length],
             q_buffer: vec![0.0; buffer_frame_length],
         }
-    }
-
-    pub fn input_ptr(&mut self) -> *mut f32 {
-        &mut self.input_buffer[0]
-    }
-
-    pub fn bpf_out_ptr(&mut self) -> *mut f32 {
-        &mut self.bpf_out_buffer[0]
-    }
-
-    pub fn bsf_out_ptr(&mut self) -> *mut f32 {
-        &mut self.bsf_out_buffer[0]
-    }
-
-    pub fn hpf_out_ptr(&mut self) -> *mut f32 {
-        &mut self.hpf_out_buffer[0]
-    }
-
-    pub fn lpf_out_ptr(&mut self) -> *mut f32 {
-        &mut self.lpf_out_buffer[0]
-    }
-
-    pub fn f_c_ptr(&mut self) -> *mut f32 {
-        &mut self.f_c_buffer[0]
-    }
-
-    pub fn q_ptr(&mut self) -> *mut f32 {
-        &mut self.q_buffer[0]
     }
 
     pub fn process(&mut self) {
@@ -105,7 +86,6 @@ impl MultiFilter {
                 self.hpf_out_buffer[sample_index] = hpf;
                 self.lpf_out_buffer[sample_index] = lpf;
             }
-
             channel_offset += self.buffer_frame_length;
         }
     }

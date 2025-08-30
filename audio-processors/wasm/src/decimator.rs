@@ -1,4 +1,5 @@
 use wasm_bindgen::prelude::*;
+use wasm_utils::IOBufferPtrs;
 
 use crate::{
     dsp::{lofi, smoothed_value::SmoothedValue},
@@ -6,13 +7,16 @@ use crate::{
 };
 
 #[wasm_bindgen]
+#[derive(IOBufferPtrs)]
 pub struct Decimator {
     buffer_frame_length: usize,
     channel_count: usize,
     decimators: Vec<lofi::Decimator>,
 
     // IO buffers
+    #[io_buffer]
     input_buffer: Vec<f32>,
+    #[io_buffer]
     output_buffer: Vec<f32>,
 
     // parameters
@@ -44,14 +48,6 @@ impl Decimator {
         }
     }
 
-    pub fn input_ptr(&mut self) -> *mut f32 {
-        &mut self.input_buffer[0]
-    }
-
-    pub fn output_ptr(&mut self) -> *mut f32 {
-        &mut self.output_buffer[0]
-    }
-
     pub fn process(&mut self, reduction: f32, stereo_shift: f32) {
         self.reduction.set_target_value(reduction);
         self.stereo_shift.set_target_value(stereo_shift);
@@ -71,7 +67,7 @@ impl Decimator {
 
                 let i = n + channel_offset;
                 self.output_buffer[i] = decimator.process(self.input_buffer[i]);
-                
+
                 channel_offset += self.buffer_frame_length;
                 odd_channel = true;
             }

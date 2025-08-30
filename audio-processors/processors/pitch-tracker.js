@@ -22,8 +22,8 @@ class PitchTrackerProcessor extends AudioWorkletProcessor {
     }
 
     this.#pitchTracker = new PitchTracker(RENDER_QUANTUM_FRAMES, sampleRate, windowSizeSamples);
-    this.#inputBuffer = new HeapAudioBuffer(this.#pitchTracker.input_ptr(), 1);
-    this.#outputBuffer = new HeapAudioBuffer(this.#pitchTracker.output_ptr(), 1);
+    this.#inputBuffer = new HeapAudioBuffer(this.#pitchTracker.input_buffer_ptr(), 1);
+    this.#outputBuffer = new HeapAudioBuffer(this.#pitchTracker.output_buffer_ptr(), 1);
 
     this.port.onmessage = ((e) => {
       if (e.data === 'destroy') {
@@ -52,8 +52,8 @@ class PitchTrackerProcessor extends AudioWorkletProcessor {
    */
   handleEvent(e) {
     if (e.type === MEMORY_DETACHED_EVENT) {
-      this.#inputBuffer.recoverMemory(this.#pitchTracker.input_ptr());
-      this.#outputBuffer.recoverMemory(this.#pitchTracker.output_ptr());
+      this.#inputBuffer.recoverMemory(this.#pitchTracker.input_buffer_ptr());
+      this.#outputBuffer.recoverMemory(this.#pitchTracker.output_buffer_ptr());
     }
   }
 
@@ -74,7 +74,7 @@ class PitchTrackerProcessor extends AudioWorkletProcessor {
     );
 
     if (this.#outputBuffer.isMemoryDetached()) {
-      this.#outputBuffer.recoverMemory(this.#pitchTracker.output_ptr())
+      this.#outputBuffer.recoverMemory(this.#pitchTracker.output_buffer_ptr())
     }
 
     outputList[0][0].set(this.#outputBuffer.getChannelData(0));

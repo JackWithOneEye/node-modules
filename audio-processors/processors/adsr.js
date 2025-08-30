@@ -6,9 +6,9 @@ import { MEMORY_DETACHED_EVENT, cachedF32Memory } from './memory';
 class ADSRProcessor extends AudioWorkletProcessor {
   #adsr = new ADSR(RENDER_QUANTUM_FRAMES, sampleRate);
 
-  #triggerInputBuffer = new HeapAudioBuffer(this.#adsr.trigger_input_ptr(), 1);
-  #retriggerInputBuffer = new HeapAudioBuffer(this.#adsr.retrigger_input_ptr(), 1);
-  #outputBuffer = new HeapAudioBuffer(this.#adsr.output_ptr(), 1);
+  #triggerInputBuffer = new HeapAudioBuffer(this.#adsr.trigger_input_buffer_ptr(), 1);
+  #retriggerInputBuffer = new HeapAudioBuffer(this.#adsr.retrigger_input_buffer_ptr(), 1);
+  #outputBuffer = new HeapAudioBuffer(this.#adsr.output_buffer_ptr(), 1);
 
   #destroyed = false;
 
@@ -60,9 +60,9 @@ class ADSRProcessor extends AudioWorkletProcessor {
    */
   handleEvent(e) {
     if (e.type === MEMORY_DETACHED_EVENT) {
-      this.#triggerInputBuffer.recoverMemory(this.#adsr.trigger_input_ptr());
-      this.#retriggerInputBuffer.recoverMemory(this.#adsr.retrigger_input_ptr());
-      this.#outputBuffer.recoverMemory(this.#adsr.output_ptr());
+      this.#triggerInputBuffer.recoverMemory(this.#adsr.trigger_input_buffer_ptr());
+      this.#retriggerInputBuffer.recoverMemory(this.#adsr.retrigger_input_buffer_ptr());
+      this.#outputBuffer.recoverMemory(this.#adsr.output_buffer_ptr());
     }
   }
 

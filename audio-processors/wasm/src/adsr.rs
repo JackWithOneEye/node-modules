@@ -1,8 +1,10 @@
 use wasm_bindgen::prelude::*;
+use wasm_utils::IOBufferPtrs;
 
 use crate::dsp::adsr_unit::ADSRUnit;
 
 #[wasm_bindgen]
+#[derive(IOBufferPtrs)]
 pub struct ADSR {
     adsr: ADSRUnit,
     buffer_frame_length: usize,
@@ -10,9 +12,11 @@ pub struct ADSR {
     prev_flag: f32,
     prev_retrig: f32,
 
-    // IO buffers
+    #[io_buffer]
     trigger_input_buffer: Vec<f32>,
+    #[io_buffer]
     retrigger_input_buffer: Vec<f32>,
+    #[io_buffer]
     output_buffer: Vec<f32>,
 }
 
@@ -32,18 +36,6 @@ impl ADSR {
             retrigger_input_buffer: vec![0.0; buffer_frame_length],
             output_buffer: vec![0.0; buffer_frame_length],
         }
-    }
-
-    pub fn trigger_input_ptr(&mut self) -> *mut f32 {
-        &mut self.trigger_input_buffer[0]
-    }
-
-    pub fn retrigger_input_ptr(&mut self) -> *mut f32 {
-        &mut self.retrigger_input_buffer[0]
-    }
-
-    pub fn output_ptr(&mut self) -> *mut f32 {
-        &mut self.output_buffer[0]
     }
 
     pub fn process(&mut self, attack_sec: f32, decay_sec: f32, sustain_lvl: f32, release_sec: f32) {

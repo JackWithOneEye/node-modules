@@ -1,4 +1,5 @@
 use wasm_bindgen::prelude::*;
+use wasm_utils::IOBufferPtrs;
 
 use crate::{
     dsp::{lofi, smoothed_value::SmoothedValue},
@@ -6,13 +7,15 @@ use crate::{
 };
 
 #[wasm_bindgen]
+#[derive(IOBufferPtrs)]
 pub struct BitCrusher {
     bit_crusher: lofi::BitCrusher,
     buffer_frame_length: usize,
     channel_count: usize,
 
-    // IO buffers
+    #[io_buffer]
     input_buffer: Vec<f32>,
+    #[io_buffer]
     output_buffer: Vec<f32>,
 
     // parameters
@@ -35,14 +38,6 @@ impl BitCrusher {
 
             bits: linear_smoothed_value!(32.0, sample_rate, 0.05),
         }
-    }
-
-    pub fn input_ptr(&mut self) -> *mut f32 {
-        &mut self.input_buffer[0]
-    }
-
-    pub fn output_ptr(&mut self) -> *mut f32 {
-        &mut self.output_buffer[0]
     }
 
     pub fn process(&mut self, bits: f32) {

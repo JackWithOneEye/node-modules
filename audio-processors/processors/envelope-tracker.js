@@ -6,9 +6,9 @@ import { MEMORY_DETACHED_EVENT, cachedF32Memory } from './memory';
 class EnvelopeTrackerProcessor extends AudioWorkletProcessor {
   #envelopeTracker = new EnvelopeTracker(RENDER_QUANTUM_FRAMES, sampleRate);
 
-  #inputBuffer = new HeapAudioBuffer(this.#envelopeTracker.input_ptr(), 1);
-  #modulationOutputBuffer = new HeapAudioBuffer(this.#envelopeTracker.modulation_output_ptr(), 1);
-  #triggerOutputBuffer = new HeapAudioBuffer(this.#envelopeTracker.trigger_output_ptr(), 1);
+  #inputBuffer = new HeapAudioBuffer(this.#envelopeTracker.input_buffer_ptr(), 1);
+  #modulationOutputBuffer = new HeapAudioBuffer(this.#envelopeTracker.modulation_output_buffer_ptr(), 1);
+  #triggerOutputBuffer = new HeapAudioBuffer(this.#envelopeTracker.trigger_output_buffer_ptr(), 1);
 
   #destroyed = false;
 
@@ -48,9 +48,9 @@ class EnvelopeTrackerProcessor extends AudioWorkletProcessor {
    */
   handleEvent(e) {
     if (e.type === MEMORY_DETACHED_EVENT) {
-      this.#inputBuffer.recoverMemory(this.#envelopeTracker.input_ptr());
-      this.#modulationOutputBuffer.recoverMemory(this.#envelopeTracker.modulation_output_ptr());
-      this.#triggerOutputBuffer.recoverMemory(this.#envelopeTracker.trigger_output_ptr());
+      this.#inputBuffer.recoverMemory(this.#envelopeTracker.input_buffer_ptr());
+      this.#modulationOutputBuffer.recoverMemory(this.#envelopeTracker.modulation_output_buffer_ptr());
+      this.#triggerOutputBuffer.recoverMemory(this.#envelopeTracker.trigger_output_buffer_ptr());
     }
   }
 

@@ -7,9 +7,9 @@ import { MEMORY_DETACHED_EVENT, cachedF32Memory } from './memory';
 class FMOscillatorProcessor extends AudioWorkletProcessor {
   #fmOscillator = new FMOscillator(RENDER_QUANTUM_FRAMES, sampleRate, 2);
 
-  #frequencyBuffer = new HeapParameterBuffer(this.#fmOscillator.frequency_ptr());
-  #phaseShiftBuffer = new HeapParameterBuffer(this.#fmOscillator.phase_shift_ptr());
-  #outputBuffer = new HeapAudioBuffer(this.#fmOscillator.output_ptr(), 2);
+  #frequencyBuffer = new HeapParameterBuffer(this.#fmOscillator.frequency_buffer_ptr());
+  #phaseShiftBuffer = new HeapParameterBuffer(this.#fmOscillator.phase_shift_buffer_ptr());
+  #outputBuffer = new HeapAudioBuffer(this.#fmOscillator.output_buffer_ptr(), 2);
 
   #destroyed = false;
 
@@ -55,9 +55,9 @@ class FMOscillatorProcessor extends AudioWorkletProcessor {
    */
   handleEvent(e) {
     if (e.type === MEMORY_DETACHED_EVENT) {
-      this.#outputBuffer.recoverMemory(this.#fmOscillator.output_ptr());
-      this.#frequencyBuffer.recoverMemory(this.#fmOscillator.frequency_ptr());
-      this.#phaseShiftBuffer.recoverMemory(this.#fmOscillator.phase_shift_ptr());
+      this.#outputBuffer.recoverMemory(this.#fmOscillator.output_buffer_ptr());
+      this.#frequencyBuffer.recoverMemory(this.#fmOscillator.frequency_buffer_ptr());
+      this.#phaseShiftBuffer.recoverMemory(this.#fmOscillator.phase_shift_buffer_ptr());
     }
   }
 

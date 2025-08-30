@@ -1,12 +1,17 @@
 use wasm_bindgen::prelude::*;
+use wasm_utils::IOBufferPtrs;
 
 #[wasm_bindgen]
+#[derive(IOBufferPtrs)]
 pub struct Sequencer {
     current_step: usize,
     prev_gate_value: f32,
 
+    #[io_buffer]
     gate_in_buffer: Vec<f32>,
+    #[io_buffer]
     output_buffer: Vec<f32>,
+    #[io_buffer]
     values_buffer: Vec<f32>,
 }
 
@@ -24,18 +29,6 @@ impl Sequencer {
             output_buffer: vec![0.0; buffer_frame_length],
             values_buffer: vec![0.0; 32],
         }
-    }
-
-    pub fn gate_in_ptr(&mut self) -> *mut f32 {
-        &mut self.gate_in_buffer[0]
-    }
-
-    pub fn output_ptr(&mut self) -> *mut f32 {
-        &mut self.output_buffer[0]
-    }
-
-    pub fn values_ptr(&mut self) -> *mut f32 {
-        &mut self.values_buffer[0]
     }
 
     pub fn process(&mut self, gate_thresh: f32, num_steps: usize) -> usize {

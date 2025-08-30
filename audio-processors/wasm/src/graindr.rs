@@ -1,4 +1,5 @@
 use wasm_bindgen::prelude::*;
+use wasm_utils::IOBufferPtrs;
 
 use crate::{
     dsp::{
@@ -15,6 +16,7 @@ use crate::{
 use std::{collections::HashMap, f32::consts::FRAC_PI_2};
 
 #[wasm_bindgen]
+#[derive(IOBufferPtrs)]
 pub struct Graindr {
     buffer_frame_length: usize,
     channel_count: usize,
@@ -34,14 +36,21 @@ pub struct Graindr {
     ms_to_samples_factor: f32,
 
     // IO buffers
+    #[io_buffer]
     input_buffer: Vec<f32>,
+    #[io_buffer]
     output_buffer: Vec<f32>,
 
     // parameter buffers
+    #[io_buffer]
     feedback_buffer: Vec<f32>,
+    #[io_buffer]
     grain_size_ms_buffer: Vec<f32>,
+    #[io_buffer]
     hi_cut_freq_buffer: Vec<f32>,
+    #[io_buffer]
     shimmer_buffer: Vec<f32>,
+    #[io_buffer]
     texture_buffer: Vec<f32>,
 }
 
@@ -78,34 +87,6 @@ impl Graindr {
             shimmer_buffer: vec![0.0; buffer_frame_length],
             texture_buffer: vec![0.0; buffer_frame_length],
         }
-    }
-
-    pub fn feedback_ptr(&mut self) -> *mut f32 {
-        &mut self.feedback_buffer[0]
-    }
-
-    pub fn grain_size_ms_ptr(&mut self) -> *mut f32 {
-        &mut self.grain_size_ms_buffer[0]
-    }
-
-    pub fn hi_cut_freq_ptr(&mut self) -> *mut f32 {
-        &mut self.hi_cut_freq_buffer[0]
-    }
-
-    pub fn input_ptr(&mut self) -> *mut f32 {
-        &mut self.input_buffer[0]
-    }
-
-    pub fn output_ptr(&mut self) -> *mut f32 {
-        &mut self.output_buffer[0]
-    }
-
-    pub fn shimmer_ptr(&mut self) -> *mut f32 {
-        &mut self.shimmer_buffer[0]
-    }
-
-    pub fn texture_ptr(&mut self) -> *mut f32 {
-        &mut self.texture_buffer[0]
     }
 
     pub fn process(

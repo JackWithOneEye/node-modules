@@ -1,8 +1,10 @@
 use wasm_bindgen::prelude::*;
+use wasm_utils::IOBufferPtrs;
 
 use crate::{dsp::smoothed_value::SmoothedValue, linear_smoothed_value, utils};
 
 #[wasm_bindgen]
+#[derive(IOBufferPtrs)]
 pub struct PitchTracker {
     buffer_frame_length: usize,
 
@@ -12,7 +14,9 @@ pub struct PitchTracker {
     harmonic_threshold: SmoothedValue,
 
     // IO buffers
+    #[io_buffer]
     input_buffer: Vec<f32>,
+    #[io_buffer]
     output_buffer: Vec<f32>,
 }
 
@@ -40,14 +44,6 @@ impl PitchTracker {
             input_buffer: vec![0.0; buffer_frame_length],
             output_buffer: vec![0.0; buffer_frame_length],
         }
-    }
-
-    pub fn input_ptr(&mut self) -> *mut f32 {
-        &mut self.input_buffer[0]
-    }
-
-    pub fn output_ptr(&mut self) -> *mut f32 {
-        &mut self.output_buffer[0]
     }
 
     pub fn process(&mut self, harmonic_threshold: f32) {

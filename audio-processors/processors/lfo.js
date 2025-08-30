@@ -7,8 +7,8 @@ import { MEMORY_DETACHED_EVENT, cachedF32Memory } from './memory';
 class LFOProcessor extends AudioWorkletProcessor {
   #lfo = new LFO(RENDER_QUANTUM_FRAMES, sampleRate);
 
-  #phaseShiftBuffer = new HeapParameterBuffer(this.#lfo.phase_shift_ptr());
-  #outputBuffer = new HeapAudioBuffer(this.#lfo.output_ptr(), 1);
+  #phaseShiftBuffer = new HeapParameterBuffer(this.#lfo.phase_shift_buffer_ptr());
+  #outputBuffer = new HeapAudioBuffer(this.#lfo.output_buffer_ptr(), 1);
 
   #destroyed = false;
 
@@ -60,8 +60,8 @@ class LFOProcessor extends AudioWorkletProcessor {
    */
   handleEvent(e) {
     if (e.type === MEMORY_DETACHED_EVENT) {
-      this.#outputBuffer.recoverMemory(this.#lfo.output_ptr());
-      this.#phaseShiftBuffer.recoverMemory(this.#lfo.phase_shift_ptr());
+      this.#outputBuffer.recoverMemory(this.#lfo.output_buffer_ptr());
+      this.#phaseShiftBuffer.recoverMemory(this.#lfo.phase_shift_buffer_ptr());
     }
   }
 

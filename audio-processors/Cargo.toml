@@ -1,5 +1,5 @@
 [workspace]
-members = ["wasm"]
+members = ["wasm", "wasm_utils"]
 
 [profile.release]
 # Tell `rustc` to optimize for small code size.

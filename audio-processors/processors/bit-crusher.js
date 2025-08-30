@@ -1,4 +1,4 @@
-import { BitCrusher, Multiplier } from '../pkg/audio_processors';
+import { BitCrusher } from '../pkg/audio_processors';
 import { RENDER_QUANTUM_FRAMES } from './helpers/constants';
 import { HeapAudioBuffer } from './helpers/heap-audio-buffer';
 import { MEMORY_DETACHED_EVENT, cachedF32Memory } from './memory';
@@ -8,8 +8,8 @@ const CHANNELS = 2;
 class BitCrusherProcessor extends AudioWorkletProcessor {
     #bitCrusher = new BitCrusher(RENDER_QUANTUM_FRAMES, sampleRate, CHANNELS);
 
-    #inputBuffer = new HeapAudioBuffer(this.#bitCrusher.input_ptr(), CHANNELS);
-    #outputBuffer = new HeapAudioBuffer(this.#bitCrusher.output_ptr(), CHANNELS);
+    #inputBuffer = new HeapAudioBuffer(this.#bitCrusher.input_buffer_ptr(), CHANNELS);
+    #outputBuffer = new HeapAudioBuffer(this.#bitCrusher.output_buffer_ptr(), CHANNELS);
 
     #destroyed = false;
 
@@ -44,8 +44,8 @@ class BitCrusherProcessor extends AudioWorkletProcessor {
      */
     handleEvent(e) {
         if (e.type === MEMORY_DETACHED_EVENT) {
-            this.#inputBuffer.recoverMemory(this.#bitCrusher.input_ptr());
-            this.#outputBuffer.recoverMemory(this.#bitCrusher.output_ptr());
+            this.#inputBuffer.recoverMemory(this.#bitCrusher.input_buffer_ptr());
+            this.#outputBuffer.recoverMemory(this.#bitCrusher.output_buffer_ptr());
         }
     }
 

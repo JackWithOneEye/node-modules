@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use wasm_bindgen::prelude::*;
+use wasm_utils::IOBufferPtrs;
 
 use crate::dsp::{
     fm_voice::{self, OperatorParams},
@@ -8,6 +9,7 @@ use crate::dsp::{
 };
 
 #[wasm_bindgen]
+#[derive(IOBufferPtrs)]
 pub struct FMSynthesizer {
     buffer_frame_length: usize,
     channel_count: usize,
@@ -30,9 +32,13 @@ pub struct FMSynthesizer {
     prev_retrig: [f32; 8],
 
     // IO buffers (8 voices for polyphony)
+    #[io_buffer]
     frequency_input_buffer: Vec<f32>,
+    #[io_buffer]
     trigger_input_buffer: Vec<f32>,
+    #[io_buffer]
     retrigger_input_buffer: Vec<f32>,
+    #[io_buffer]
     output_buffer: Vec<f32>,
 }
 
@@ -136,18 +142,6 @@ impl FMSynthesizer {
 
     pub fn operator_release_ptr(&mut self, operator: usize) -> *mut f32 {
         &mut self.operator_release_buffers[operator][0]
-    }
-
-    pub fn trigger_input_ptr(&mut self) -> *mut f32 {
-        &mut self.trigger_input_buffer[0]
-    }
-
-    pub fn retrigger_input_ptr(&mut self) -> *mut f32 {
-        &mut self.retrigger_input_buffer[0]
-    }
-
-    pub fn output_ptr(&mut self) -> *mut f32 {
-        &mut self.output_buffer[0]
     }
 
     pub fn process(

@@ -9,15 +9,15 @@ const CHANNELS = 2;
 class MultiFilterProcessor extends AudioWorkletProcessor {
     #multiFilter = new MultiFilter(RENDER_QUANTUM_FRAMES, sampleRate, CHANNELS);
 
-    #inputBuffer = new HeapAudioBuffer(this.#multiFilter.input_ptr(), CHANNELS);
+    #inputBuffer = new HeapAudioBuffer(this.#multiFilter.input_buffer_ptr(), CHANNELS);
 
-    #bpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.bpf_out_ptr(), CHANNELS);
-    #bsfOutBuffer = new HeapAudioBuffer(this.#multiFilter.bsf_out_ptr(), CHANNELS);
-    #hpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.hpf_out_ptr(), CHANNELS);
-    #lpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.lpf_out_ptr(), CHANNELS);
+    #bpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.bpf_out_buffer_ptr(), CHANNELS);
+    #bsfOutBuffer = new HeapAudioBuffer(this.#multiFilter.bsf_out_buffer_ptr(), CHANNELS);
+    #hpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.hpf_out_buffer_ptr(), CHANNELS);
+    #lpfOutBuffer = new HeapAudioBuffer(this.#multiFilter.lpf_out_buffer_ptr(), CHANNELS);
 
-    #fcBuffer = new HeapParameterBuffer(this.#multiFilter.f_c_ptr());
-    #qBuffer = new HeapParameterBuffer(this.#multiFilter.q_ptr());
+    #fcBuffer = new HeapParameterBuffer(this.#multiFilter.f_c_buffer_ptr());
+    #qBuffer = new HeapParameterBuffer(this.#multiFilter.q_buffer_ptr());
 
     #destroyed = false;
 
@@ -59,13 +59,13 @@ class MultiFilterProcessor extends AudioWorkletProcessor {
      */
     handleEvent(e) {
         if (e.type === MEMORY_DETACHED_EVENT) {
-            this.#inputBuffer.recoverMemory(this.#multiFilter.input_ptr());
-            this.#bpfOutBuffer.recoverMemory(this.#multiFilter.bpf_out_ptr());
-            this.#bsfOutBuffer.recoverMemory(this.#multiFilter.bsf_out_ptr());
-            this.#hpfOutBuffer.recoverMemory(this.#multiFilter.hpf_out_ptr());
-            this.#lpfOutBuffer.recoverMemory(this.#multiFilter.lpf_out_ptr());
-            this.#fcBuffer.recoverMemory(this.#multiFilter.f_c_ptr());
-            this.#qBuffer.recoverMemory(this.#multiFilter.q_ptr());
+            this.#inputBuffer.recoverMemory(this.#multiFilter.input_buffer_ptr());
+            this.#bpfOutBuffer.recoverMemory(this.#multiFilter.bpf_out_buffer_ptr());
+            this.#bsfOutBuffer.recoverMemory(this.#multiFilter.bsf_out_buffer_ptr());
+            this.#hpfOutBuffer.recoverMemory(this.#multiFilter.hpf_out_buffer_ptr());
+            this.#lpfOutBuffer.recoverMemory(this.#multiFilter.lpf_out_buffer_ptr());
+            this.#fcBuffer.recoverMemory(this.#multiFilter.f_c_buffer_ptr());
+            this.#qBuffer.recoverMemory(this.#multiFilter.q_buffer_ptr());
         }
     }
 

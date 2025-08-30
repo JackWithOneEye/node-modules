@@ -1,6 +1,7 @@
 use rustfft::num_traits::ToPrimitive;
 use std::f32::consts::TAU as TWO_PI;
 use wasm_bindgen::prelude::*;
+use wasm_utils::IOBufferPtrs;
 
 use crate::{
     dsp::{fast_math, phase_counter::PhaseCounter, smoothed_value::SmoothedValue},
@@ -10,6 +11,7 @@ use crate::{
 const FRAC_1_2PI: f32 = 1.0 / TWO_PI;
 
 #[wasm_bindgen]
+#[derive(IOBufferPtrs)]
 pub struct LFO {
     // sample_rate: f32,
     sample_rate_inv: f32,
@@ -22,7 +24,9 @@ pub struct LFO {
     rsh_counter: u32,
     rsh_state: SmoothedValue,
 
+    #[io_buffer]
     phase_shift_buffer: Vec<f32>,
+    #[io_buffer]
     output_buffer: Vec<f32>,
 }
 
@@ -47,14 +51,6 @@ impl LFO {
             phase_shift_buffer: vec![0.0; buffer_frame_length],
             output_buffer: vec![0.0; buffer_frame_length],
         }
-    }
-
-    pub fn phase_shift_ptr(&mut self) -> *mut f32 {
-        &mut self.phase_shift_buffer[0]
-    }
-
-    pub fn output_ptr(&mut self) -> *mut f32 {
-        &mut self.output_buffer[0]
     }
 
     pub fn process(&mut self, frequency: f32, polarity: LFOPolarity, waveform: LFOWaveform) {

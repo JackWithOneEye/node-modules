@@ -6,9 +6,9 @@ import { MEMORY_DETACHED_EVENT, cachedF32Memory } from './memory';
 class SequencerProcessor extends AudioWorkletProcessor {
     #sequencer = new Sequencer(RENDER_QUANTUM_FRAMES);
 
-    #gateInBuffer = new HeapAudioBuffer(this.#sequencer.gate_in_ptr(), 1);
-    #outputBuffer = new HeapAudioBuffer(this.#sequencer.output_ptr(), 1);
-    #valuesBuffer = new HeapAudioBuffer(this.#sequencer.values_ptr(), 1);
+    #gateInBuffer = new HeapAudioBuffer(this.#sequencer.gate_in_buffer_ptr(), 1);
+    #outputBuffer = new HeapAudioBuffer(this.#sequencer.output_buffer_ptr(), 1);
+    #valuesBuffer = new HeapAudioBuffer(this.#sequencer.values_buffer_ptr(), 1);
 
     #destroyed = false;
 
@@ -129,9 +129,9 @@ class SequencerProcessor extends AudioWorkletProcessor {
      */
     handleEvent(e) {
         if (e.type === MEMORY_DETACHED_EVENT) {
-            this.#gateInBuffer.recoverMemory(this.#sequencer.gate_in_ptr());
-            this.#outputBuffer.recoverMemory(this.#sequencer.output_ptr());
-            this.#valuesBuffer.recoverMemory(this.#sequencer.values_ptr());
+            this.#gateInBuffer.recoverMemory(this.#sequencer.gate_in_buffer_ptr());
+            this.#outputBuffer.recoverMemory(this.#sequencer.output_buffer_ptr());
+            this.#valuesBuffer.recoverMemory(this.#sequencer.values_buffer_ptr());
         }
     }
 

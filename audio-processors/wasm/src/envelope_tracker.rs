@@ -1,4 +1,5 @@
 use wasm_bindgen::prelude::*;
+use wasm_utils::IOBufferPtrs;
 
 use crate::{
     dsp::{
@@ -10,6 +11,7 @@ use crate::{
 };
 
 #[wasm_bindgen]
+#[derive(IOBufferPtrs)]
 pub struct EnvelopeTracker {
     buffer_frame_length: usize,
 
@@ -22,8 +24,11 @@ pub struct EnvelopeTracker {
     note_currently_on: bool,
 
     // IO buffers
+    #[io_buffer]
     input_buffer: Vec<f32>,
+    #[io_buffer]
     modulation_output_buffer: Vec<f32>,
+    #[io_buffer]
     trigger_output_buffer: Vec<f32>,
 }
 
@@ -58,18 +63,6 @@ impl EnvelopeTracker {
         }
     }
 
-    pub fn input_ptr(&mut self) -> *mut f32 {
-        &mut self.input_buffer[0]
-    }
-
-    pub fn modulation_output_ptr(&mut self) -> *mut f32 {
-        &mut self.modulation_output_buffer[0]
-    }
-
-    pub fn trigger_output_ptr(&mut self) -> *mut f32 {
-        &mut self.trigger_output_buffer[0]
-    }
-
     pub fn process(&mut self, sensitivity: f32, threshold: f32) {
         self.sensitivity.set_target_value(sensitivity);
         self.threshold.set_target_value(threshold);
@@ -99,5 +92,6 @@ impl EnvelopeTracker {
     pub fn reset(&mut self) {
         self.sensitivity.reset();
         self.threshold.reset();
+        self.note_currently_on = false;
     }
 }

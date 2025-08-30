@@ -8,7 +8,7 @@ class FMVoiceProcessor extends AudioWorkletProcessor {
   #fmSynth = new FMSynthesizer(RENDER_QUANTUM_FRAMES, sampleRate, 2);
 
   // Single frequency input buffer for all 8 voices (8 interleaved channels)
-  #frequencyInputBuffer = new HeapAudioBuffer(this.#fmSynth.frequency_input_ptr(), 8);
+  #frequencyInputBuffer = new HeapAudioBuffer(this.#fmSynth.frequency_input_buffer_ptr(), 8);
   #operatorLevelBuffers = [
     new HeapParameterBuffer(this.#fmSynth.operator_level_ptr(0)),
     new HeapParameterBuffer(this.#fmSynth.operator_level_ptr(1)),
@@ -50,9 +50,9 @@ class FMVoiceProcessor extends AudioWorkletProcessor {
     new HeapParameterBuffer(this.#fmSynth.operator_release_ptr(5)),
   ];
   // Single trigger and retrigger input buffers for all 8 voices (8 interleaved channels each)
-  #triggerInputBuffer = new HeapAudioBuffer(this.#fmSynth.trigger_input_ptr(), 8);
-  #retriggerInputBuffer = new HeapAudioBuffer(this.#fmSynth.retrigger_input_ptr(), 8);
-  #outputBuffer = new HeapAudioBuffer(this.#fmSynth.output_ptr(), 2);
+  #triggerInputBuffer = new HeapAudioBuffer(this.#fmSynth.trigger_input_buffer_ptr(), 8);
+  #retriggerInputBuffer = new HeapAudioBuffer(this.#fmSynth.retrigger_input_buffer_ptr(), 8);
+  #outputBuffer = new HeapAudioBuffer(this.#fmSynth.output_buffer_ptr(), 2);
 
   #destroyed = false;
 
@@ -344,10 +344,10 @@ class FMVoiceProcessor extends AudioWorkletProcessor {
    */
   handleEvent(e) {
     if (e.type === MEMORY_DETACHED_EVENT) {
-      this.#outputBuffer.recoverMemory(this.#fmSynth.output_ptr());
-      this.#frequencyInputBuffer.recoverMemory(this.#fmSynth.frequency_input_ptr());
-      this.#triggerInputBuffer.recoverMemory(this.#fmSynth.trigger_input_ptr());
-      this.#retriggerInputBuffer.recoverMemory(this.#fmSynth.retrigger_input_ptr());
+      this.#outputBuffer.recoverMemory(this.#fmSynth.output_buffer_ptr());
+      this.#frequencyInputBuffer.recoverMemory(this.#fmSynth.frequency_input_buffer_ptr());
+      this.#triggerInputBuffer.recoverMemory(this.#fmSynth.trigger_input_buffer_ptr());
+      this.#retriggerInputBuffer.recoverMemory(this.#fmSynth.retrigger_input_buffer_ptr());
       for (let i = 0; i < 6; i++) {
         this.#operatorLevelBuffers[i].recoverMemory(this.#fmSynth.operator_level_ptr(i));
         this.#operatorAttackBuffers[i].recoverMemory(this.#fmSynth.operator_attack_ptr(i));

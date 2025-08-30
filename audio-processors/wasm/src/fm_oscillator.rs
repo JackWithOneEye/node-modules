@@ -1,6 +1,7 @@
 use std::{collections::HashMap, f32::consts::TAU as TWO_PI};
 
 use wasm_bindgen::prelude::*;
+use wasm_utils::IOBufferPtrs;
 
 use crate::{
     dsp::{
@@ -13,6 +14,7 @@ use crate::{
 const FRAC_1_2PI: f32 = 1.0 / TWO_PI;
 
 #[wasm_bindgen]
+#[derive(IOBufferPtrs)]
 pub struct FMOscillator {
     buffer_frame_length: usize,
     channel_count: usize,
@@ -23,10 +25,13 @@ pub struct FMOscillator {
     phase_counter: PhaseCounter,
 
     // parameter buffers
+    #[io_buffer]
     frequency_buffer: Vec<f32>,
+    #[io_buffer]
     phase_shift_buffer: Vec<f32>,
 
     // IO buffers
+    #[io_buffer]
     output_buffer: Vec<f32>,
 }
 
@@ -47,18 +52,6 @@ impl FMOscillator {
             phase_shift_buffer: vec![0.0; buffer_frame_length],
             output_buffer: vec![0.0; buffer_frame_length * channel_count],
         }
-    }
-
-    pub fn frequency_ptr(&mut self) -> *mut f32 {
-        &mut self.frequency_buffer[0]
-    }
-
-    pub fn phase_shift_ptr(&mut self) -> *mut f32 {
-        &mut self.phase_shift_buffer[0]
-    }
-
-    pub fn output_ptr(&mut self) -> *mut f32 {
-        &mut self.output_buffer[0]
     }
 
     pub fn process(&mut self, pitch_shift: i32) {

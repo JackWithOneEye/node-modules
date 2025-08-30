@@ -1,13 +1,18 @@
 use wasm_bindgen::prelude::*;
+use wasm_utils::IOBufferPtrs;
 
 #[wasm_bindgen]
+#[derive(IOBufferPtrs)]
 pub struct Multiplier {
     // buffer_frame_length: usize,
     // channel_count: usize,
 
     // IO buffers
+    #[io_buffer]
     input_1_buffer: Vec<f32>,
+    #[io_buffer]
     input_2_buffer: Vec<f32>,
+    #[io_buffer]
     output_buffer: Vec<f32>,
 }
 
@@ -23,18 +28,6 @@ impl Multiplier {
             input_2_buffer: vec![0.0; buffer_frame_length * channel_count],
             output_buffer: vec![0.0; buffer_frame_length * channel_count],
         }
-    }
-
-    pub fn input_1_ptr(&mut self) -> *mut f32 {
-        &mut self.input_1_buffer[0]
-    }
-
-    pub fn input_2_ptr(&mut self) -> *mut f32 {
-        &mut self.input_2_buffer[0]
-    }
-
-    pub fn output_ptr(&mut self) -> *mut f32 {
-        &mut self.output_buffer[0]
     }
 
     pub fn process(&mut self) {
