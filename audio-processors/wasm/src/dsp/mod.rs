@@ -1,4 +1,5 @@
 pub mod adsr_unit;
+pub mod analog_eg;
 pub mod circular_buffer;
 pub mod delay;
 pub mod envelope_filter;

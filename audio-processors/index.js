@@ -3,6 +3,7 @@ import './polyfills';
 import './processors/adsr';
 import './processors/bit-crusher';
 import './processors/decimator';
+import './processors/envelope-generator.js';
 import './processors/envelope-tracker';
 import './processors/fm-oscillator';
 import './processors/fm-voice';

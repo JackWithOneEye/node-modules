@@ -37,10 +37,12 @@ const outputOptions = Array.from({ length: 8 }, (_, i) => ({ label: `${i + 1}`, 
 const gateMergerNode = new ChannelMergerNode(store.audioContext, { numberOfInputs: 8 })
 const noteMergerNode = new ChannelMergerNode(store.audioContext, { numberOfInputs: 8 })
 const retrigMergerNode = new ChannelMergerNode(store.audioContext, { numberOfInputs: 8 })
+const velocityMergerNode = new ChannelMergerNode(store.audioContext, { numberOfInputs: 8 })
 
 const gateNodes: ConstantSourceNode[] = []
 const noteNodes: ConstantSourceNode[] = []
 const retriggerNodes: ConstantSourceNode[] = []
+const velocityNodes: ConstantSourceNode[] = []
 
 const activeVoices = new Map<number, { note: number, lastPlayed: number, state: 'on' | 'off' }>()
 watch(selectedOutputCount, (curr, prev) => {
@@ -59,6 +61,10 @@ watch(selectedOutputCount, (curr, prev) => {
       retriggerNode.start()
       retriggerNode.connect(retrigMergerNode, 0, i)
       retriggerNodes.push(retriggerNode)
+      const velocityNode = new ConstantSourceNode(store.audioContext, { offset: 0 })
+      velocityNode.start()
+      velocityNode.connect(velocityMergerNode, 0, i)
+      velocityNodes.push(velocityNode)
 
       activeVoices.set(i, { note: 0, lastPlayed: 0, state: 'off' })
     }
@@ -76,6 +82,10 @@ watch(selectedOutputCount, (curr, prev) => {
       removedRn.disconnect()
       removedRn.stop()
     }
+    for (const removedVn of velocityNodes.splice(curr)) {
+      removedVn.disconnect()
+      removedVn.stop()
+    }
     for (let i = prev - 1; i >= curr; i--) {
       activeVoices.delete(i)
     }
@@ -86,6 +96,7 @@ const nodesMap: Record<string, ChannelMergerNode> = {
   gate: gateMergerNode,
   note: noteMergerNode,
   retrigger: retrigMergerNode,
+  velocity: velocityMergerNode,
 }
 
 store.registerModule(props.id, {
@@ -206,6 +217,7 @@ const onNoteOn = ({ note }: NoteMessageEvent) => {
     [gateNodes[channelIdx].offset, 1],
     [noteNodes[channelIdx].offset, pitchbendFactor.value * midiStore.midiNote2FreqLUT[note.number]],
     [retriggerNodes[channelIdx].offset, 1, 'pulse'],
+    [velocityNodes[channelIdx].offset, note.attack],
   )
 }
 
@@ -234,9 +246,9 @@ const onPitchBend = ({ value }: MessageEvent) => {
 }
 
 watch(pitchbendFactor, (curr) => {
-  const paramValues: [AudioParam, number][] = []
+  const paramValues: Parameters<typeof store.setMultipleParamValues> = []
   for (const [voice, { note }] of activeVoices.entries()) {
-    paramValues.push([noteNodes[voice].offset, curr * midiStore.midiNote2FreqLUT[note]])
+    paramValues.push([noteNodes[voice].offset, curr * midiStore.midiNote2FreqLUT[note], 'exp', 0.01])
   }
   store.setMultipleParamValues(...paramValues)
 })
@@ -271,6 +283,11 @@ onUnmounted(() => {
     rn.stop()
   }
   retrigMergerNode.disconnect()
+  for (const vn of velocityNodes) {
+    vn.disconnect()
+    vn.stop()
+  }
+  velocityMergerNode.disconnect()
 })
 </script>
 
@@ -318,21 +335,28 @@ onUnmounted(() => {
         <HandleLabel>note</HandleLabel>
         <Handle
           id="note"
-          class="!top-12"
+          class="!top-10"
           type="source"
           :position="Position.Right"
         />
         <HandleLabel>gate</HandleLabel>
         <Handle
           id="gate"
-          class="!top-20"
+          class="!top-[4rem]"
           type="source"
           :position="Position.Right"
         />
         <HandleLabel>retrig</HandleLabel>
         <Handle
           id="retrigger"
-          class="!top-[7rem]"
+          class="!top-[5.6rem]"
+          type="source"
+          :position="Position.Right"
+        />
+        <HandleLabel>vlcty</HandleLabel>
+        <Handle
+          id="velocity"
+          class="!top-[7.2rem]"
           type="source"
           :position="Position.Right"
         />

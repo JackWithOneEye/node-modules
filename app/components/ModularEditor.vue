@@ -84,6 +84,18 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :release="data.release"
         />
       </template>
+      <template #[`node-${AudioModuleType.EnvelopeGenerator}`]="{ id, type, data }">
+        <EnvelopeGeneratorModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :attack="data.attack"
+          :decay="data.decay"
+          :sustain="data.sustain"
+          :release="data.release"
+          :apply-velocity="data.applyVelocity"
+        />
+      </template>
       <template #[`node-${AudioModuleType.AudioSource}`]="{ id, type }">
         <AudioSourceModule
           :id="id"

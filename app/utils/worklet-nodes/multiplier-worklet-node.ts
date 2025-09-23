@@ -5,7 +5,7 @@ class MultiplierWorkletNodeBase extends AudioWorkletNode {
     super(context, 'multiplier', {
       numberOfInputs: 2,
       numberOfOutputs: 1,
-      outputChannelCount: [1],
+      outputChannelCount: [2],
     })
   }
 }

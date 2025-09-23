@@ -120,10 +120,6 @@ impl FMSynthesizer {
         }
     }
 
-    pub fn frequency_input_ptr(&mut self) -> *mut f32 {
-        &mut self.frequency_input_buffer[0]
-    }
-
     pub fn operator_level_ptr(&mut self, operator: usize) -> *mut f32 {
         &mut self.operator_level_buffers[operator][0]
     }
@@ -273,10 +269,10 @@ impl FMSynthesizer {
 
         let mut offset = self.buffer_frame_length;
         for _channel in 1..self.channel_count {
-            offset += self.buffer_frame_length;
             for n in 0..self.buffer_frame_length {
                 self.output_buffer[offset + n] = self.output_buffer[n];
             }
+            offset += self.buffer_frame_length;
         }
     }
 

@@ -1,6 +1,7 @@
 export * from './adsr-worklet-node'
 export * from './bit-crusher-worklet-node'
 export * from './decimator-worklet-node'
+export * from './envelope-generator-worklet-node'
 export * from './envelope-tracker-worklet-node'
 export * from './fm-oscillator-worklet-node'
 export * from './fm-voice-worklet-node'

@@ -14,6 +14,7 @@ export const AudioModuleType = {
   DelayLine: 'delay-line',
   Destination: 'destination',
   DynamicsCompressor: 'dynamics-compressor',
+  EnvelopeGenerator: 'envelope-generator',
   EnvelopeTracker: 'envelope-tracker',
   FMOscillator: 'fm-oscillator',
   FMVoice: 'fm-voice',
@@ -142,6 +143,11 @@ export const moduleOptions = [
           type: AudioModuleType.ADSR,
           icon: 'pi pi-sliders-h',
           label: 'ADSR',
+        },
+        {
+          type: AudioModuleType.EnvelopeGenerator,
+          icon: 'pi pi-sliders-h',
+          label: 'Envelope Generator',
         },
         {
           type: AudioModuleType.EnvelopeTracker,
