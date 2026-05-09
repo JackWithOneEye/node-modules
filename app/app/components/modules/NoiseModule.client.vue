@@ -56,7 +56,7 @@ onUnmounted(() => {
     <span class="text-sm pl-1">{{ title }}</span>
     <div class="flex gap-2">
       <div class="nodrag flex flex-col gap-2 border border-white/80 rounded-md p-2">
-        <Dropdown
+        <Select
           v-model="noiseType"
           class="border h-6 w-full"
           :pt="{

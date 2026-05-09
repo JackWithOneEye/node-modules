@@ -6,7 +6,6 @@
 </template>
 
 <style>
-@import 'primevue/resources/themes/aura-dark-cyan/theme.css';
 @import 'primeicons/primeicons.css';
 
 @import '@vue-flow/core/dist/style.css';

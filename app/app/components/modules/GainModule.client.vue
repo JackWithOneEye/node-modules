@@ -111,7 +111,7 @@ onUnmounted(() => {
             :max="maxGain"
             :value-template="(value) => `${value}dB`"
           />
-          <InputSwitch
+          <ToggleSwitch
             v-model="gainEnabled"
             :binary="true"
           />

@@ -156,7 +156,7 @@ onUnmounted(() => {
         <Handle id="input" class="!top-10" type="target" :position="Position.Left" />
         <div class="flex items-center gap-1 border border-white/80 rounded-md p-2 nodrag mt-2">
           <Knob v-model="modifier" :size="40" :min="0" :max="100" />
-          <Dropdown v-model="waveshaper" class="border h-6 w-full" :pt="{
+          <Select v-model="waveshaper" class="border h-6 w-full" :pt="{
             input: tw`p-1 text-xs`,
           }" :options="waveshaperOptions" option-label="label" option-value="value" placeholder="Waveshaper" />
         </div>

@@ -144,7 +144,7 @@ onUnmounted(() => {
               :value-template="() => `${frequencyHz.toFixed()}Hz`"
             />
             <span class="text-handle">Frequency</span>
-            <InputSwitch
+            <ToggleSwitch
               v-model="frequencyEnabled"
               :binary="true"
             />
@@ -160,7 +160,7 @@ onUnmounted(() => {
             <span class="text-handle">Detune</span>
           </div>
         </div>
-        <Dropdown
+        <Select
           v-model="waveform"
           class="border h-8 text-xs w-full"
           :options="waveforms"

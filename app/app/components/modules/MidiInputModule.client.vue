@@ -297,7 +297,7 @@ onUnmounted(() => {
     <span class="text-sm">{{ title }}</span>
     <div class="flex">
       <div class="flex flex-col gap-2">
-        <Dropdown
+        <Select
           v-model="selectedMidiInput"
           class="border h-8 text-xs w-full"
           :options="midiStore.midiInputs"
@@ -305,7 +305,7 @@ onUnmounted(() => {
           option-value="id"
           placeholder="Input Device"
         />
-        <Dropdown
+        <Select
           v-model="selectedPriority"
           class="border h-8 text-xs w-full"
           :options="priorities"
@@ -313,7 +313,7 @@ onUnmounted(() => {
           option-value="value"
           placeholder="Priority"
         />
-        <Dropdown
+        <Select
           v-model="selectedOutputCount"
           class="border h-8 text-xs w-full"
           :options="outputOptions"
@@ -321,7 +321,7 @@ onUnmounted(() => {
           option-value="value"
           placeholder="Outputs"
         />
-        <Dropdown
+        <Select
           v-model="selectedPitchBendRange"
           class="border h-8 text-xs w-full"
           :options="pitchBendRangeOptions"

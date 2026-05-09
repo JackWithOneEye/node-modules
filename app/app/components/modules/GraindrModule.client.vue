@@ -216,7 +216,7 @@ onUnmounted(() => {
             <span class="text-handle">Hi Cut</span>
           </div>
           <div class="flex flex-col gap-1">
-            <Dropdown
+            <Select
               v-model="playbackDirection"
               class="border h-6 w-full"
               :pt="{
@@ -227,7 +227,7 @@ onUnmounted(() => {
               option-value="value"
               placeholder="Playback direction"
             />
-            <Dropdown
+            <Select
               v-model="toneType"
               class="border h-6 w-full"
               :pt="{

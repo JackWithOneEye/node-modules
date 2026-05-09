@@ -114,7 +114,7 @@ onUnmounted(() => {
           </div>
         </div>
         <div class="flex gap-2">
-          <Dropdown
+          <Select
             v-model="polarity"
             class="border h-6 w-full"
             :pt="{
@@ -125,7 +125,7 @@ onUnmounted(() => {
             option-value="value"
             placeholder="Polarity"
           />
-          <Dropdown
+          <Select
             v-model="waveform"
             class="border h-6 w-full"
             :pt="{
