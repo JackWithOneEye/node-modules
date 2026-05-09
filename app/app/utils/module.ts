@@ -36,6 +36,46 @@ export const AudioModuleType = {
   Waveshaper: 'waveshaper',
 } as const
 
+export type ModuleCatalogEntry = {
+  type: string
+  label: string
+  icon: string
+  category: string
+  description: string
+  /** Tokens that should match in search but are not displayed (e.g. synonyms). */
+  keywords: string[]
+}
+
+const MODULE_DESCRIPTIONS: Record<typeof AudioModuleType[keyof typeof AudioModuleType], { description: string, keywords: string[] }> = {
+  [AudioModuleType.ADSR]: { description: 'Attack/Decay/Sustain/Release envelope', keywords: ['envelope'] },
+  [AudioModuleType.AudioSource]: { description: 'Microphone or line input', keywords: ['mic', 'input'] },
+  [AudioModuleType.BitCrusher]: { description: 'Reduce sample bit depth', keywords: ['lo-fi', 'distortion'] },
+  [AudioModuleType.Decimator]: { description: 'Sample-rate reduction', keywords: ['lo-fi', 'aliasing'] },
+  [AudioModuleType.DelayLine]: { description: 'Time-based delay effect', keywords: ['echo'] },
+  [AudioModuleType.Destination]: { description: 'Audio output to speakers', keywords: ['output', 'speaker'] },
+  [AudioModuleType.DynamicsCompressor]: { description: 'Dynamics compression', keywords: ['comp'] },
+  [AudioModuleType.EnvelopeGenerator]: { description: 'Velocity-aware ADSR envelope', keywords: ['envelope'] },
+  [AudioModuleType.EnvelopeTracker]: { description: 'Follows the envelope of an audio signal', keywords: ['follower'] },
+  [AudioModuleType.FMOscillator]: { description: 'FM-capable oscillator', keywords: ['fm', 'osc'] },
+  [AudioModuleType.FMVoice]: { description: '6-operator FM synth voice', keywords: ['fm', 'dx7', 'voice'] },
+  [AudioModuleType.Gain]: { description: 'Level / amplifier control', keywords: ['vca', 'volume'] },
+  [AudioModuleType.Graindr]: { description: 'Granular processor', keywords: ['granular', 'pitch'] },
+  [AudioModuleType.KaossPad]: { description: 'XY touch controller', keywords: ['xy', 'pad'] },
+  [AudioModuleType.LFO]: { description: 'Low-frequency oscillator', keywords: ['modulator'] },
+  [AudioModuleType.MidiInput]: { description: 'MIDI device input', keywords: ['note', 'keyboard'] },
+  [AudioModuleType.MultiFilter]: { description: 'Multi-mode filter (LP/HP/BP/BS)', keywords: ['filter', 'lpf', 'hpf', 'bpf', 'bsf'] },
+  [AudioModuleType.Multiplier]: { description: 'Signal multiplier / ring mod', keywords: ['ring', 'mod'] },
+  [AudioModuleType.Noise]: { description: 'Noise generator', keywords: ['white', 'pink'] },
+  [AudioModuleType.Oscillator]: { description: 'Audio-rate oscillator', keywords: ['osc', 'sine', 'saw'] },
+  [AudioModuleType.Oscilloscope]: { description: 'Time-domain visualizer', keywords: ['scope', 'visual'] },
+  [AudioModuleType.Phaser]: { description: 'Phaser effect', keywords: ['fx'] },
+  [AudioModuleType.PitchTracker]: { description: 'Detect pitch of an input signal', keywords: ['follower'] },
+  [AudioModuleType.Sequencer]: { description: 'Step sequencer', keywords: ['steps', 'pattern'] },
+  [AudioModuleType.SpectrumAnalyzer]: { description: 'Frequency-domain visualizer', keywords: ['fft', 'visual'] },
+  [AudioModuleType.Value]: { description: 'Constant value source', keywords: ['constant', 'cv'] },
+  [AudioModuleType.Waveshaper]: { description: 'Waveshaping distortion', keywords: ['distortion'] },
+}
+
 export const moduleOptions = [
   [
     {
@@ -209,3 +249,41 @@ export const moduleOptions = [
     },
   ],
 ]
+
+/**
+ * Flat list of every available module, derived from `moduleOptions`.
+ * Used by the quick-add command palette and any module-search UI.
+ */
+export const moduleCatalog: ModuleCatalogEntry[] = []
+for (const group of moduleOptions.flat()) {
+  for (const item of group.items) {
+    moduleCatalog.push({
+      type: item.type,
+      label: item.label,
+      icon: item.icon,
+      category: group.label,
+      description: MODULE_DESCRIPTIONS[item.type].description,
+      keywords: MODULE_DESCRIPTIONS[item.type].keywords,
+    })
+  }
+}
+
+/** Case-insensitive substring search over label / category / description / keywords. */
+export function searchModuleCatalog(query: string): ModuleCatalogEntry[] {
+  const q = query.trim().toLowerCase()
+  if (!q) {
+    return moduleCatalog
+  }
+  const hits: ModuleCatalogEntry[] = []
+  for (const entry of moduleCatalog) {
+    if (
+      entry.label.toLowerCase().includes(q)
+      || entry.category.toLowerCase().includes(q)
+      || entry.description.toLowerCase().includes(q)
+      || entry.keywords.some(k => k.toLowerCase().includes(q))
+    ) {
+      hits.push(entry)
+    }
+  }
+  return hits
+}
