@@ -149,5 +149,3 @@ pub fn pre_feedback_loop_hipass(sample_rate: f32) -> VASVFilter {
     hipass.set_params(100.0, 0.707, 0.0, 0.0, 1.0, 0.0);
     hipass
 }
-
-

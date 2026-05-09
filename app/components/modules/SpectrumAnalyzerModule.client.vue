@@ -19,6 +19,35 @@ const store = useAudioContextStore()
 const fftSizeOptions = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192]
 const fftSize = useParam('fftSize', props.fftSize)
 
+const minFreq = 20
+const maxFreq = computed(() => store.audioContext.sampleRate / 2)
+const minDb = -60
+const maxDb = 20
+
+const logScale = (freq: number, minF: number, maxF: number, width: number): number => {
+  const minLog = Math.log10(minF)
+  const maxLog = Math.log10(maxF)
+  const freqLog = Math.log10(Math.max(freq, minF))
+  return ((freqLog - minLog) / (maxLog - minLog)) * width
+}
+
+const amplitudeToDb = (amplitude: number): number => {
+  const db = 20 * Math.log10(Math.max(amplitude, 1e-10))
+  return Math.max(minDb, Math.min(maxDb, db))
+}
+
+const dbToY = (db: number, height: number): number => {
+  const normalized = (db - minDb) / (maxDb - minDb)
+  return height * (1 - normalized)
+}
+
+const freqLabels = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000]
+const dbLabels = [20, 0, -20, -40, -60]
+
+const formatFreq = (freq: number): string => {
+  return freq >= 1000 ? `${freq / 1000}k` : `${freq}`
+}
+
 const gainNode = new GainNode(store.audioContext)
 const sound = shallowRef<Sound>()
 
@@ -42,6 +71,9 @@ const wrapper = ref<HTMLDivElement | null>(null)
 let space: CanvasSpace
 let form: CanvasForm
 
+const marginLeft = 30
+const marginBottom = 20
+
 watch(wrapper, () => {
   space = new CanvasSpace(wrapper.value!).setup({
     bgcolor: '#000000',
@@ -53,16 +85,46 @@ watch(wrapper, () => {
   space.add({
     animate: () => {
       if (sound.value) {
-        const pts = sound.value.freqDomainTo(space.size)
-        const poly = [new Pt(0, space.size.y)]
-        form.stroke('#ffffff')
-        for (const p of pts) {
-          const inv = new Pt(p.x, space.size.y - p.y)
-          form.line([new Pt(p.x, space.size.y), inv])
-          poly.push(inv)
+        const freqData = sound.value.freqDomain()
+        const binCount = freqData.length
+        const nyquist = maxFreq.value
+        const totalWidth = space.size.x
+        const totalHeight = space.size.y
+        const width = totalWidth - marginLeft
+        const height = totalHeight - marginBottom
+
+        form.font(9, 'normal').fill('#888888').alignText('center', 'top')
+
+        for (const freq of freqLabels) {
+          if (freq > nyquist) continue
+          const x = marginLeft + logScale(freq, minFreq, nyquist, width)
+          form.text(new Pt(x, height + 4), formatFreq(freq))
         }
-        poly.push(new Pt(space.size.x, space.size.y))
+
+        form.alignText('right', 'middle')
+        for (const db of dbLabels) {
+          const y = dbToY(db, height)
+          form.text(new Pt(marginLeft - 4, y), `${db}`)
+        }
+
+        const poly = [new Pt(marginLeft, height)]
+
+        for (let i = 0; i < binCount; i++) {
+          const freq = (i / binCount) * nyquist
+          if (freq < minFreq) continue
+
+          const amplitude = freqData[i] / 255
+          const db = amplitudeToDb(amplitude)
+          const x = marginLeft + logScale(freq, minFreq, nyquist, width)
+          const y = dbToY(db, height)
+
+          poly.push(new Pt(x, y))
+        }
+
+        poly.push(new Pt(totalWidth, height))
         form.fillOnly('#ffffff').polygon(poly)
+
+        form.strokeOnly('#555555').rect([new Pt(marginLeft, 0), new Pt(totalWidth, height)])
       }
     },
   }).play()

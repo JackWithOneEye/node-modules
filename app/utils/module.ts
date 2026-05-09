@@ -26,6 +26,7 @@ export const AudioModuleType = {
   MultiFilter: 'multi-filter',
   Multiplier: 'multiplier',
   Noise: 'noise',
+  Phaser: 'phaser',
   Oscillator: 'oscillator',
   Oscilloscope: 'oscilloscope',
   PitchTracker: 'pitch-tracker',
@@ -116,6 +117,11 @@ export const moduleOptions = [
           type: AudioModuleType.Graindr,
           icon: 'pi pi-qrcode',
           label: 'Graindr',
+        },
+        {
+          type: AudioModuleType.Phaser,
+          icon: 'pi pi-wave-pulse',
+          label: 'Phaser',
         },
         {
           type: AudioModuleType.Waveshaper,

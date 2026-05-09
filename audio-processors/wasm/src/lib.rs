@@ -16,6 +16,7 @@ pub mod graindr;
 pub mod lfo;
 pub mod multi_filter;
 pub mod multiplier;
+pub mod phaser;
 pub mod pitch_tracker;
 pub mod sequencer;
 pub mod toggle_util;

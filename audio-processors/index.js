@@ -12,6 +12,7 @@ import './processors/lfo';
 import './processors/multi-filter';
 import './processors/multiplier';
 import './processors/noise-generator';
+import './processors/phaser';
 import './processors/pitch-tracker';
 import './processors/sequencer';
 

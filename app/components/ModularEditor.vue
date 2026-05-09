@@ -215,6 +215,14 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :q="data.q"
         />
       </template>
+      <template #[`node-${AudioModuleType.Phaser}`]="{ id, type, data }">
+        <PhaserModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :rate="data.rate"
+        />
+      </template>
       <template #[`node-${AudioModuleType.Multiplier}`]="{ id, type, data }">
         <MultiplierModule
           :id="id"
