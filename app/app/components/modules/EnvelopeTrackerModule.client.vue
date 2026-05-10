@@ -18,14 +18,14 @@ const envelopeTrackerNode = new EnvelopeTrackerWorkletNode(audioContext, {
   threshold: props.threshold,
 })
 
-const sourceHandles = [
-  { id: 'modulation', label: 'mod', type: 'source' as const },
-  { id: 'trigger', label: 'trig', type: 'source' as const },
+const sourcePorts = [
+  { id: 'modulation', label: 'mod' },
+  { id: 'trigger', label: 'trig' },
 ]
-const targetHandles = [
-  { id: 'input', label: 'in', type: 'target' as const },
-  { id: 'sensitivity', label: 'sens', type: 'target' as const },
-  { id: 'threshold', label: 'thresh', type: 'target' as const },
+const targetPorts = [
+  { id: 'input', label: 'in' },
+  { id: 'sensitivity', label: 'sens' },
+  { id: 'threshold', label: 'thresh' },
 ]
 
 registerModule(props.id, {
@@ -65,11 +65,13 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-2 py-2">
-    <span class="text-sm pl-1">{{ title }}</span>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
     <div class="flex gap-2">
-      <HandleBar :handles="targetHandles" position="left" />
+      <ModulePortRail :ports="targetPorts" position="left" />
       <div class="nodrag flex flex-col gap-3 border border-white rounded-md p-2">
         <div class="flex gap-1">
           <ParamController name="sensitivity" :default-value="sensitivity" label="SENS" :min="0.25" :max="5.0"
@@ -78,7 +80,7 @@ onUnmounted(() => {
             unit="dB" @on-change="value => setParamValue(envelopeTrackerNode.threshold, value)" />
         </div>
       </div>
-      <HandleBar :handles="sourceHandles" position="right" />
+      <ModulePortRail :ports="sourcePorts" position="right" />
     </div>
-  </div>
+  </BaseModuleShell>
 </template>

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Handle } from '@vue-flow/core'
 
 export type MultiFilterModuleProps = {
   id: string
@@ -66,39 +65,20 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-1 py-2">
-    <span class="text-sm pl-1">{{ title }}</span>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
     <div class="flex gap-2">
-      <div class="flex flex-col gap-4">
-        <HandleLabel class="pt-0">
-          in
-        </HandleLabel>
-        <Handle
-          id="input"
-          class="!top-10"
-          type="target"
-          :position="Position.Left"
-        />
-        <HandleLabel>
-          cutoff
-        </HandleLabel>
-        <Handle
-          id="cutoff"
-          class="!top-16"
-          type="target"
-          :position="Position.Left"
-        />
-        <HandleLabel>
-          q
-        </HandleLabel>
-        <Handle
-          id="q"
-          class="!top-[5.5rem]"
-          type="target"
-          :position="Position.Left"
-        />
-      </div>
+      <ModulePortRail
+        position="left"
+        :ports="[
+          { id: 'input', label: 'in' },
+          { id: 'cutoff', label: 'cutoff' },
+          { id: 'q', label: 'q' },
+        ]"
+      />
       <div class="nodrag flex flex-col gap-3 border border-slate-500 rounded-md p-2">
         <div class="flex gap-1">
           <div class="flex flex-col items-center">
@@ -124,47 +104,15 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div class="flex flex-col gap-4">
-        <HandleLabel class="pt-0">
-          bpf
-        </HandleLabel>
-        <Handle
-          id="bpfOut"
-          class="!top-10"
-          type="source"
-          :position="Position.Right"
-        />
-
-        <HandleLabel>
-          bsf
-        </HandleLabel>
-        <Handle
-          id="bsfOut"
-          class="!top-16"
-          type="source"
-          :position="Position.Right"
-        />
-
-        <HandleLabel>
-          hpf
-        </HandleLabel>
-        <Handle
-          id="hpfOut"
-          class="!top-[5.5rem]"
-          type="source"
-          :position="Position.Right"
-        />
-
-        <HandleLabel>
-          lpf
-        </HandleLabel>
-        <Handle
-          id="lpfOut"
-          class="!top-[7rem]"
-          type="source"
-          :position="Position.Right"
-        />
-      </div>
+      <ModulePortRail
+        position="right"
+        :ports="[
+          { id: 'bpfOut', label: 'bpf' },
+          { id: 'bsfOut', label: 'bsf' },
+          { id: 'hpfOut', label: 'hpf' },
+          { id: 'lpfOut', label: 'lpf' },
+        ]"
+      />
     </div>
-  </div>
+  </BaseModuleShell>
 </template>

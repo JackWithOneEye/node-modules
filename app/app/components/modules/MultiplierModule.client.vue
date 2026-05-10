@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Handle } from '@vue-flow/core'
 
 export type MultiplierModuleProps = {
   id: string
@@ -43,39 +42,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-1 py-2">
-    <span class="text-sm px-2">{{ title }}</span>
-    <div class="flex gap-2">
-      <div class="flex flex-col flex-1 gap-4">
-        <HandleLabel class="pt-0">
-          in1
-        </HandleLabel>
-        <Handle
-          id="input1"
-          type="target"
-          :position="Position.Left"
-        />
-        <HandleLabel>
-          in2
-        </HandleLabel>
-        <Handle
-          id="input2"
-          class="!top-16"
-          type="target"
-          :position="Position.Left"
-        />
-      </div>
-      <div class="flex flex-1 justify-end">
-        <HandleLabel>
-          out
-        </HandleLabel>
-        <Handle
-          id="output"
-          type="source"
-          :position="Position.Right"
-        />
-      </div>
-    </div>
-  </div>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
+    <ModulePortRow
+      :input="{ id: 'input1', label: 'in1' }"
+      :output="{ id: 'output', label: 'out' }"
+    />
+    <ModulePortRow :input="{ id: 'input2', label: 'in2' }" />
+  </BaseModuleShell>
 </template>

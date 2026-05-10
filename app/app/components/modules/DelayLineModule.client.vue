@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Handle } from '@vue-flow/core'
 
 export type DelayLineModuleProps = {
   id: string
@@ -59,27 +58,28 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-1 py-2">
-    <span class="text-sm pl-1">{{ title }}</span>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
     <div class="flex gap-2">
-      <div class="flex flex-col gap-4">
-        <HandleLabel>in</HandleLabel>
-        <Handle id="input" class="!top-10" type="target" :position="Position.Left" />
-        <HandleLabel>time</HandleLabel>
-        <Handle id="delayTime" class="!top-16" type="target" :position="Position.Left" />
-      </div>
+      <ModulePortRail
+        position="left"
+        :ports="[
+          { id: 'input', label: 'in' },
+          { id: 'delayTime', label: 'time' },
+        ]"
+      />
       <div class="nodrag">
         <InputNumber v-model="delayTime" :min="0" :max="2" :step="0.01" :max-fraction-digits="3" :pt="{
           root: tw`[&>input]:w-24 [&>input]:border [&>input]:border-white/50 [&>input]:focus:border-white [&>input]:text-sm [&>input]:p-2 [&>input]:outline-none`,
         }" :min-fraction-digits="0" suffix="s" mode="decimal" show-buttons />
       </div>
-      <div class="flex flex-col">
-        <HandleLabel class="pt-1">
-          out
-        </HandleLabel>
-        <Handle id="output" type="source" :position="Position.Right" />
-      </div>
+      <ModulePortRail
+        position="right"
+        :ports="[{ id: 'output', label: 'out' }]"
+      />
     </div>
-  </div>
+  </BaseModuleShell>
 </template>

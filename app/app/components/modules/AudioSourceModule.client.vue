@@ -1,11 +1,12 @@
 <script lang="ts" setup>
-import { Handle } from '@vue-flow/core'
-
 export type AudioSourceModuleProps = {
   id: string
   type: string
+  title?: string
 }
-const props = defineProps<AudioSourceModuleProps>()
+const props = withDefaults(defineProps<AudioSourceModuleProps>(), {
+  title: 'Audio Source',
+})
 
 const store = useAudioContextStore()
 
@@ -48,16 +49,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flex items-center gap-1 border pl-2 pr-1 py-1">
-    <span class="text-sm">Audio Source</span>
-    <i class="pi pi-microphone" />
-    <div class="flex pl-1">
-      <HandleLabel>out</HandleLabel>
-      <Handle
-        id="output"
-        type="source"
-        :position="Position.Right"
-      />
-    </div>
-  </div>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
+    <ModulePortRow :output="{ id: 'output', label: 'out' }" />
+  </BaseModuleShell>
 </template>

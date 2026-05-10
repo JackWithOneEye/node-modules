@@ -181,14 +181,14 @@ const operatorParams = [
   },
 ]
 
-const targetHandles = [
-  { id: 'trigger', label: 'trig', type: 'target' as const },
-  { id: 'retrigger', label: 'retrig', type: 'target' as const },
-  { id: 'frequency', label: 'freq', type: 'target' as const },
+const targetPorts = [
+  { id: 'trigger', label: 'trig' },
+  { id: 'retrigger', label: 'retrig' },
+  { id: 'frequency', label: 'freq' },
 ]
 
-const sourceHandles = [
-  { id: 'output', label: 'out', type: 'source' as const },
+const sourcePorts = [
+  { id: 'output', label: 'out' },
 ]
 
 registerModule(id, {
@@ -226,12 +226,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-2 py-2">
-    <span class="text-sm pl-1">{{ title }}</span>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
     <div class="flex gap-2">
-      <HandleBar
-        :handles="targetHandles"
+      <ModulePortRail
+        :ports="targetPorts"
         position="left"
       />
 
@@ -354,10 +356,10 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <HandleBar
-        :handles="sourceHandles"
+      <ModulePortRail
+        :ports="sourcePorts"
         position="right"
       />
     </div>
-  </div>
+  </BaseModuleShell>
 </template>

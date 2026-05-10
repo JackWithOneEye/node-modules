@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { Handle } from '@vue-flow/core'
-
 export type ValueModuleProps = {
   id: string
   type: string
@@ -46,10 +44,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-2 py-2">
-    <span class="text-sm pl-1">{{ title }}</span>
-    <div class="flex gap-2">
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
+    <ModulePortRow :output="{ id: 'output', label: 'out' }">
       <div class="nodrag">
         <InputNumber
           v-model="offset"
@@ -63,16 +63,6 @@ onUnmounted(() => {
           :step="0.1"
         />
       </div>
-      <div class="flex flex-col">
-        <HandleLabel class="pt-1">
-          out
-        </HandleLabel>
-        <Handle
-          id="output"
-          type="source"
-          :position="Position.Right"
-        />
-      </div>
-    </div>
-  </div>
+    </ModulePortRow>
+  </BaseModuleShell>
 </template>

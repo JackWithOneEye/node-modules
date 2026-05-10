@@ -16,12 +16,12 @@ const pitchTrackerNode = new PitchTrackerWorkletNode(audioContext, {
   windowSizeSamples: 0.0275 * audioContext.sampleRate,
 })
 
-const sourceHandles = [
-  { id: 'output', label: 'out', type: 'source' as const },
+const sourcePorts = [
+  { id: 'output', label: 'out' },
 ]
-const targetHandles = [
-  { id: 'input', label: 'in', type: 'target' as const },
-  { id: 'harmonicThreshold', label: 'thresh', type: 'target' as const },
+const targetPorts = [
+  { id: 'input', label: 'in' },
+  { id: 'harmonicThreshold', label: 'thresh' },
 ]
 
 registerModule(props.id, {
@@ -58,12 +58,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-2 py-2">
-    <span class="text-sm pl-1">{{ title }}</span>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
     <div class="flex gap-2">
-      <HandleBar
-        :handles="targetHandles"
+      <ModulePortRail
+        :ports="targetPorts"
         position="left"
       />
       <div class="nodrag flex flex-col gap-3 border border-white rounded-md p-2">
@@ -80,10 +82,10 @@ onUnmounted(() => {
           />
         </div>
       </div>
-      <HandleBar
-        :handles="sourceHandles"
+      <ModulePortRail
+        :ports="sourcePorts"
         position="right"
       />
     </div>
-  </div>
+  </BaseModuleShell>
 </template>

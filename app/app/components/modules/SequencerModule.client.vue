@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { Handle } from '@vue-flow/core'
-
 export type SequencerModuleProps = {
   id: string
   type: string
@@ -97,18 +95,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-1 py-1">
-    <span class="text-sm pl-1">{{ title }}</span>
-    <div class="flex gap-2">
-      <HandleLabel class="pt-3">
-        gate
-      </HandleLabel>
-      <Handle
-        id="gateIn"
-        type="target"
-        :position="Position.Left"
-      />
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
+    <ModulePortRow
+      :input="{ id: 'gateIn', label: 'gate' }"
+      :output="{ id: 'output', label: 'out' }"
+    >
       <div class="nodrag flex flex-col items-center gap-2 border border-white/80 rounded-md p-2">
         <div class="flex items-center gap-2">
           <span class="text-xs">Steps:</span>
@@ -143,16 +138,6 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div class="flex flex-col">
-        <HandleLabel class="pt-3">
-          out
-        </HandleLabel>
-        <Handle
-          id="output"
-          type="source"
-          :position="Position.Right"
-        />
-      </div>
-    </div>
-  </div>
+    </ModulePortRow>
+  </BaseModuleShell>
 </template>

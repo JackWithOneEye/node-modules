@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Handle } from '@vue-flow/core'
 
 export type OscillatorModuleProps = {
   id: string
@@ -108,30 +107,19 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-1 py-2">
-    <span class="text-sm pl-1">{{ title }}</span>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
     <div class="flex gap-2">
-      <div class="flex flex-col gap-4">
-        <HandleLabel class="pt-6">
-          freq
-        </HandleLabel>
-        <Handle
-          id="frequency"
-          class="!top-16"
-          type="target"
-          :position="Position.Left"
-        />
-        <HandleLabel class="pt-10">
-          detune
-        </HandleLabel>
-        <Handle
-          id="detune"
-          class="!top-32"
-          type="target"
-          :position="Position.Left"
-        />
-      </div>
+      <ModulePortRail
+        position="left"
+        :ports="[
+          { id: 'frequency', label: 'freq' },
+          { id: 'detune', label: 'detune' },
+        ]"
+      />
       <div class="nodrag flex flex-col gap-3 border border-slate-500 rounded-md p-2">
         <div class="flex gap-1">
           <div class="flex flex-col items-center">
@@ -166,16 +154,10 @@ onUnmounted(() => {
           :options="waveforms"
         />
       </div>
-      <div class="flex flex-col">
-        <HandleLabel class="pt-12">
-          out
-        </HandleLabel>
-        <Handle
-          id="output"
-          type="source"
-          :position="Position.Right"
-        />
-      </div>
+      <ModulePortRail
+        position="right"
+        :ports="[{ id: 'output', label: 'out' }]"
+      />
     </div>
-  </div>
+  </BaseModuleShell>
 </template>

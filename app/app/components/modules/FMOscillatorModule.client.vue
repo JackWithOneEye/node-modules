@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { Handle, Position } from '@vue-flow/core'
-
 export type FMOscillatorModuleProps = {
   id: string
   type: string
@@ -56,19 +54,19 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-1 py-2">
-    <span class="text-sm pl-1">{{ title }}</span>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
     <div class="flex gap-2">
-      <div class="flex flex-col gap-4">
-        <HandleBar
-          :handles="[
-            { id: 'frequency', label: 'freq', type: 'target' as const },
-            { id: 'phaseShift', label: 'phse', type: 'target' as const },
-          ]"
-          position="left"
-        />
-      </div>
+      <ModulePortRail
+        position="left"
+        :ports="[
+          { id: 'frequency', label: 'freq' },
+          { id: 'phaseShift', label: 'phse' },
+        ]"
+      />
       <div class="nodrag flex flex-col gap-2 border border-white/80 rounded-md p-2">
         <div class="flex gap-1">
           <div class="flex flex-col items-center">
@@ -94,16 +92,10 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div class="flex flex-col">
-        <HandleLabel class="pt-6">
-          out
-        </HandleLabel>
-        <Handle
-          id="output"
-          type="source"
-          :position="Position.Right"
-        />
-      </div>
+      <ModulePortRail
+        position="right"
+        :ports="[{ id: 'output', label: 'out' }]"
+      />
     </div>
-  </div>
+  </BaseModuleShell>
 </template>

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Handle, Position, useVueFlow } from '@vue-flow/core'
+import { useVueFlow } from '@vue-flow/core'
 
 export type KaossPadModuleProps = {
   id: string
@@ -199,9 +199,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-2 py-2">
-    <span class="text-sm pl-1">{{ title }}</span>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
     <div class="flex gap-2">
       <div class="flex flex-col gap-2">
         <div
@@ -227,22 +229,13 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div class="flex flex-col gap-2">
-        <HandleLabel> X </HandleLabel>
-        <Handle
-          id="x"
-          class="!top-12"
-          type="source"
-          :position="Position.Right"
-        />
-        <HandleLabel> Y </HandleLabel>
-        <Handle
-          id="y"
-          class="!top-20"
-          type="source"
-          :position="Position.Right"
-        />
-      </div>
+      <ModulePortRail
+        position="right"
+        :ports="[
+          { id: 'x', label: 'X' },
+          { id: 'y', label: 'Y' },
+        ]"
+      />
     </div>
-  </div>
+  </BaseModuleShell>
 </template>

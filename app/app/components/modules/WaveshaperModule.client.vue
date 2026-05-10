@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Handle, Position, useVueFlow } from '@vue-flow/core'
+import { useVueFlow } from '@vue-flow/core'
 
 export type WaveshaperNodeModuleProps = {
   id: string
@@ -25,7 +25,7 @@ const waveshaperNode = new WaveShaperNode(audioContext, {
   oversample: '4x',
 })
 const waveshaper = useOptionParam('waveshaper', props.waveshaper, (value) => {
-  waveshaperNode.curve = waveshaperTables[value][modifier.value]
+  waveshaperNode.curve = waveshaperTables[value][modifier.value]!
 })
 const waveshaperOptions = [
   { label: 'sin', value: 'sin' as const },
@@ -34,7 +34,7 @@ const waveshaperOptions = [
   { label: 'x-root', value: 'x-root' as const },
 ]
 const [modifier] = useAudioParam('modifier', props.modifier, (value) => {
-  waveshaperNode.curve = waveshaperTables[waveshaper.value][value]
+  waveshaperNode.curve = waveshaperTables[waveshaper.value][value]!
 })
 
 registerModule(props.id, {
@@ -100,7 +100,7 @@ function drawCurve() {
   const yScale = height - 2 * padding
   for (let i = 0; i < n; i++) {
     const x = i * xScale
-    const y = padding + ((1 - table[i]) * 0.5) * yScale
+    const y = padding + ((1 - table[i]!) * 0.5) * yScale
     if (i === 0) {
       c.moveTo(x, y)
     }
@@ -145,32 +145,45 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-1 py-1">
-    <span class="text-sm pl-1">{{ title }}</span>
-    <div class="flex gap-2 items-start">
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
+    <ModulePortRow
+      :input="{ id: 'input', label: 'in' }"
+      :output="{ id: 'output', label: 'out' }"
+    >
       <div class="flex flex-col gap-4">
-        <HandleLabel>
-          in
-        </HandleLabel>
-        <Handle id="input" class="!top-10" type="target" :position="Position.Left" />
         <div class="flex items-center gap-1 border border-white/80 rounded-md p-2 nodrag mt-2">
-          <Knob v-model="modifier" :size="40" :min="0" :max="100" />
-          <Select v-model="waveshaper" class="border h-6 w-full" :pt="{
-            input: tw`p-1 text-xs`,
-          }" :options="waveshaperOptions" option-label="label" option-value="value" placeholder="Waveshaper" />
+          <Knob
+            v-model="modifier"
+            :size="40"
+            :min="0"
+            :max="100"
+          />
+          <Select
+            v-model="waveshaper"
+            class="border h-6 w-full"
+            :pt="{
+              input: tw`p-1 text-xs`,
+            }"
+            :options="waveshaperOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="Waveshaper"
+          />
         </div>
       </div>
-      <div ref="canvasWrap"
-        class="relative flex-1 min-w-[180px] min-h-[120px] max-h-[200px] max-w-[320px] border border-white/30 rounded overflow-hidden">
-        <canvas ref="canvasEl" class="absolute inset-0 w-full h-full bg-[#111]" />
+      <div
+        ref="canvasWrap"
+        class="relative flex-1 min-w-[180px] min-h-[120px] max-h-[200px] max-w-[320px] border border-white/30 rounded overflow-hidden"
+      >
+        <canvas
+          ref="canvasEl"
+          class="absolute inset-0 w-full h-full bg-[#111]"
+        />
       </div>
-      <div class="flex flex-col gap-4">
-        <HandleLabel>
-          out
-        </HandleLabel>
-        <Handle id="output" class="!top-10" type="source" :position="Position.Right" />
-      </div>
-    </div>
-  </div>
+    </ModulePortRow>
+  </BaseModuleShell>
 </template>

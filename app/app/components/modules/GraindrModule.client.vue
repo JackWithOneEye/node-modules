@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Handle, Position } from '@vue-flow/core'
 import { Direction, ToneType } from '~/utils'
 
 export type GraindrModuleProps = {
@@ -105,24 +104,24 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-1 py-2">
-    <span class="text-sm pl-1">{{ title }}</span>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
     <div class="flex gap-2">
-      <div class="flex flex-col gap-4">
-        <HandleBar
-          :handles="[
-            { id: 'input', label: 'in', type: 'target' as const },
-            { id: 'dryWetMix', label: 'mix', type: 'target' as const },
-            { id: 'grainSizeMs', label: 'size', type: 'target' as const },
-            { id: 'fineTune', label: 'fine', type: 'target' as const },
-            { id: 'texture', label: 'txt', type: 'target' as const },
-            { id: 'shimmer', label: 'shim', type: 'target' as const },
-            { id: 'feedback', label: 'fdbk', type: 'target' as const },
-          ]"
-          position="left"
-        />
-      </div>
+      <ModulePortRail
+        position="left"
+        :ports="[
+          { id: 'input', label: 'in' },
+          { id: 'dryWetMix', label: 'mix' },
+          { id: 'grainSizeMs', label: 'size' },
+          { id: 'fineTune', label: 'fine' },
+          { id: 'texture', label: 'txt' },
+          { id: 'shimmer', label: 'shim' },
+          { id: 'feedback', label: 'fdbk' },
+        ]"
+      />
       <div class="nodrag flex flex-col gap-2 border border-white/80 rounded-md p-2">
         <div class="flex gap-1">
           <div class="flex flex-col items-center">
@@ -241,16 +240,10 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div class="flex flex-col">
-        <HandleLabel class="pt-[4.5rem]">
-          out
-        </HandleLabel>
-        <Handle
-          id="output"
-          type="source"
-          :position="Position.Right"
-        />
-      </div>
+      <ModulePortRail
+        position="right"
+        :ports="[{ id: 'output', label: 'out' }]"
+      />
     </div>
-  </div>
+  </BaseModuleShell>
 </template>

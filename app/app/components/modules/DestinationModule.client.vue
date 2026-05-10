@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { Handle } from '@vue-flow/core'
-
 export type DestinationModuleProps = {
   id: string
   type: string
@@ -40,20 +38,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border pl-1 pr-2 py-2">
-    <span class="text-sm pl-1">{{ title }}</span>
-    <div class="flex gap-4">
-      <div class="flex flex-col">
-        <HandleLabel class="pt-5">
-          in
-        </HandleLabel>
-        <Handle
-          id="input"
-          type="target"
-          :position="Position.Left"
-        />
-      </div>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
+    <ModulePortRow :input="{ id: 'input', label: 'in' }">
       <div class="nodrag flex gap-1 border border-slate-500 rounded-md p-2">
         <div class="flex flex-col gap-2">
           <Button
@@ -82,6 +72,6 @@ onUnmounted(() => {
           <span class="text-xs">Gain</span>
         </div>
       </div>
-    </div>
-  </div>
+    </ModulePortRow>
+  </BaseModuleShell>
 </template>

@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Handle, Position } from '@vue-flow/core'
 import type { NoteMessageEvent, MessageEvent } from 'webmidi'
 
 // const NotePriority = {
@@ -292,11 +291,13 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border pl-2 pr-1 py-2">
-    <span class="text-sm">{{ title }}</span>
-    <div class="flex">
-      <div class="flex flex-col gap-2">
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
+    <div class="flex gap-2">
+      <div class="nodrag flex flex-col gap-2">
         <Select
           v-model="selectedMidiInput"
           class="border h-8 text-xs w-full"
@@ -330,37 +331,15 @@ onUnmounted(() => {
           placeholder="Pitch Bend Range"
         />
       </div>
-
-      <div class="flex flex-col gap-4 pl-2 text-right">
-        <HandleLabel>note</HandleLabel>
-        <Handle
-          id="note"
-          class="!top-10"
-          type="source"
-          :position="Position.Right"
-        />
-        <HandleLabel>gate</HandleLabel>
-        <Handle
-          id="gate"
-          class="!top-[4rem]"
-          type="source"
-          :position="Position.Right"
-        />
-        <HandleLabel>retrig</HandleLabel>
-        <Handle
-          id="retrigger"
-          class="!top-[5.6rem]"
-          type="source"
-          :position="Position.Right"
-        />
-        <HandleLabel>vlcty</HandleLabel>
-        <Handle
-          id="velocity"
-          class="!top-[7.2rem]"
-          type="source"
-          :position="Position.Right"
-        />
-      </div>
+      <ModulePortRail
+        position="right"
+        :ports="[
+          { id: 'note', label: 'note' },
+          { id: 'gate', label: 'gate' },
+          { id: 'retrigger', label: 'retrig' },
+          { id: 'velocity', label: 'vlcty' },
+        ]"
+      />
     </div>
-  </div>
+  </BaseModuleShell>
 </template>

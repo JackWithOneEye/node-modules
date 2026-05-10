@@ -6,6 +6,27 @@
 //   }
 // }
 
+/**
+ * Logical signal type for a module port. Used as a styling hook for
+ * signal-colored handles and forwarded through
+ * `BaseModuleShell` → `ModulePortRow` → `ModuleHandle`.
+ */
+export const SignalType = {
+  Audio: 'audio',
+  Cv: 'cv',
+  Gate: 'gate',
+  Trigger: 'trigger',
+  Midi: 'midi',
+} as const
+export type SignalType = typeof SignalType[keyof typeof SignalType]
+
+/** Shared shape for a module input/output port descriptor. */
+export type ModulePort = {
+  id: string
+  label: string
+  signal?: SignalType
+}
+
 export const AudioModuleType = {
   ADSR: 'adsr',
   AudioSource: 'audio-source',
@@ -255,17 +276,24 @@ export const moduleOptions = [
  * Used by the quick-add command palette and any module-search UI.
  */
 export const moduleCatalog: ModuleCatalogEntry[] = []
+const moduleCatalogByType = new Map<string, ModuleCatalogEntry>()
 for (const group of moduleOptions.flat()) {
   for (const item of group.items) {
-    moduleCatalog.push({
+    const entry: ModuleCatalogEntry = {
       type: item.type,
       label: item.label,
       icon: item.icon,
       category: group.label,
       description: MODULE_DESCRIPTIONS[item.type].description,
       keywords: MODULE_DESCRIPTIONS[item.type].keywords,
-    })
+    }
+    moduleCatalog.push(entry)
+    moduleCatalogByType.set(entry.type, entry)
   }
+}
+
+export function getModuleCatalogEntry(type: string): ModuleCatalogEntry | undefined {
+  return moduleCatalogByType.get(type)
 }
 
 /** Case-insensitive substring search over label / category / description / keywords. */

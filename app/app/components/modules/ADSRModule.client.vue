@@ -20,16 +20,16 @@ const props = withDefaults(defineProps<ADSRModuleProps>(), {
 const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
 const adsrNode = new ADSRWorkletNode(audioContext, { attack: props.attack, decay: props.decay, sustain: props.sustain, release: props.release })
 
-const sourceHandles = [
-  { id: 'output', label: 'out', type: 'source' as const },
+const sourcePorts = [
+  { id: 'output', label: 'out' },
 ]
-const targetHandles = [
-  { id: 'trigger', label: 'trig', type: 'target' as const },
-  { id: 'retrigger', label: 'retrig', type: 'target' as const },
-  { id: 'attack', label: 'atk', type: 'target' as const },
-  { id: 'decay', label: 'dec', type: 'target' as const },
-  { id: 'sustain', label: 'sus', type: 'target' as const },
-  { id: 'release', label: 'rel', type: 'target' as const },
+const targetPorts = [
+  { id: 'trigger', label: 'trig' },
+  { id: 'retrigger', label: 'retrig' },
+  { id: 'attack', label: 'atk' },
+  { id: 'decay', label: 'dec' },
+  { id: 'sustain', label: 'sus' },
+  { id: 'release', label: 'rel' },
 ]
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },
@@ -69,12 +69,14 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ModuleToolbar />
-  <div class="flex flex-col gap-2 border px-2 py-2">
-    <span class="text-sm pl-1">{{ title }}</span>
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
     <div class="flex gap-2">
-      <HandleBar
-        :handles="targetHandles"
+      <ModulePortRail
+        :ports="targetPorts"
         position="left"
       />
       <div class="nodrag flex flex-col gap-3 border border-white rounded-md p-2">
@@ -124,10 +126,10 @@ onUnmounted(() => {
           />
         </div>
       </div>
-      <HandleBar
-        :handles="sourceHandles"
+      <ModulePortRail
+        :ports="sourcePorts"
         position="right"
       />
     </div>
-  </div>
+  </BaseModuleShell>
 </template>

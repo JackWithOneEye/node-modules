@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Handle } from '@vue-flow/core'
 import { type CanvasForm, CanvasSpace, Sound } from 'pts'
 
 export type OscilloscopeModuleProps = {
@@ -57,21 +56,16 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-2 border pr-3 pt-1 pb-4">
-    <span class="text-sm pl-2">{{ title }}</span>
-    <div class="flex items-center gap-1 relative">
-      <HandleLabel class="pl-1">
-        in
-      </HandleLabel>
-      <Handle
-        id="input"
-        type="target"
-        :position="Position.Left"
-      />
+  <BaseModuleShell
+    :id="id"
+    :type="type"
+    :title="title"
+  >
+    <ModulePortRow :input="{ id: 'input', label: 'in' }">
       <div
         ref="wrapper"
         class="flex items-center justify-center border border-white/50 p-1 [&>canvas]:max-h-[150px] [&>canvas]:max-w-[250px]"
       />
-    </div>
-  </div>
+    </ModulePortRow>
+  </BaseModuleShell>
 </template>
