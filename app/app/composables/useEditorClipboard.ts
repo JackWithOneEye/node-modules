@@ -15,7 +15,7 @@ import type { Edge, GraphEdge, GraphNode, Node } from '@vue-flow/core'
 
 type Clipboard = {
   nodes: Array<Pick<GraphNode, 'id' | 'type' | 'position' | 'data'>>
-  edges: Array<Pick<GraphEdge, 'id' | 'source' | 'target' | 'sourceHandle' | 'targetHandle'>>
+  edges: Array<Pick<GraphEdge, 'id' | 'source' | 'target' | 'sourceHandle' | 'targetHandle'> & Partial<Pick<GraphEdge, 'data' | 'style'>>>
 }
 
 const buffer = ref<Clipboard | null>(null)
@@ -69,13 +69,20 @@ function selectedSnapshot(): Clipboard | null {
   const edges: Clipboard['edges'] = []
   for (const e of attached.getEdges()) {
     if (ids.has(e.source) && ids.has(e.target)) {
-      edges.push({
+      const clipEdge: Clipboard['edges'][number] = {
         id: e.id,
         source: e.source,
         target: e.target,
         sourceHandle: e.sourceHandle,
         targetHandle: e.targetHandle,
-      })
+      }
+      if (e.data) {
+        clipEdge.data = clone(e.data)
+      }
+      if (e.style) {
+        clipEdge.style = clone(e.style)
+      }
+      edges.push(clipEdge)
     }
   }
   return { nodes, edges }
@@ -107,13 +114,20 @@ function pasteClipboard(clip: Clipboard) {
 
   const newEdges: Edge[] = []
   for (const e of clip.edges) {
-    newEdges.push({
+    const newEdge: Edge = {
       id: crypto.randomUUID(),
       source: idMap.get(e.source)!,
       target: idMap.get(e.target)!,
       sourceHandle: e.sourceHandle,
       targetHandle: e.targetHandle,
-    })
+    }
+    if (e.data) {
+      newEdge.data = clone(e.data)
+    }
+    if (e.style) {
+      newEdge.style = clone(e.style)
+    }
+    newEdges.push(newEdge)
   }
 
   attached.addNodes(newNodes)

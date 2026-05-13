@@ -152,7 +152,7 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <ModulePortRow :input="{ id: 'input', label: 'in' }">
+    <ModulePortRow :input="{ id: 'input', label: 'in', signal: 'audio' }">
       <div
         ref="wrapper"
         class="flex items-center justify-center border border-white/50 p-1 [&>canvas]:max-h-[300px] [&>canvas]:max-w-[500px]"

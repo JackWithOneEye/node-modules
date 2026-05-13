@@ -73,9 +73,9 @@ onUnmounted(() => {
       <ModulePortRail
         position="left"
         :ports="[
-          { id: 'input', label: 'in' },
-          { id: 'cutoff', label: 'cutoff' },
-          { id: 'q', label: 'q' },
+          { id: 'input', label: 'in', signal: 'audio' },
+          { id: 'cutoff', label: 'cutoff', signal: 'cv' },
+          { id: 'q', label: 'q', signal: 'cv' },
         ]"
       />
       <div class="nodrag flex flex-col gap-3 border border-slate-500 rounded-md p-2">
@@ -106,10 +106,10 @@ onUnmounted(() => {
       <ModulePortRail
         position="right"
         :ports="[
-          { id: 'bpfOut', label: 'bpf' },
-          { id: 'bsfOut', label: 'bsf' },
-          { id: 'hpfOut', label: 'hpf' },
-          { id: 'lpfOut', label: 'lpf' },
+          { id: 'bpfOut', label: 'bpf', signal: 'audio' },
+          { id: 'bsfOut', label: 'bsf', signal: 'audio' },
+          { id: 'hpfOut', label: 'hpf', signal: 'audio' },
+          { id: 'lpfOut', label: 'lpf', signal: 'audio' },
         ]"
       />
     </div>

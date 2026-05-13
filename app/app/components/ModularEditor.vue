@@ -20,14 +20,21 @@ const nodes = ref(initialData.nodes)
 const edges = ref(initialData.edges)
 const viewport = ref(initialData.viewport)
 
+const handleSignals = useHandleSignals()
+provide(HandleSignalsKey, handleSignals)
+
 const history = useEditorHistory()
 
 onConnect((connection) => {
-  addEdges(connection)
-  // History-driven re-connections are handled inside useEditorHistory.
   if (history.isApplying.value) {
     return
   }
+  const signal = handleSignals.resolve(connection.source, connection.sourceHandle!, connection.target, connection.targetHandle!)
+  addEdges({
+    ...connection,
+    data: { signal },
+    style: getEdgeStyle(signal),
+  })
   audioCtxStore.connectModules(
     connection.source,
     connection.sourceHandle!,

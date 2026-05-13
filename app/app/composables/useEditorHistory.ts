@@ -64,13 +64,20 @@ function takeSnapshot(getNodes: () => Node[], getEdges: () => Edge[]): Snapshot 
   }
   const edges: Edge[] = []
   for (const e of getEdges()) {
-    edges.push({
+    const edge: Edge = {
       id: e.id,
       source: e.source,
       target: e.target,
       sourceHandle: e.sourceHandle,
       targetHandle: e.targetHandle,
-    })
+    }
+    if (e.data) {
+      edge.data = clone(e.data)
+    }
+    if (e.style) {
+      edge.style = clone(e.style)
+    }
+    edges.push(edge)
   }
   return { nodes, edges }
 }

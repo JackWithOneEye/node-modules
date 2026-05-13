@@ -17,12 +17,12 @@ const pitchTrackerNode = new PitchTrackerWorkletNode(audioContext, {
 })
 
 const sourcePorts = [
-  { id: 'output', label: 'out' },
-]
+  { id: 'output', label: 'out', signal: 'cv' },
+] satisfies ModulePort[]
 const targetPorts = [
-  { id: 'input', label: 'in' },
-  { id: 'harmonicThreshold', label: 'thresh' },
-]
+  { id: 'input', label: 'in', signal: 'audio' },
+  { id: 'harmonicThreshold', label: 'thresh', signal: 'cv' },
+] satisfies ModulePort[]
 
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },

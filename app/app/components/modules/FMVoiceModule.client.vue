@@ -182,14 +182,14 @@ const operatorParams = [
 ]
 
 const targetPorts = [
-  { id: 'trigger', label: 'trig' },
-  { id: 'retrigger', label: 'retrig' },
-  { id: 'frequency', label: 'freq' },
-]
+  { id: 'trigger', label: 'trig', signal: 'gate' },
+  { id: 'retrigger', label: 'retrig', signal: 'gate' },
+  { id: 'frequency', label: 'freq', signal: 'cv' },
+] satisfies ModulePort[]
 
 const sourcePorts = [
-  { id: 'output', label: 'out' },
-]
+  { id: 'output', label: 'out', signal: 'audio' },
+] satisfies ModulePort[]
 
 registerModule(id, {
   meta: { id, type },

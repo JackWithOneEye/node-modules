@@ -101,8 +101,8 @@ onUnmounted(() => {
     :title="props.title"
   >
     <ModulePortRow
-      :input="{ id: 'gateIn', label: 'gate' }"
-      :output="{ id: 'output', label: 'out' }"
+      :input="{ id: 'gateIn', label: 'gate', signal: 'gate' }"
+      :output="{ id: 'output', label: 'out', signal: 'cv' }"
     >
       <div class="nodrag flex flex-col items-center gap-2 border border-white/80 rounded-md p-2">
         <div class="flex items-center gap-2">

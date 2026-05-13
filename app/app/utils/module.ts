@@ -24,7 +24,7 @@ export type SignalType = typeof SignalType[keyof typeof SignalType]
 export type ModulePort = {
   id: string
   label: string
-  signal?: SignalType
+  signal: SignalType
 }
 
 export const AudioModuleType = {

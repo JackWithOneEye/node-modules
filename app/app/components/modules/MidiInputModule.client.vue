@@ -334,10 +334,10 @@ onUnmounted(() => {
       <ModulePortRail
         position="right"
         :ports="[
-          { id: 'note', label: 'note' },
-          { id: 'gate', label: 'gate' },
-          { id: 'retrigger', label: 'retrig' },
-          { id: 'velocity', label: 'vlcty' },
+          { id: 'note', label: 'note', signal: 'midi' },
+          { id: 'gate', label: 'gate', signal: 'gate' },
+          { id: 'retrigger', label: 'retrig', signal: 'gate' },
+          { id: 'velocity', label: 'vlcty', signal: 'cv' },
         ]"
       />
     </div>

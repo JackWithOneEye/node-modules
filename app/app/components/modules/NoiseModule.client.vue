@@ -55,7 +55,7 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <ModulePortRow :output="{ id: 'output', label: 'out' }">
+    <ModulePortRow :output="{ id: 'output', label: 'out', signal: 'audio' }">
       <div class="nodrag flex flex-col gap-2 border border-white/80 rounded-md p-2">
         <Select
           v-model="noiseType"

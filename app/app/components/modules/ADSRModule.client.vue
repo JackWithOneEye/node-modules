@@ -21,16 +21,16 @@ const { audioContext, registerModule, setParamValue, unregisterModule } = useAud
 const adsrNode = new ADSRWorkletNode(audioContext, { attack: props.attack, decay: props.decay, sustain: props.sustain, release: props.release })
 
 const sourcePorts = [
-  { id: 'output', label: 'out' },
-]
+  { id: 'output', label: 'out', signal: 'cv' },
+] satisfies ModulePort[]
 const targetPorts = [
-  { id: 'trigger', label: 'trig' },
-  { id: 'retrigger', label: 'retrig' },
-  { id: 'attack', label: 'atk' },
-  { id: 'decay', label: 'dec' },
-  { id: 'sustain', label: 'sus' },
-  { id: 'release', label: 'rel' },
-]
+  { id: 'trigger', label: 'trig', signal: 'gate' },
+  { id: 'retrigger', label: 'retrig', signal: 'gate' },
+  { id: 'attack', label: 'atk', signal: 'cv' },
+  { id: 'decay', label: 'dec', signal: 'cv' },
+  { id: 'sustain', label: 'sus', signal: 'cv' },
+  { id: 'release', label: 'rel', signal: 'cv' },
+] satisfies ModulePort[]
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },
   sourceInterfaces: {

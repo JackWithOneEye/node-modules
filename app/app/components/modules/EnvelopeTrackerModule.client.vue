@@ -19,14 +19,14 @@ const envelopeTrackerNode = new EnvelopeTrackerWorkletNode(audioContext, {
 })
 
 const sourcePorts = [
-  { id: 'modulation', label: 'mod' },
-  { id: 'trigger', label: 'trig' },
-]
+  { id: 'modulation', label: 'mod', signal: 'cv' },
+  { id: 'trigger', label: 'trig', signal: 'gate' },
+] satisfies ModulePort[]
 const targetPorts = [
-  { id: 'input', label: 'in' },
-  { id: 'sensitivity', label: 'sens' },
-  { id: 'threshold', label: 'thresh' },
-]
+  { id: 'input', label: 'in', signal: 'audio' },
+  { id: 'sensitivity', label: 'sens', signal: 'cv' },
+  { id: 'threshold', label: 'thresh', signal: 'cv' },
+] satisfies ModulePort[]
 
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },

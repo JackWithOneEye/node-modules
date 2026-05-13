@@ -49,7 +49,7 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <ModulePortRow :output="{ id: 'output', label: 'out' }">
+    <ModulePortRow :output="{ id: 'output', label: 'out', signal: 'cv' }">
       <div class="nodrag">
         <InputNumber
           v-model="offset"

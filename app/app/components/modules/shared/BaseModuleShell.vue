@@ -11,6 +11,8 @@ const { getNodes, updateNodeData } = useVueFlow()
 const { commit: historyCommit } = useEditorHistory()
 const { duplicateNode, deleteNode, disconnectAll } = useEditorActions()
 
+provide(ParentNodeIdKey, props.id)
+
 const moduleEntry = computed(() => getModuleCatalogEntry(props.type))
 const moduleLabel = computed(() => moduleEntry.value?.label ?? props.type)
 const moduleIcon = computed(() => moduleEntry.value?.icon ?? 'pi pi-box')

@@ -47,9 +47,9 @@ onUnmounted(() => {
     :title="props.title"
   >
     <ModulePortRow
-      :input="{ id: 'input1', label: 'in1' }"
-      :output="{ id: 'output', label: 'out' }"
+      :input="{ id: 'input1', label: 'in1', signal: 'audio' }"
+      :output="{ id: 'output', label: 'out', signal: 'audio' }"
     />
-    <ModulePortRow :input="{ id: 'input2', label: 'in2' }" />
+    <ModulePortRow :input="{ id: 'input2', label: 'in2', signal: 'audio' }" />
   </BaseModuleShell>
 </template>

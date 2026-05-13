@@ -37,18 +37,18 @@ watch(applyVelocity, (curr) => {
 })
 
 const sourcePorts = [
-  { id: 'output', label: 'out' },
-]
+  { id: 'output', label: 'out', signal: 'cv' },
+] satisfies ModulePort[]
 const targetPorts = [
-  { id: 'trigger', label: 'trig' },
-  { id: 'retrigger', label: 'retrig' },
-  { id: 'velocity', label: 'vel' },
-  { id: 'attack', label: 'atk' },
-  { id: 'decay', label: 'dec' },
-  { id: 'sustain', label: 'sus' },
-  { id: 'release', label: 'rel' },
-  { id: 'applyVelocity', label: 'vel en' },
-]
+  { id: 'trigger', label: 'trig', signal: 'gate' },
+  { id: 'retrigger', label: 'retrig', signal: 'gate' },
+  { id: 'velocity', label: 'vel', signal: 'cv' },
+  { id: 'attack', label: 'atk', signal: 'cv' },
+  { id: 'decay', label: 'dec', signal: 'cv' },
+  { id: 'sustain', label: 'sus', signal: 'cv' },
+  { id: 'release', label: 'rel', signal: 'cv' },
+  { id: 'applyVelocity', label: 'vel en', signal: 'cv' },
+] satisfies ModulePort[]
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },
   sourceInterfaces: {

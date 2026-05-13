@@ -66,8 +66,8 @@ onUnmounted(() => {
       <ModulePortRail
         position="left"
         :ports="[
-          { id: 'input', label: 'in' },
-          { id: 'delayTime', label: 'time' },
+          { id: 'input', label: 'in', signal: 'audio' },
+          { id: 'delayTime', label: 'time', signal: 'cv' },
         ]"
       />
       <div class="nodrag">
@@ -88,7 +88,7 @@ onUnmounted(() => {
       </div>
       <ModulePortRail
         position="right"
-        :ports="[{ id: 'output', label: 'out' }]"
+        :ports="[{ id: 'output', label: 'out', signal: 'audio' }]"
       />
     </div>
   </BaseModuleShell>
