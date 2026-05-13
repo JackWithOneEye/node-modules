@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 export type GainModuleProps = {
   id: string
   type: string
@@ -67,7 +66,7 @@ onUnmounted(() => {
   <BaseModuleShell
     :id="id"
     :type="type"
-    :title="title"
+    :title="props.title"
   >
     <div class="flex gap-2">
       <ModulePortRail
@@ -79,12 +78,34 @@ onUnmounted(() => {
       />
       <div class="nodrag flex gap-1 border border-white/80 rounded-md p-2">
         <div class="flex flex-col gap-2">
-          <Button class="w-5 text-xs" icon="pi pi-plus" icon-class="!text-xs" :disabled="gain >= maxGain" @click="gain++" />
-          <Button class="w-5 text-xs" icon="pi pi-minus" icon-class="!text-xs" :disabled="gain <= minGain" @click="gain--" />
+          <Button
+            class="w-5 text-xs"
+            icon="pi pi-plus"
+            icon-class="!text-xs"
+            :disabled="gain >= maxGain"
+            @click="gain++"
+          />
+          <Button
+            class="w-5 text-xs"
+            icon="pi pi-minus"
+            icon-class="!text-xs"
+            :disabled="gain <= minGain"
+            @click="gain--"
+          />
         </div>
         <div class="flex flex-col items-center">
-          <Knob v-model="gain" :disabled="!gainEnabled" :size="40" :min="minGain" :max="maxGain" :value-template="(value) => `${value}dB`" />
-          <ToggleSwitch v-model="gainEnabled" :binary="true" />
+          <Knob
+            v-model="gain"
+            :disabled="!gainEnabled"
+            :size="40"
+            :min="minGain"
+            :max="maxGain"
+            :value-template="(value) => `${value}dB`"
+          />
+          <ToggleSwitch
+            v-model="gainEnabled"
+            :binary="true"
+          />
         </div>
       </div>
       <ModulePortRail

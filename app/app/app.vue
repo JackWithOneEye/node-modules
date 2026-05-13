@@ -24,6 +24,11 @@
   @apply bg-black
 }
 
+.vue-flow__edge.selected .vue-flow__edge-path {
+  stroke-width: 3;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
+}
+
 .vue-flow__controls {
   @apply flex flex-wrap justify-center border-white
 }

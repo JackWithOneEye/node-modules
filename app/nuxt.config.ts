@@ -29,27 +29,6 @@ export default defineNuxtConfig({
     '@primevue/nuxt-module',
   ],
 
-  primevue: {
-    options: {
-      theme: {
-        preset: AppPreset,
-        options: {
-          darkModeSelector: '.dark',
-          cssLayer: {
-            name: 'primevue',
-            order: 'tailwind-base, primevue, tailwind-utilities',
-          },
-        },
-      },
-    },
-  },
-
-  app: {
-    head: {
-      htmlAttrs: { class: 'dark' },
-    },
-  },
-
   components: [
     {
       path: '~/components',
@@ -73,11 +52,32 @@ export default defineNuxtConfig({
   },
   devtools: { enabled: true },
 
+  app: {
+    head: {
+      htmlAttrs: { class: 'dark' },
+    },
+  },
+
   compatibilityDate: '2024-11-23',
 
   eslint: {
     config: {
       stylistic: true,
+    },
+  },
+
+  primevue: {
+    options: {
+      theme: {
+        preset: AppPreset,
+        options: {
+          darkModeSelector: '.dark',
+          cssLayer: {
+            name: 'primevue',
+            order: 'tailwind-base, primevue, tailwind-utilities',
+          },
+        },
+      },
     },
   },
 

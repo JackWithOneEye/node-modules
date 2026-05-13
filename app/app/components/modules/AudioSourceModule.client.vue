@@ -52,7 +52,7 @@ onUnmounted(() => {
   <BaseModuleShell
     :id="id"
     :type="type"
-    :title="title"
+    :title="props.title"
   >
     <ModulePortRow :output="{ id: 'output', label: 'out' }" />
   </BaseModuleShell>

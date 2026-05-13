@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 export type BitCrusherModuleProps = {
   id: string
   type: string
@@ -64,7 +63,7 @@ onUnmounted(() => {
   <BaseModuleShell
     :id="id"
     :type="type"
-    :title="title"
+    :title="props.title"
   >
     <div class="flex gap-2">
       <ModulePortRail
@@ -76,7 +75,13 @@ onUnmounted(() => {
       />
       <div class="nodrag flex gap-1 border border-white/80 rounded-md p-2">
         <div class="flex flex-col items-center">
-          <Knob v-model="scaledBits" :size="40" :min="0" :max="maxBitSliderVal" :value-template="() => `${actualBits.toFixed()} bits`" />
+          <Knob
+            v-model="scaledBits"
+            :size="40"
+            :min="0"
+            :max="maxBitSliderVal"
+            :value-template="() => `${actualBits.toFixed()} bits`"
+          />
         </div>
       </div>
       <ModulePortRail

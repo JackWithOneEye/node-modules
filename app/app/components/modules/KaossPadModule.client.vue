@@ -202,7 +202,7 @@ onUnmounted(() => {
   <BaseModuleShell
     :id="id"
     :type="type"
-    :title="title"
+    :title="props.title"
   >
     <div class="flex gap-2">
       <div class="flex flex-col gap-2">

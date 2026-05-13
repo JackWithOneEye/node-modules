@@ -75,37 +75,66 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
 
 <template>
   <div class="flex flex-col min-h-screen">
-    <MegaMenu class="h-full z-10 bg-gray-800 border-b border-gray-600" :model="items" :pt="{
-      panel: {
-        class: tw`p-2`,
-      },
-      submenuLabel: {
-        class: tw`px-2 py-1 text-sm font-semibold mb-1`,
-      },
-      submenu: {
-        class: tw`gap-1`,
-      },
-      grid: {
-        class: tw`gap-4`,
-      },
-    }">
+    <MegaMenu
+      class="h-full z-10 bg-gray-800 border-b border-gray-600"
+      :model="items"
+      :pt="{
+        panel: {
+          class: tw`p-2`,
+        },
+        submenuLabel: {
+          class: tw`px-2 py-1 text-sm font-semibold mb-1`,
+        },
+        submenu: {
+          class: tw`gap-1`,
+        },
+        grid: {
+          class: tw`gap-4`,
+        },
+      }"
+    >
       <template #item="{ item }">
-        <div v-if="item.root" v-ripple
-          class="flex items-center cursor-pointer p-2 gap-2 border rounded-md max-w-screen-sm">
+        <div
+          v-if="item.root"
+          v-ripple
+          class="flex items-center cursor-pointer p-2 gap-2 border rounded-md max-w-screen-sm"
+        >
           <i :class="item.icon" />
           <span>{{ item.label }}</span>
           <i class="pi pi-angle-down" />
         </div>
 
-        <DropNewModule v-else :icon="item.icon" :label="item.label as string" :type="item.type" />
+        <DropNewModule
+          v-else
+          :icon="item.icon"
+          :label="item.label as string"
+          :type="item.type"
+        />
       </template>
       <template #end>
         <div class="flex gap-2">
-          <Button class="pi pi-undo" title="Undo (⌘Z)" :disabled="!canUndo" @click="undo" />
-          <Button class="pi pi-refresh" title="Redo (⇧⌘Z)" :disabled="!canRedo" @click="redo" />
-          <Button class="pi pi-save" title="Save" @click="saveData" />
+          <Button
+            class="pi pi-undo"
+            title="Undo (⌘Z)"
+            :disabled="!canUndo"
+            @click="undo"
+          />
+          <Button
+            class="pi pi-refresh"
+            title="Redo (⇧⌘Z)"
+            :disabled="!canRedo"
+            @click="redo"
+          />
+          <Button
+            class="pi pi-save"
+            title="Save"
+            @click="saveData"
+          />
 
-          <Button v-if="loading" class="pi pi-spin pi-spinner" />
+          <Button
+            v-if="loading"
+            class="pi pi-spin pi-spinner"
+          />
           <PlayButton v-else />
         </div>
       </template>

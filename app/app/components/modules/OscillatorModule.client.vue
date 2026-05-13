@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 export type OscillatorModuleProps = {
   id: string
   type: string
@@ -110,7 +109,7 @@ onUnmounted(() => {
   <BaseModuleShell
     :id="id"
     :type="type"
-    :title="title"
+    :title="props.title"
   >
     <div class="flex gap-2">
       <ModulePortRail

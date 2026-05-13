@@ -86,7 +86,7 @@ onUnmounted(() => {
   <BaseModuleShell
     :id="id"
     :type="type"
-    :title="title"
+    :title="props.title"
   >
     <div class="flex gap-2">
       <ModulePortRail
@@ -103,27 +103,57 @@ onUnmounted(() => {
       <div class="nodrag flex gap-1 border border-white/80 rounded-md p-3">
         <div class="flex flex-col gap-1">
           <div class="flex flex-col items-center">
-            <Knob v-model="threshold" :size="40" :min="-100" :max="0" :value-template="(value) => `${value}dB`" />
+            <Knob
+              v-model="threshold"
+              :size="40"
+              :min="-100"
+              :max="0"
+              :value-template="(value) => `${value}dB`"
+            />
             <span class="text-xs">Threshold</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob v-model="knee" :size="40" :min="0" :max="40" :value-template="(value) => `${value}dB`" />
+            <Knob
+              v-model="knee"
+              :size="40"
+              :min="0"
+              :max="40"
+              :value-template="(value) => `${value}dB`"
+            />
             <span class="text-xs">Knee</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob v-model="ratio" :size="40" :min="1" :max="20" :value-template="(value) => `${value}:1`" />
+            <Knob
+              v-model="ratio"
+              :size="40"
+              :min="1"
+              :max="20"
+              :value-template="(value) => `${value}:1`"
+            />
             <span class="text-xs">Ratio</span>
           </div>
         </div>
         <div class="flex flex-col gap-1">
           <div class="flex flex-col items-center">
-            <Knob v-model="attack" :size="40" :min="0" :max="1" :step="0.001"
-              :value-template="(value) => `${(value * 1000).toFixed(1)}ms`" />
+            <Knob
+              v-model="attack"
+              :size="40"
+              :min="0"
+              :max="1"
+              :step="0.001"
+              :value-template="(value) => `${(value * 1000).toFixed(1)}ms`"
+            />
             <span class="text-xs">Attack</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob v-model="release" :size="40" :min="0" :max="1" :step="0.01"
-              :value-template="(value) => `${(value * 1000).toFixed(0)}ms`" />
+            <Knob
+              v-model="release"
+              :size="40"
+              :min="0"
+              :max="1"
+              :step="0.01"
+              :value-template="(value) => `${(value * 1000).toFixed(0)}ms`"
+            />
             <span class="text-xs">Release</span>
           </div>
           <div class="flex flex-col items-center">

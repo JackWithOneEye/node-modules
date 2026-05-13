@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 export type DecimatorModuleProps = {
   id: string
   type: string
@@ -75,7 +74,7 @@ onUnmounted(() => {
   <BaseModuleShell
     :id="id"
     :type="type"
-    :title="title"
+    :title="props.title"
   >
     <div class="flex gap-2">
       <ModulePortRail
@@ -87,11 +86,24 @@ onUnmounted(() => {
       />
       <div class="nodrag flex gap-1 border border-white/80 rounded-md p-2">
         <div class="flex flex-col items-center">
-          <Knob v-model="scaledReduction" :size="40" :min="0" :max="maxReductionSliderVal" :value-template="() => reductionLabel" />
+          <Knob
+            v-model="scaledReduction"
+            :size="40"
+            :min="0"
+            :max="maxReductionSliderVal"
+            :value-template="() => reductionLabel"
+          />
           <span class="text-handle">Reduction</span>
         </div>
         <div class="flex flex-col items-center">
-          <Knob v-model="stereoShift" :size="40" :min="0" :max="1" :step="0.1" :value-template="() => `${stereoShift.toFixed(1)}`" />
+          <Knob
+            v-model="stereoShift"
+            :size="40"
+            :min="0"
+            :max="1"
+            :step="0.1"
+            :value-template="() => `${stereoShift.toFixed(1)}`"
+          />
           <span class="text-handle">Shift</span>
         </div>
       </div>

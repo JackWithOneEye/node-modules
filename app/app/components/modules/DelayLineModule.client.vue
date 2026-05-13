@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 export type DelayLineModuleProps = {
   id: string
   type: string
@@ -61,7 +60,7 @@ onUnmounted(() => {
   <BaseModuleShell
     :id="id"
     :type="type"
-    :title="title"
+    :title="props.title"
   >
     <div class="flex gap-2">
       <ModulePortRail
@@ -72,9 +71,20 @@ onUnmounted(() => {
         ]"
       />
       <div class="nodrag">
-        <InputNumber v-model="delayTime" :min="0" :max="2" :step="0.01" :max-fraction-digits="3" :pt="{
-          root: tw`[&>input]:w-24 [&>input]:border [&>input]:border-white/50 [&>input]:focus:border-white [&>input]:text-sm [&>input]:p-2 [&>input]:outline-none`,
-        }" :min-fraction-digits="0" suffix="s" mode="decimal" show-buttons />
+        <InputNumber
+          v-model="delayTime"
+          :min="0"
+          :max="2"
+          :step="0.01"
+          :max-fraction-digits="3"
+          :pt="{
+            root: tw`[&>input]:w-24 [&>input]:border [&>input]:border-white/50 [&>input]:focus:border-white [&>input]:text-sm [&>input]:p-2 [&>input]:outline-none`,
+          }"
+          :min-fraction-digits="0"
+          suffix="s"
+          mode="decimal"
+          show-buttons
+        />
       </div>
       <ModulePortRail
         position="right"

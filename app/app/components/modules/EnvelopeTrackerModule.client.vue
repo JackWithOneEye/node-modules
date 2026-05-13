@@ -68,19 +68,41 @@ onUnmounted(() => {
   <BaseModuleShell
     :id="id"
     :type="type"
-    :title="title"
+    :title="props.title"
   >
     <div class="flex gap-2">
-      <ModulePortRail :ports="targetPorts" position="left" />
+      <ModulePortRail
+        :ports="targetPorts"
+        position="left"
+      />
       <div class="nodrag flex flex-col gap-3 border border-white rounded-md p-2">
         <div class="flex gap-1">
-          <ParamController name="sensitivity" :default-value="sensitivity" label="SENS" :min="0.25" :max="5.0"
-            :step="0.01" unit="" @on-change="value => setParamValue(envelopeTrackerNode.sensitivity, value)" />
-          <ParamController name="threshold" :default-value="threshold" label="THRESH" :min="-60.0" :max="0.0" :step="1"
-            unit="dB" @on-change="value => setParamValue(envelopeTrackerNode.threshold, value)" />
+          <ParamController
+            name="sensitivity"
+            :default-value="sensitivity"
+            label="SENS"
+            :min="0.25"
+            :max="5.0"
+            :step="0.01"
+            unit=""
+            @on-change="value => setParamValue(envelopeTrackerNode.sensitivity, value)"
+          />
+          <ParamController
+            name="threshold"
+            :default-value="threshold"
+            label="THRESH"
+            :min="-60.0"
+            :max="0.0"
+            :step="1"
+            unit="dB"
+            @on-change="value => setParamValue(envelopeTrackerNode.threshold, value)"
+          />
         </div>
       </div>
-      <ModulePortRail :ports="sourcePorts" position="right" />
+      <ModulePortRail
+        :ports="sourcePorts"
+        position="right"
+      />
     </div>
   </BaseModuleShell>
 </template>

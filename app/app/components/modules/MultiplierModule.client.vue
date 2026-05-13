@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-
 export type MultiplierModuleProps = {
   id: string
   type: string
@@ -45,7 +44,7 @@ onUnmounted(() => {
   <BaseModuleShell
     :id="id"
     :type="type"
-    :title="title"
+    :title="props.title"
   >
     <ModulePortRow
       :input="{ id: 'input1', label: 'in1' }"
