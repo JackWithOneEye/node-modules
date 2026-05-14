@@ -213,10 +213,10 @@ const onNoteOn = ({ note }: NoteMessageEvent) => {
   console.log('NOTE ON?', note)
   activeVoices.set(channelIdx, { note: note.number, lastPlayed: Date.now(), state: 'on' })
   store.setMultipleParamValues(
-    [gateNodes[channelIdx].offset, 1],
-    [noteNodes[channelIdx].offset, pitchbendFactor.value * midiStore.midiNote2FreqLUT[note.number]],
-    [retriggerNodes[channelIdx].offset, 1, 'pulse'],
-    [velocityNodes[channelIdx].offset, note.attack],
+    [gateNodes[channelIdx]!.offset, 1],
+    [noteNodes[channelIdx]!.offset, pitchbendFactor.value * midiStore.midiNote2FreqLUT[note.number]!],
+    [retriggerNodes[channelIdx]!.offset, 1, 'pulse'],
+    [velocityNodes[channelIdx]!.offset, note.attack],
   )
 }
 
@@ -236,7 +236,7 @@ const onNoteOff = ({ note }: NoteMessageEvent) => {
   const v = activeVoices.get(oldestMatchingVoice)
   v!.state = 'off'
   activeVoices.set(oldestMatchingVoice, v!)
-  store.setParamValue(gateNodes[oldestMatchingVoice].offset, 0)
+  store.setParamValue(gateNodes[oldestMatchingVoice]!.offset, 0)
 }
 
 const onPitchBend = ({ value }: MessageEvent) => {
@@ -247,7 +247,7 @@ const onPitchBend = ({ value }: MessageEvent) => {
 watch(pitchbendFactor, (curr) => {
   const paramValues: Parameters<typeof store.setMultipleParamValues> = []
   for (const [voice, { note }] of activeVoices.entries()) {
-    paramValues.push([noteNodes[voice].offset, curr * midiStore.midiNote2FreqLUT[note], 'exp', 0.01])
+    paramValues.push([noteNodes[voice]!.offset, curr * midiStore.midiNote2FreqLUT[note]!, 'exp', 0.01])
   }
   store.setMultipleParamValues(...paramValues)
 })

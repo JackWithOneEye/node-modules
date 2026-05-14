@@ -39,7 +39,7 @@ store.registerModule(props.id, {
       multiFilterNode.connect(target, outputIndex, targetIndex)
     },
     disconnect: (outputId, target, targetIndex) => {
-      const outputIndex = outputIndexMap[outputId]
+      const outputIndex = outputIndexMap[outputId]!
       if (target instanceof AudioParam) {
         multiFilterNode.disconnect(target, outputIndex)
         return

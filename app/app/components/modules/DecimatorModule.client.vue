@@ -27,7 +27,7 @@ for (let i = 0; i <= maxReductionSliderVal; i++) {
 }
 
 const [scaledReduction, actualReduction] = useAudioParam('reduction', props.reduction, value => setParamValue(decimatorNode.reduction, value), {
-  toActual: scaled => reductionScaleLUT[scaled] / sampleRate,
+  toActual: scaled => reductionScaleLUT[scaled]! / sampleRate,
   toScaled: actual => Math.round(
     maxReductionSliderVal + (Math.log(actual) / Math.log(reductionScalingFactor)) * orderSteps,
   ),

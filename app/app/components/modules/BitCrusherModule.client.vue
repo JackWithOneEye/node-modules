@@ -22,7 +22,7 @@ for (let i = 0; i <= maxBitSliderVal; i++) {
 }
 
 const [scaledBits, actualBits] = useAudioParam('bits', props.bits, value => setParamValue(bitCrusherNode.bits, value), {
-  toActual: scaled => bitsScaleLUT[scaled],
+  toActual: scaled => bitsScaleLUT[scaled]!,
   toScaled: actual => Math.round((Math.log2(actual) - 1) * orderSteps),
 })
 

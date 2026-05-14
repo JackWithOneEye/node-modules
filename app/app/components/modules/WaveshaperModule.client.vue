@@ -25,7 +25,7 @@ const waveshaperNode = new WaveShaperNode(audioContext, {
   oversample: '4x',
 })
 const waveshaper = useOptionParam('waveshaper', props.waveshaper, (value) => {
-  waveshaperNode.curve = waveshaperTables[value][modifier.value]!
+  waveshaperNode.curve = waveshaperTables[value][modifier.value] as Float32Array<ArrayBuffer>
 })
 const waveshaperOptions = [
   { label: 'sin', value: 'sin' as const },
@@ -34,7 +34,7 @@ const waveshaperOptions = [
   { label: 'x-root', value: 'x-root' as const },
 ]
 const [modifier] = useAudioParam('modifier', props.modifier, (value) => {
-  waveshaperNode.curve = waveshaperTables[waveshaper.value][value]!
+  waveshaperNode.curve = waveshaperTables[waveshaper.value][value] as Float32Array<ArrayBuffer>
 })
 
 registerModule(props.id, {

@@ -112,7 +112,7 @@ watch(wrapper, () => {
           const freq = (i / binCount) * nyquist
           if (freq < minFreq) continue
 
-          const amplitude = freqData[i] / 255
+          const amplitude = freqData[i]! / 255
           const db = amplitudeToDb(amplitude)
           const x = marginLeft + logScale(freq, minFreq, nyquist, width)
           const y = dbToY(db, height)

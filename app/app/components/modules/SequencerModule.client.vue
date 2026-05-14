@@ -25,7 +25,7 @@ const sequencerNode = new SequencerWorkletNode(
   {
     gateThreshold: props.gateThreshold,
     numSteps: props.numSteps,
-    values: props.values.map(val => val === 0 ? 0 : noteFrequencies[notes[val - 1]]),
+    values: props.values.map(val => val === 0 ? 0 : noteFrequencies[notes[val - 1]!]),
   },
   (step) => {
     currentStep.value = step
@@ -40,7 +40,7 @@ const scale = ref<typeof _valueScales[number]>('note')
 const max = computed(() => scale.value === 'note' ? notes.length : 1)
 function valueLabel(value: number) {
   if (scale.value === 'note') {
-    return value === 0 ? '-' : notes[value - 1]
+    return value === 0 ? '-' : notes[value - 1]!
   }
   return `${value}`
 }
@@ -50,7 +50,7 @@ watch(values, (curr) => {
   const submit = []
   if (scale.value === 'note') {
     for (const v of curr) {
-      submit.push(v === 0 ? 0 : noteFrequencies[notes[v - 1]])
+      submit.push(v === 0 ? 0 : noteFrequencies[notes[v - 1]!])
     }
   }
   else {

@@ -7,7 +7,7 @@ export const useWaveshapersStore = defineStore('waveshapersStore', () => {
   const MAX_MOD = 100
   const numSamples = audioContext.sampleRate
 
-  function makeTable(fn: (x: number, mod: number) => number) {
+  function makeTable(fn: (x: number, mod: number) => number): Float32Array[] {
     const table = new Array<Float32Array>(100)
     for (let mod = 0; mod <= MAX_MOD; mod++) {
       const curve = new Float32Array(numSamples)
