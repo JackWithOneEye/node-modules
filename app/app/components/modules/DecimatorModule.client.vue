@@ -12,7 +12,8 @@ const props = withDefaults(defineProps<DecimatorModuleProps>(), {
   stereoShift: 0,
 })
 
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const audioContext = getAudioContext()
 const decimatorNode = new DecimatorWorkletNode(audioContext, { reduction: props.reduction, stereoShift: props.stereoShift })
 
 const sampleRate = audioContext.sampleRate

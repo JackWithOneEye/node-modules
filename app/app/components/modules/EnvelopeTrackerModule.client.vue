@@ -12,8 +12,8 @@ const props = withDefaults(defineProps<EnvelopeTrackerModuleProps>(), {
   threshold: -60.0,
 })
 
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
-const envelopeTrackerNode = new EnvelopeTrackerWorkletNode(audioContext, {
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const envelopeTrackerNode = new EnvelopeTrackerWorkletNode(getAudioContext(), {
   sensitivity: props.sensitivity,
   threshold: props.threshold,
 })

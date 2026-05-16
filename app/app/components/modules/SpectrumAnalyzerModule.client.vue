@@ -14,12 +14,13 @@ const props = withDefaults(defineProps<SpectrumAnalyzerModuleProps>(), {
 })
 
 const store = useAudioContextStore()
+const audioContext = store.getAudioContext()
 
 const fftSizeOptions = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192]
 const fftSize = useParam('fftSize', props.fftSize)
 
 const minFreq = 20
-const maxFreq = computed(() => store.audioContext.sampleRate / 2)
+const maxFreq = computed(() => audioContext.sampleRate / 2)
 const minDb = -60
 const maxDb = 20
 
@@ -47,14 +48,14 @@ const formatFreq = (freq: number): string => {
   return freq >= 1000 ? `${freq / 1000}k` : `${freq}`
 }
 
-const gainNode = new GainNode(store.audioContext)
+const gainNode = new GainNode(audioContext)
 const sound = shallowRef<Sound>()
 
 const initializeSound = () => {
-  if (sound.value) {
-    sound.value.analyzer.node.disconnect()
-  }
-  sound.value = Sound.from(gainNode, store.audioContext).analyze(fftSize.value)
+   if (sound.value) {
+     sound.value.analyzer.node.disconnect()
+   }
+   sound.value = Sound.from(gainNode, audioContext).analyze(fftSize.value)
 }
 
 initializeSound()

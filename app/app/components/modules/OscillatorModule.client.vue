@@ -33,7 +33,7 @@ const waveforms: typeof props.waveform[] = ['sine', 'triangle', 'sawtooth', 'squ
 const frequencyEnabled = ref(props.frequencyEnabled)
 
 const store = useAudioContextStore()
-const oscillatorNode = new OscillatorNode(store.audioContext, {
+const oscillatorNode = new OscillatorNode(store.getAudioContext(), {
   frequency: props.frequencyEnabled ? props.frequency : 0,
   detune: props.detune,
   type: props.waveform,

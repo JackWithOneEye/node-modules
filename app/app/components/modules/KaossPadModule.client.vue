@@ -12,12 +12,13 @@ const props = withDefaults(defineProps<KaossPadModuleProps>(), {
 })
 
 const {
-  audioContext,
+  getAudioContext,
   registerModule,
   setMultipleParamValues,
   unregisterModule,
 } = useAudioContextStore()
 
+const audioContext = getAudioContext()
 const { onViewportChange, getViewport } = useVueFlow()
 
 const nodes = {

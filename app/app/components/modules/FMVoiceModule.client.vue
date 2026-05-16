@@ -117,8 +117,8 @@ const props = withDefaults(defineProps<FMVoiceModuleProps>(), {
 })
 
 const { id, title, type, ...paramProps } = props
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
-const fmVoiceNode = new FMVoiceWorkletNode(audioContext, { ...paramProps })
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const fmVoiceNode = new FMVoiceWorkletNode(getAudioContext(), { ...paramProps })
 
 // Global parameters
 const [algorithm] = useAudioParam('algorithm', props.algorithm, value => setParamValue(fmVoiceNode.algorithm, value))

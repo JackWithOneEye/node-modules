@@ -10,8 +10,8 @@ const props = withDefaults(defineProps<ValueModuleProps>(), {
   offset: 0,
 })
 
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
-const constantSourceNode = new ConstantSourceNode(audioContext, { offset: props.offset })
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const constantSourceNode = new ConstantSourceNode(getAudioContext(), { offset: props.offset })
 constantSourceNode.start()
 
 const [offset] = useAudioParam('offset', props.offset, value => setParamValue(constantSourceNode.offset, value, 'lin'))

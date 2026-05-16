@@ -14,8 +14,8 @@ const props = withDefaults(defineProps<FMOscillatorModuleProps>(), {
 })
 
 const { id, title, type, ...paramProps } = props
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
-const fmOscillatorNode = new FMOscillatorWorkletNode(audioContext, { ...paramProps })
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const fmOscillatorNode = new FMOscillatorWorkletNode(getAudioContext(), { ...paramProps })
 
 const [frequency] = useAudioParam('frequency', props.frequency, value => setParamValue(fmOscillatorNode.frequency, value))
 const [pitchShift] = useAudioParam('pitchShift', props.pitchShift, value => setParamValue(fmOscillatorNode.pitchShift, value))

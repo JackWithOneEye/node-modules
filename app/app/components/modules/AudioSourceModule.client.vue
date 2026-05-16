@@ -20,7 +20,7 @@ const mediaStream = await window.navigator.mediaDevices.getUserMedia({
   },
 })
 
-const audioSourceNode = new MediaStreamAudioSourceNode(store.audioContext, { mediaStream })
+const audioSourceNode = new MediaStreamAudioSourceNode(store.getAudioContext(), { mediaStream })
 
 store.registerModule(props.id, {
   meta: { id: props.id, type: props.type },

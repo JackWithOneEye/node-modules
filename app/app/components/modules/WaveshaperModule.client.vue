@@ -14,13 +14,13 @@ const props = withDefaults(defineProps<WaveshaperNodeModuleProps>(), {
   modifier: 0,
 })
 
-const { audioContext, registerModule, unregisterModule } = useAudioContextStore()
+const { getAudioContext, registerModule, unregisterModule } = useAudioContextStore()
 
 const waveshaperTables = useWaveshapersStore()
 
 const { onViewportChange, getViewport } = useVueFlow()
 
-const waveshaperNode = new WaveShaperNode(audioContext, {
+const waveshaperNode = new WaveShaperNode(getAudioContext(), {
   curve: waveshaperTables[props.waveshaper][props.modifier],
   oversample: '4x',
 })

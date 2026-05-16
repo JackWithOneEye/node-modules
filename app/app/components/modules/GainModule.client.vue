@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<GainModuleProps>(), {
 })
 
 const store = useAudioContextStore()
-const gainNode = new GainNode(store.audioContext, { gain: props.gainEnabled ? props.gain : 1.4013e-10 })
+const gainNode = new GainNode(store.getAudioContext(), { gain: props.gainEnabled ? props.gain : 1.4013e-10 })
 
 const gain = useGainParam('gain', props.gain, value => store.setParamValue(gainNode.gain, value, 'exp'))
 const gainEnabled = ref(props.gainEnabled)

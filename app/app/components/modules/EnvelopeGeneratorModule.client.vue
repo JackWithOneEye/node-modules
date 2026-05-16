@@ -19,8 +19,8 @@ const props = withDefaults(defineProps<EnvelopeGeneratorModuleProps>(), {
   applyVelocity: false,
 })
 
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
-const envelopeGeneratorNode = new EnvelopeGeneratorWorkletNode(audioContext, {
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const envelopeGeneratorNode = new EnvelopeGeneratorWorkletNode(getAudioContext(), {
   attack: props.attack,
   decay: props.decay,
   sustain: props.sustain,

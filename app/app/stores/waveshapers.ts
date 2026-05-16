@@ -3,9 +3,9 @@ import { defineStore } from 'pinia'
 const HALF_PI = Math.PI / 2
 
 export const useWaveshapersStore = defineStore('waveshapersStore', () => {
-  const { audioContext } = useAudioContextStore()
+  const { getAudioContext } = useAudioContextStore()
   const MAX_MOD = 100
-  const numSamples = audioContext.sampleRate
+  const numSamples = getAudioContext().sampleRate
 
   function makeTable(fn: (x: number, mod: number) => number): Float32Array[] {
     const table = new Array<Float32Array>(100)

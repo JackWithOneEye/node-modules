@@ -34,8 +34,8 @@ const props = withDefaults(defineProps<GraindrModuleProps>(), {
 })
 
 const { id, title, type, ...paramProps } = props
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
-const graindrNode = new GraindrWorkletNode(audioContext, { ...paramProps })
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const graindrNode = new GraindrWorkletNode(getAudioContext(), { ...paramProps })
 
 const pctConv = {
   toActual: (scaled: number) => scaled * 0.01,

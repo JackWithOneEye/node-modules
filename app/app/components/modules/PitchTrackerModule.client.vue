@@ -10,7 +10,8 @@ const props = withDefaults(defineProps<PitchTrackerModuleProps>(), {
   harmonicThreshold: 0.1,
 })
 
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const audioContext = getAudioContext()
 const pitchTrackerNode = new PitchTrackerWorkletNode(audioContext, {
   harmonicThreshold: props.harmonicThreshold,
   windowSizeSamples: 0.0275 * audioContext.sampleRate,

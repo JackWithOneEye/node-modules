@@ -10,8 +10,8 @@ const props = withDefaults(defineProps<PhaserModuleProps>(), {
   rate: 0.5,
 })
 
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
-const phaserNode = new PhaserWorkletNode(audioContext, { rate: props.rate })
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const phaserNode = new PhaserWorkletNode(getAudioContext(), { rate: props.rate })
 
 const [rate] = useAudioParam('rate', props.rate, value => setParamValue(phaserNode.rate, value))
 

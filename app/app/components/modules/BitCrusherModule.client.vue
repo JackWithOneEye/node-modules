@@ -10,8 +10,8 @@ const props = withDefaults(defineProps<BitCrusherModuleProps>(), {
   bits: 32,
 })
 
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
-const bitCrusherNode = new BitCrusherWorkletNode(audioContext, { bits: props.bits })
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const bitCrusherNode = new BitCrusherWorkletNode(getAudioContext(), { bits: props.bits })
 
 const maxBitsOrder = Math.log2(32)
 const orderSteps = 20

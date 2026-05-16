@@ -8,7 +8,7 @@ const props = withDefaults(defineProps<MultiplierModuleProps>(), {
   title: 'Multiplier',
 })
 const store = useAudioContextStore()
-const multiplierNode = new MultiplierWorkletNode(store.audioContext)
+const multiplierNode = new MultiplierWorkletNode(store.getAudioContext())
 
 store.registerModule(props.id, {
   meta: { id: props.id, type: props.type },

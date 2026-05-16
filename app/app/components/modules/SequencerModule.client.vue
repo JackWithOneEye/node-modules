@@ -18,10 +18,10 @@ const ROWS = 4
 const COLUMNS = 4
 
 const notes = Object.keys(noteFrequencies) as (keyof typeof noteFrequencies)[]
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
 const currentStep = ref(-1)
 const sequencerNode = new SequencerWorkletNode(
-  audioContext,
+  getAudioContext(),
   {
     gateThreshold: props.gateThreshold,
     numSteps: props.numSteps,

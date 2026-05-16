@@ -11,9 +11,10 @@ const props = withDefaults(defineProps<OscilloscopeModuleProps>(), {
 })
 
 const store = useAudioContextStore()
+const audioContext = store.getAudioContext()
 
-const gainNode = new GainNode(store.audioContext, { gain: 0.5 })
-const sound = Sound.from(gainNode, store.audioContext).analyze(2048)
+const gainNode = new GainNode(audioContext, { gain: 0.5 })
+const sound = Sound.from(gainNode, audioContext).analyze(2048)
 store.registerModule(props.id, {
   meta: { id: props.id, type: props.type },
   getTarget: {

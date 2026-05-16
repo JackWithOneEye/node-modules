@@ -1,16 +1,30 @@
-const audioContext = new AudioContext({ latencyHint: 0 })
-await audioContext.audioWorklet.addModule('/api/audio-processors-script')
-
 export const useAudioContextStore = defineStore('audioContextStore', () => {
-  const state = ref(audioContext.state)
+  const audioContext = ref<AudioContext>()
+  const state = ref<AudioContextState>('closed')
   const moduleRegistry = ref<Map<ModuleId, ModuleRegistration>>(new Map())
 
+  async function init() {
+    const ctx = new AudioContext({ latencyHint: 0 })
+    await ctx.audioWorklet.addModule('/api/audio-processors-script')
+    audioContext.value = ctx
+    state.value = audioContext.value.state
+  }
+
+  async function destroy() {
+    await audioContext.value!.close()
+    moduleRegistry.value.clear()
+  }
+
+  function getAudioContext() {
+    return audioContext.value!
+  }
+
   async function suspend() {
-    if (audioContext.state === 'suspended') {
+    if (audioContext.value!.state === 'closed' || audioContext.value!.state === 'suspended') {
       return
     }
 
-    await audioContext.suspend()
+    await audioContext.value!.suspend()
     for (const { onSuspend } of moduleRegistry.value.values()) {
       try {
         onSuspend?.()
@@ -19,14 +33,14 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
         console.warn(e)
       }
     }
-    state.value = audioContext.state
+    state.value = audioContext.value!.state
   }
 
   async function resume() {
-    if (audioContext.state === 'running') {
+    if (audioContext.value!.state === 'closed' || audioContext.value!.state === 'running') {
       return
     }
-    await audioContext.resume()
+    await audioContext.value!.resume()
     for (const { onResume } of moduleRegistry.value.values()) {
       try {
         onResume?.()
@@ -35,15 +49,15 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
         console.warn(e)
       }
     }
-    state.value = audioContext.state
+    state.value = audioContext.value!.state
   }
 
   function setParamValue(param: AudioParam, value: number, ramp: Ramp = 'none', rampTime = 0.5) {
-    internalSetParamValue(param, value, ramp ?? 'none', audioContext.currentTime, rampTime)
+    internalSetParamValue(param, value, ramp ?? 'none', audioContext.value!.currentTime, rampTime)
   }
 
   function setMultipleParamValues(...args: Parameters<typeof setParamValue>[]) {
-    const currentTime = audioContext.currentTime
+    const currentTime = audioContext.value!.currentTime
     for (const [param, value, ramp, rampTime] of args) {
       internalSetParamValue(param, value, ramp ?? 'none', currentTime, rampTime ?? 0.5)
     }
@@ -57,7 +71,7 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
     }
     if (ramp === 'pulse') {
       param.setValueAtTime(clampedVal, currentTime)
-        .setValueAtTime(0, currentTime + (2 / audioContext.sampleRate))
+        .setValueAtTime(0, currentTime + (2 / audioContext.value!.sampleRate))
       return
     }
 
@@ -117,9 +131,11 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
     }
     const [sourceModule, target] = found
     if (target.type === 'audioNode') {
+      console.log(`connect source module ${sourceId}[${sourceOutputId}] to target ${targetId}[${targetInputId}] (index ${target.inputIndex})`)
       sourceModule.sourceInterfaces!.connect(sourceOutputId, target.node, target.inputIndex)
     }
     else {
+      console.log(`connect source module ${sourceId}[${sourceOutputId}] to target param ${targetId}[${targetInputId}]`)
       sourceModule.sourceInterfaces!.connect(sourceOutputId, target.param, 0)
     }
   }
@@ -131,16 +147,21 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
     }
     const [sourceModule, target] = found
     if (target.type === 'audioNode') {
+      console.log(`disconnect source module ${sourceId}[${sourceOutputId}] from target ${targetId}[${targetInputId}] (index ${target.inputIndex})`)
       sourceModule.sourceInterfaces!.disconnect(sourceOutputId, target.node, target.inputIndex)
     }
     else {
+      console.log(`disconnect source module ${sourceId}[${sourceOutputId}] from target param ${targetId}[${targetInputId}]`)
       sourceModule.sourceInterfaces!.disconnect(sourceOutputId, target.param, 0)
     }
   }
 
   return {
-    audioContext,
     state,
+
+    init,
+    destroy,
+    getAudioContext,
 
     suspend,
     resume,

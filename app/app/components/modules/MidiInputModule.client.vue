@@ -29,14 +29,15 @@ const props = withDefaults(defineProps<MidiInputModuleProps>(), {
 const midiStore = useMidiStore()
 await midiStore.enable()
 const store = useAudioContextStore()
+const audioContext = store.getAudioContext()
 
 const selectedOutputCount = useParam('outputs', props.outputs)
 const outputOptions = Array.from({ length: 8 }, (_, i) => ({ label: `${i + 1}`, value: i + 1 }))
 
-const gateMergerNode = new ChannelMergerNode(store.audioContext, { numberOfInputs: 8 })
-const noteMergerNode = new ChannelMergerNode(store.audioContext, { numberOfInputs: 8 })
-const retrigMergerNode = new ChannelMergerNode(store.audioContext, { numberOfInputs: 8 })
-const velocityMergerNode = new ChannelMergerNode(store.audioContext, { numberOfInputs: 8 })
+const gateMergerNode = new ChannelMergerNode(audioContext, { numberOfInputs: 8 })
+const noteMergerNode = new ChannelMergerNode(audioContext, { numberOfInputs: 8 })
+const retrigMergerNode = new ChannelMergerNode(audioContext, { numberOfInputs: 8 })
+const velocityMergerNode = new ChannelMergerNode(audioContext, { numberOfInputs: 8 })
 
 const gateNodes: ConstantSourceNode[] = []
 const noteNodes: ConstantSourceNode[] = []
@@ -45,25 +46,25 @@ const velocityNodes: ConstantSourceNode[] = []
 
 const activeVoices = new Map<number, { note: number, lastPlayed: number, state: 'on' | 'off' }>()
 watch(selectedOutputCount, (curr, prev) => {
-  prev ??= 0
-  if (curr > prev) {
-    for (let i = prev; i < curr; i++) {
-      const gateNode = new ConstantSourceNode(store.audioContext, { offset: 0 })
-      gateNode.start()
-      gateNode.connect(gateMergerNode, 0, i)
-      gateNodes.push(gateNode)
-      const noteNode = new ConstantSourceNode(store.audioContext, { offset: 0 })
-      noteNode.start()
-      noteNode.connect(noteMergerNode, 0, i)
-      noteNodes.push(noteNode)
-      const retriggerNode = new ConstantSourceNode(store.audioContext, { offset: 0 })
-      retriggerNode.start()
-      retriggerNode.connect(retrigMergerNode, 0, i)
-      retriggerNodes.push(retriggerNode)
-      const velocityNode = new ConstantSourceNode(store.audioContext, { offset: 0 })
-      velocityNode.start()
-      velocityNode.connect(velocityMergerNode, 0, i)
-      velocityNodes.push(velocityNode)
+   prev ??= 0
+   if (curr > prev) {
+     for (let i = prev; i < curr; i++) {
+       const gateNode = new ConstantSourceNode(audioContext, { offset: 0 })
+       gateNode.start()
+       gateNode.connect(gateMergerNode, 0, i)
+       gateNodes.push(gateNode)
+       const noteNode = new ConstantSourceNode(audioContext, { offset: 0 })
+       noteNode.start()
+       noteNode.connect(noteMergerNode, 0, i)
+       noteNodes.push(noteNode)
+       const retriggerNode = new ConstantSourceNode(audioContext, { offset: 0 })
+       retriggerNode.start()
+       retriggerNode.connect(retrigMergerNode, 0, i)
+       retriggerNodes.push(retriggerNode)
+       const velocityNode = new ConstantSourceNode(audioContext, { offset: 0 })
+       velocityNode.start()
+       velocityNode.connect(velocityMergerNode, 0, i)
+       velocityNodes.push(velocityNode)
 
       activeVoices.set(i, { note: 0, lastPlayed: 0, state: 'off' })
     }
@@ -287,6 +288,7 @@ onUnmounted(() => {
     vn.stop()
   }
   velocityMergerNode.disconnect()
+  store.unregisterModule(props.id)
 })
 </script>
 

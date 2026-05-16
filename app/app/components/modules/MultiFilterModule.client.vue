@@ -19,7 +19,7 @@ const {
 const [q] = useAudioParam('q', props.q, value => store.setParamValue(multiFilterNode.q, value, 'lin'))
 
 const store = useAudioContextStore()
-const multiFilterNode = new MultiFilterWorkletNode(store.audioContext, { cutoff: props.cutoff, q: props.q })
+const multiFilterNode = new MultiFilterWorkletNode(store.getAudioContext(), { cutoff: props.cutoff, q: props.q })
 
 const outputIndexMap: Record<string, number> = {
   bpfOut: 0,

@@ -18,8 +18,8 @@ const props = withDefaults(defineProps<LFOModuleProps>(), {
   waveform: LFOWaveform.Sine,
 })
 
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
-const lfoNode = new LFOWorkletNode(audioContext, {
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const lfoNode = new LFOWorkletNode(getAudioContext(), {
   frequency: props.frequency,
   phase: props.phase,
   polarity: props.polarity,

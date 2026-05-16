@@ -11,8 +11,9 @@ const props = withDefaults(defineProps<DestinationModuleProps>(), {
 })
 
 const store = useAudioContextStore()
-const gainNode = new GainNode(store.audioContext, { gain: props.gain })
-const destinationNode = store.audioContext.destination
+const audioContext = store.getAudioContext()
+const gainNode = new GainNode(audioContext, { gain: props.gain })
+const destinationNode = audioContext.destination
 gainNode.connect(destinationNode)
 
 const gain = useGainParam('gain', props.gain, value => store.setParamValue(gainNode.gain, value, 'exp'))

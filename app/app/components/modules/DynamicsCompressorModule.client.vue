@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<DynamicsCompressorModuleProps>(), {
 })
 
 const store = useAudioContextStore()
-const compressorNode = new DynamicsCompressorNode(store.audioContext, {
+const compressorNode = new DynamicsCompressorNode(store.getAudioContext(), {
   threshold: props.threshold,
   knee: props.knee,
   ratio: props.ratio,

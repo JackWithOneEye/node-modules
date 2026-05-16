@@ -17,8 +17,8 @@ const props = withDefaults(defineProps<ADSRModuleProps>(), {
   release: 0.001,
 })
 
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
-const adsrNode = new ADSRWorkletNode(audioContext, { attack: props.attack, decay: props.decay, sustain: props.sustain, release: props.release })
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const adsrNode = new ADSRWorkletNode(getAudioContext(), { attack: props.attack, decay: props.decay, sustain: props.sustain, release: props.release })
 
 const sourcePorts = [
   { id: 'output', label: 'out', signal: 'cv' },

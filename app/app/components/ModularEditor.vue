@@ -14,6 +14,9 @@ export type ModuleEditorProps = {
 const { initialData } = defineProps<ModuleEditorProps>()
 
 const audioCtxStore = useAudioContextStore()
+await audioCtxStore.init()
+
+const dataStore = useDataStore()
 
 const { onConnect, onEdgesChange, addEdges } = useVueFlow()
 const nodes = ref(initialData.nodes)
@@ -60,18 +63,23 @@ onEdgesChange((changes) => {
 })
 
 const init = useNodesInitialized()
-watch(init, (curr) => {
-  if (curr) {
-    for (const { source, sourceHandle, target, targetHandle } of edges.value) {
-      audioCtxStore.connectModules(
-        source,
-        sourceHandle!,
-        target,
-        targetHandle!,
-      )
-    }
+const { stop } = watch(init, (curr) => {
+  if (!curr) {
+    return
   }
-}, { once: true })
+  for (const { source, sourceHandle, target, targetHandle } of edges.value) {
+    audioCtxStore.connectModules(
+      source,
+      sourceHandle!,
+      target,
+      targetHandle!,
+    )
+  }
+  if (dataStore.currentPatchId) {
+    dataStore.markClean()
+  }
+  stop()
+})
 
 history.attach({
   audioConnect: (s, sh, t, th) => audioCtxStore.connectModules(s, sh, t, th),
@@ -83,9 +91,10 @@ clipboard.attach({
   audioConnect: (s, sh, t, th) => audioCtxStore.connectModules(s, sh, t, th),
 })
 
-onBeforeUnmount(() => {
+onBeforeUnmount(async () => {
   history.detach()
   clipboard.detach()
+  await audioCtxStore.destroy()
 })
 
 const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()

@@ -12,8 +12,8 @@ const props = withDefaults(defineProps<NoiseModuleProps>(), {
   noiseType: NoiseType.White,
 })
 
-const { audioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
-const noiseGeneratorNode = new NoiseGeneratorWorkletNode(audioContext, { noiseType: props.noiseType })
+const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
+const noiseGeneratorNode = new NoiseGeneratorWorkletNode(getAudioContext(), { noiseType: props.noiseType })
 const noiseType = useOptionParam('noiseType', props.noiseType, value => setParamValue(noiseGeneratorNode.noiseType, value))
 const noiseTypeOptions = [
   { label: 'White', value: NoiseType.White },

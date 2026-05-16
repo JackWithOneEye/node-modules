@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<DelayLineModuleProps>(), {
 })
 
 const store = useAudioContextStore()
-const delayNode = new DelayNode(store.audioContext, {
+const delayNode = new DelayNode(store.getAudioContext(), {
   maxDelayTime: 2,
   delayTime: props.delayTime,
 })
