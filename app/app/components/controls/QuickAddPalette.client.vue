@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { searchModuleCatalog, type ModuleCatalogEntry } from '~/utils/module'
-
 /**
  * Quick-add command palette for inserting modules.
  *
@@ -16,7 +14,8 @@ import { searchModuleCatalog, type ModuleCatalogEntry } from '~/utils/module'
  *  - Esc to dismiss
  */
 
-const visible = ref(false)
+const { visible, open: openQuickAdd, close } = useQuickAdd()
+
 const query = ref('')
 const activeIndex = ref(0)
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -31,14 +30,14 @@ watch(results, () => {
 const { addModuleAtViewportCenter } = useAddModule()
 
 function open() {
-  visible.value = true
+  openQuickAdd()
   query.value = ''
   activeIndex.value = 0
   nextTick(() => inputRef.value?.focus())
 }
 
-function close() {
-  visible.value = false
+function onDialogClose() {
+  close()
 }
 
 function insert(entry: ModuleCatalogEntry) {
@@ -142,7 +141,7 @@ onBeforeUnmount(() => {
       content: tw`bg-black p-0`,
       mask: tw`backdrop-blur-sm`,
     }"
-    @update:visible="(v: boolean) => (visible = v)"
+    @update:visible="(v: boolean) => !v && onDialogClose()"
   >
     <div class="flex flex-col">
       <div class="flex items-center gap-2 border-b border-white/20 px-3 py-2">
@@ -193,7 +192,9 @@ onBeforeUnmount(() => {
           </span>
         </button>
       </div>
-      <div class="flex items-center justify-between border-t border-white/20 px-3 py-1.5 text-[0.65rem] font-mono text-white/40">
+      <div
+        class="flex items-center justify-between border-t border-white/20 px-3 py-1.5 text-[0.65rem] font-mono text-white/40"
+      >
         <span>↑ ↓ navigate &nbsp; ↵ insert</span>
         <span>{{ results.length }} module{{ results.length === 1 ? '' : 's' }}</span>
       </div>

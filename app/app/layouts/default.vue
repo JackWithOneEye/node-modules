@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import { moduleOptions } from '~/utils/module'
-
 const store = useDataStore()
 const toast = useToast()
 const { canUndo, canRedo, undo, redo } = useEditorHistory()
 const { copy, paste, duplicate, deleteSelection } = useEditorClipboard()
+const { open: openQuickAdd } = useQuickAdd()
 
 const showOpenDialog = ref(false)
 const showSaveAsDialog = ref(false)
 const importInput = ref<HTMLInputElement>()
+const infoModalRef = ref<{ open: () => void } | null>(null)
 
 const statusLabel = computed(() => {
   switch (store.saveState) {
@@ -46,15 +46,6 @@ async function onImportFile(event: Event) {
   input.value = ''
 }
 
-const items = ref([
-  {
-    label: 'Modules',
-    icon: 'pi pi-box',
-    root: true,
-    items: moduleOptions,
-  },
-])
-
 function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
     return false
@@ -74,6 +65,12 @@ function onShortcut(e: KeyboardEvent) {
   if (e.key === 'Delete' && !(e.metaKey || e.ctrlKey || e.altKey)) {
     e.preventDefault()
     deleteSelection()
+    return
+  }
+
+  if (e.key === '?') {
+    e.preventDefault()
+    infoModalRef.value?.open()
     return
   }
 
@@ -109,139 +106,108 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
 
 <template>
   <div class="flex flex-col min-h-screen">
-    <MegaMenu
-      class="h-full z-10 bg-neutral-950 border-b border-neutral-800"
-      :model="items"
-      :pt="{
-        panel: {
-          class: tw`p-1`,
-        },
-        submenuLabel: {
-          class: tw`px-2 py-1 text-xs font-medium text-neutral-400`,
-        },
-        submenu: {
-          class: tw`gap-0.5`,
-        },
-        grid: {
-          class: tw`gap-2`,
-        },
-      }"
-    >
-      <template #item="{ item }">
-        <div
-          v-if="item.root"
-          class="flex items-center cursor-pointer px-2 py-1 gap-1.5 text-neutral-300 hover:text-white text-xs"
+    <header class="h-10 z-10 bg-neutral-950 border-b border-neutral-800 flex items-center px-3 gap-2 shrink-0">
+      <!-- Left zone -->
+      <div class="flex items-center gap-2 flex-1 min-w-0">
+        <ModuleDropdown />
+        <button
+          class="flex items-center gap-1.5 text-xs text-neutral-300 hover:text-white px-2 py-1 rounded hover:bg-white/5 transition-colors"
+          @click="openQuickAdd()"
         >
-          <i :class="item.icon" />
-          <span>{{ item.label }}</span>
-          <span class="text-neutral-600 text-[10px]">▾</span>
-        </div>
-
-        <DropNewModule
-          v-else
-          :icon="item.icon"
-          :label="item.label as string"
-          :type="item.type"
+          <i class="pi pi-plus" />
+          <span class="hidden [@media(min-width:1200px)]:inline">Add</span>
+        </button>
+        <div class="h-4 w-px bg-neutral-800" />
+        <InputText
+          v-if="store.currentPatchId"
+          v-model="store.currentPatchName"
+          class="w-36 lg:w-48 text-xs py-1 px-2 bg-neutral-900 border border-neutral-700 text-neutral-200 placeholder-neutral-500 h-7 rounded"
+          @keydown.enter="($event.target as HTMLInputElement).blur()"
         />
-      </template>
-      <template #end>
-        <div class="flex items-center gap-1">
-          <InputText
-            v-if="store.currentPatchId"
-            v-model="store.currentPatchName"
-            class="w-36 text-xs py-1 px-2 bg-neutral-900 border border-neutral-700 text-neutral-200 placeholder-neutral-500 h-7 rounded"
-            @keydown.enter="($event.target as HTMLInputElement).blur()"
-          />
+        <span
+          v-if="store.currentPatchId"
+          class="text-[11px] leading-none rounded-sm px-1.5 py-0.5"
+          :class="{
+            'bg-neutral-800 text-neutral-500': store.saveState === 'saved' || store.saveState === 'saving',
+            'bg-amber-900/40 text-amber-400': store.saveState === 'dirty',
+            'bg-red-900/40 text-red-400': store.saveState === 'error',
+          }"
+        >{{ statusLabel }}</span>
+      </div>
 
-          <span
-            v-if="store.currentPatchId"
-            class="text-[11px] leading-none rounded-sm px-1.5 py-0.5"
-            :class="{
-              'bg-neutral-800 text-neutral-500': store.saveState === 'saved' || store.saveState === 'saving',
-              'bg-amber-900/40 text-amber-400': store.saveState === 'dirty',
-              'bg-red-900/40 text-red-400': store.saveState === 'error',
-            }"
-          >{{ statusLabel }}</span>
+      <!-- Right zone -->
+      <div class="flex items-center gap-1">
+        <ToolbarButton
+          icon="pi pi-undo"
+          label="Undo"
+          :disabled="!canUndo"
+          @click="undo"
+        />
+        <ToolbarButton
+          icon="pi pi-refresh"
+          label="Redo"
+          :disabled="!canRedo"
+          @click="redo"
+        />
+        <div class="h-4 w-px bg-neutral-800 mx-1" />
 
-          <span class="w-px h-4 bg-neutral-800 mx-1.5" />
-
-          <button
-            class="text-xs text-neutral-300 hover:text-white px-1.5 py-0.5 disabled:text-neutral-600 flex items-center gap-1"
-            title="New"
+        <!-- Desktop file buttons -->
+        <div class="hidden md:flex items-center gap-1">
+          <ToolbarButton
+            icon="pi pi-file"
+            label="New"
             @click="store.newPatch()"
-          >
-            <i class="pi pi-file" />
-            New
-          </button>
-          <button
-            class="text-xs text-neutral-300 hover:text-white px-1.5 py-0.5 disabled:text-neutral-600 flex items-center gap-1"
-            title="Open"
+          />
+          <ToolbarButton
+            icon="pi pi-folder-open"
+            label="Open"
             @click="showOpenDialog = true"
-          >
-            <i class="pi pi-folder-open" />
-            Open
-          </button>
-          <button
-            class="text-xs text-neutral-300 hover:text-white px-1.5 py-0.5 disabled:text-neutral-600 flex items-center gap-1"
-            title="Save"
-            :disabled="!store.currentPatchId"
+          />
+          <ToolbarButton
+            icon="pi pi-save"
+            label="Save"
             @click="saveData"
-          >
-            <i class="pi pi-save" />
-            Save
-          </button>
-          <button
-            class="text-xs text-neutral-300 hover:text-white px-1.5 py-0.5 disabled:text-neutral-600 flex items-center gap-1"
-            title="Save As"
-            :disabled="!store.currentPatchId"
+          />
+          <ToolbarButton
+            icon="pi pi-save"
+            label="Save As"
             @click="showSaveAsDialog = true"
-          >
-            <i class="pi pi-save" />
-            Save As
-          </button>
-          <button
-            class="text-xs text-neutral-300 hover:text-white px-1.5 py-0.5 disabled:text-neutral-600 flex items-center gap-1"
-            title="Import"
+          />
+          <ToolbarButton
+            icon="pi pi-upload"
+            label="Import"
             @click="importInput?.click()"
-          >
-            <i class="pi pi-upload" />
-            Import
-          </button>
-          <button
-            class="text-xs text-neutral-300 hover:text-white px-1.5 py-0.5 disabled:text-neutral-600 flex items-center gap-1"
-            title="Export"
-            :disabled="!store.currentPatchId"
+          />
+          <ToolbarButton
+            icon="pi pi-download"
+            label="Export"
             @click="store.exportPatch()"
-          >
-            <i class="pi pi-download" />
-            Export
-          </button>
-
-          <span class="w-px h-4 bg-neutral-800 mx-1.5" />
-
-          <button
-            class="text-xs text-neutral-300 hover:text-white px-1.5 py-0.5 disabled:text-neutral-600 flex items-center gap-1"
-            title="Undo (⌘Z)"
-            :disabled="!canUndo"
-            @click="undo"
-          >
-            <i class="pi pi-undo" />
-            Undo
-          </button>
-          <button
-            class="text-xs text-neutral-300 hover:text-white px-1.5 py-0.5 disabled:text-neutral-600 flex items-center gap-1"
-            title="Redo (⇧⌘Z)"
-            :disabled="!canRedo"
-            @click="redo"
-          >
-            <i class="pi pi-refresh" />
-            Redo
-          </button>
-
-          <PlayButton />
+          />
         </div>
-      </template>
-    </MegaMenu>
+
+        <!-- Mobile file dropdown -->
+        <FileDropdown
+          class="md:hidden"
+          @new-patch="store.newPatch()"
+          @open-patch="showOpenDialog = true"
+          @save-patch="saveData"
+          @save-as-patch="showSaveAsDialog = true"
+          @import-patch="importInput?.click()"
+          @export-patch="store.exportPatch()"
+        />
+
+        <div class="h-4 w-px bg-neutral-800 mx-1" />
+        <PlayButton />
+        <div class="h-4 w-px bg-neutral-800 mx-1" />
+        <button
+          class="w-7 h-7 rounded-full border border-neutral-600 text-neutral-400 hover:text-white hover:border-neutral-400 flex items-center justify-center text-xs transition-colors"
+          title="Keyboard shortcuts (?)"
+          @click="infoModalRef?.open()"
+        >
+          <i class="pi pi-question" />
+        </button>
+      </div>
+    </header>
 
     <input
       ref="importInput"
@@ -262,6 +228,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
 
     <slot />
     <QuickAddPalette />
+    <InfoModal ref="infoModalRef" />
     <Toast />
   </div>
 </template>

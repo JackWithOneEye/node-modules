@@ -19,7 +19,7 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 
 ## 🟠 High — discoverability, navigation, node shell
 
-1. 🟨 **Rework the top bar into a real patch toolbar.** The current `default.vue` layout already carries patch name, status pill, file actions, undo/redo, and Play/Stop, but they are crammed into the MegaMenu `end` slot rather than zoned left/right. Need clean separation: left = Add/Search/Patch name, right = Undo/Redo, Save state, Play/Stop, File menu. *(M)*
+1. ✅ **Rework the top bar into a real patch toolbar.** Replaced MegaMenu with a custom zoned `<header>`: left = ModuleDropdown + Add button + patch name + status pill; right = Undo/Redo, file actions (individual on desktop, "File" dropdown on mobile), glowing Play/Stop toggle, and info modal trigger. *(M)*
 2. 🟨 **Module search, filtering, recents & favorites.** `QuickAddPalette` already provides fast typeahead search with descriptions. Missing: recents list on empty query, star/favorite toggle, and category tabs. *(M)*
 3. ⬜ **Fix module taxonomy & iconography in [module.ts](file:///Users/Sebastian1/programming/node-modules/app/app/utils/module.ts).** Alphabetize within categories; rebalance the single-item "Filter" group; replace the over-reused `pi pi-wave-pulse` (Noise / Oscillator / FM Oscillator / Phaser / Waveshaper / Pitch Tracker / LFO / Oscilloscope all share it) and `pi pi-th-large` (MIDI Input / FM Voice / Kaoss Pad) with distinct, audio-domain glyphs. *(S)*
 4. ⬜ **Multi-select & batch actions:** lasso select, shift-click, drag/duplicate/delete the selection, optional align/distribute later. *(M)*
@@ -58,7 +58,7 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 
 ---
 
-## Shipped top-8
+## Shipped items
 
 1. ✅ Searchable quick-add ("press A")
 2. ✅ Undo / Redo
@@ -70,6 +70,7 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 8. ✅ `BaseModuleShell` + row-based port layout (`ModulePortRow` / `ModulePortRail`)
 9. ✅ MiniMap + repositioned canvas controls
 10. ✅ Header shows both module type and user title (inline merge + floating toolbar)
+11. ✅ Zoned patch toolbar (replaced MegaMenu with custom header, responsive file actions, glowing Play button, keyboard shortcuts modal, shared QuickAdd API)
 
 ---
 
@@ -80,7 +81,7 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 3. ✅ **MiniMap + repositioned canvas controls** — improves navigation in larger patches and fixes the DevTools collision.
 4. ⬜ **Module search, filtering, recents & favorites** — extend the existing `QuickAddPalette` with recents on empty query and a star toggle; relatively small scope.
 5. ⬜ **Knob interaction upgrade** — double-click reset, Shift fine-drag, and numeric entry directly improve the parameter-editing loop.
-6. ⬜ **Rework top bar into zoned patch toolbar** — reorganize the existing buttons into a clean left/right layout (Add/Search/Name vs. Undo/Redo/Save/Play/File).
+6. ✅ **Rework top bar into zoned patch toolbar** — replaced MegaMenu with a clean left/right header layout (ModuleDropdown/Add/Name vs. Undo/Redo/File/Play/Info). Ships with responsive file actions, glowing Play button, keyboard shortcuts modal, and shareable QuickAdd API.
 7. ✅ **Fix module taxonomy & iconography** — rebalance categories, replace duplicated icons, and alphabetize; small visual-only change with high polish payoff.
 8. ✅ **Header shows both module type and user title** — currently the module type lives in the header and the editable title sits below it; combining them improves node recognizability after renaming.
 
@@ -97,7 +98,7 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 | 3 | ✅ MiniMap + repositioned canvas controls | Small–Medium | Very low | 3 | ~½ day |
 | 4 | Module search, filtering, recents & favorites | Small–Medium | Low | 3 | ~½–1 day |
 | 5 | Knob interaction upgrade | Medium | Medium | 29+ | ~1–2 days |
-| 6 | Rework top bar into zoned patch toolbar | Small–Medium | Low | 4 | ~½–1 day |
+| 6 | ✅ Rework top bar into zoned patch toolbar | Small–Medium | Low | 8 | ~½–1 day |
 | 7 | ✅ Fix module taxonomy & iconography | Small | Very low | 1 | ~½ day |
 | 8 | ✅ Header shows both module type and user title | Small–Medium | Low | 2 | ~½ day |
 
@@ -114,7 +115,7 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 | #3 ✅ MiniMap | None. Purely additive. |
 | #4 Quick-add enhancements | None. Provides an `open()` API that #6's "Add" button can call instead of faking a keydown event. |
 | #5 Knob upgrade | None. Touches all 27 module files — highest regression surface. Best shipped when the canvas is otherwise stable. |
-| #6 Toolbar rework | Benefits from #4 (clean `openQuickAdd()` API). Benefits from #1 (batch actions in toolbar). Can ship without either. |
+| #6 ✅ Toolbar rework | Shipped with `useQuickAdd()` shared API — available for #4. Benefits from #1 (batch actions in toolbar). |
 | #7 ✅ Taxonomy & icons | None. Pure data change. |
 | #8 ✅ Header merge | None. Self-contained UI change. |
 
@@ -125,17 +126,17 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 | **1** ✅ | #7 Fix module taxonomy & iconography | Shipped. |
 | **2** ✅ | #8 Header shows both module type and user title | Shipped. |
 | **3** ✅ | #3 MiniMap + repositioned canvas controls | Shipped. |
-| **4** | #6 Rework top bar into zoned patch toolbar | Medium daily-impact change. Cleans up the app's primary chrome. Should land before #4 so the new "Add" button has a clean home. |
+| **4** ✅ | #6 Rework top bar into zoned patch toolbar | Shipped. |
 | **5** | #4 Module search, filtering, recents & favorites | Builds on the existing QuickAddPalette. The new toolbar (#6) gets a proper `openQuickAdd()` hook. Recents/favorites data layer can then be reused by the landing page in #2. |
 | **6** | #2 Proper index screen + empty-state onboarding | Medium effort, high user-facing impact. Benefits from #4's recents/favorites (can surface them on the landing page). Empty-state copy can reference the now-polished QuickAddPalette. |
 | **7** | #1 Multi-select & batch actions | Medium complexity. The last major canvas primitive. By this point the toolbar (#6), selection styling (#5 shipped), and action bar are all stable — multi-select slots in cleanly. |
 | **8** | #5 Knob interaction upgrade | Highest file count (27 modules + new component) and regression risk. Ship last when the canvas, shell, and toolbar are all frozen. Also gives time to user-test the new knob sizes in the already-merged shell before standardizing. |
 
-**Parallel tracks:** The remaining 4 items (#4, #6, #1, #5) are independent. #6 and #4 are sequential but quick — a single developer can knock both out in 1–1.5 days. #1 and #5 should each get focused attention and QA time.
+**Parallel tracks:** The remaining 3 items (#4, #1, #5) are independent. #1 and #5 should each get focused attention and QA time. #4 can follow at any point since the `useQuickAdd()` API is already shipped.
 
 ---
 
-## Implementation Plans — new top-8 (3 shipped, 5 remaining)
+## Implementation Plans — new top-8 (4 shipped, 4 remaining)
 
 ---
 
@@ -589,115 +590,24 @@ Wrap PrimeVue `Knob` in a smarter parameter controller: double-click to reset, S
 
 ---
 
-### 6. Rework top bar into zoned patch toolbar
+### 6. Rework top bar into zoned patch toolbar ✅
 
-> **Complexity:** Small–Medium  
-> **Depends on:** None (ships independently)  
-> **Blocked by:** Nothing
+> **Shipped:** 2025-05-16  
+> **Files touched:** `app/layouts/default.vue`, `app/composables/useQuickAdd.ts`, `app/components/controls/QuickAddPalette.client.vue`, `app/components/controls/ToolbarButton.vue`, `app/components/controls/ModuleDropdown.client.vue`, `app/components/controls/FileDropdown.vue`, `app/components/controls/PlayButton.client.vue`, `app/components/controls/InfoModal.client.vue`
 
-#### Goal
-
-Replace the current MegaMenu-based top bar with a clean, zoned toolbar: left zone (Add/Search + Patch name), right zone (Undo/Redo + Save state + Play/Stop + File menu).
-
-#### Current state
-
-- Top bar is a single `MegaMenu` component from PrimeVue.
-- The "Modules" dropdown uses `MegaMenu` item slots with `DropNewModule` drag components.
-- All action buttons (New, Open, Save, Save As, Import, Export, Undo, Redo, Play) are crammed into the `end` slot of the MegaMenu.
-- The patch name `InputText` and status pill are also in the `end` slot.
-
-#### Implementation
-
-1. **Replace `MegaMenu` with a custom `<header>` layout**
-   Keep the overall `flex flex-col min-h-screen` structure, but swap the menu bar:
-
-   ```vue
-   <template>
-     <div class="flex flex-col min-h-screen">
-       <header class="h-10 z-10 bg-neutral-950 border-b border-neutral-800 flex items-center px-3 gap-4">
-         <!-- Left zone -->
-         <div class="flex items-center gap-2 flex-1">
-           <!-- Add button + search shortcut -->
-           <Button
-             icon="pi pi-plus"
-             label="Add"
-             size="small"
-             class="text-xs"
-             @click="openQuickAdd()"
-           />
-           <div class="h-4 w-px bg-neutral-800" />
-           <!-- Patch name -->
-           <InputText
-             v-if="store.currentPatchId"
-             v-model="store.currentPatchName"
-             class="w-48 text-xs ..."
-           />
-           <span class="text-[11px] ..." :class="statusClasses">{{ statusLabel }}</span>
-         </div>
-
-         <!-- Right zone -->
-         <div class="flex items-center gap-1">
-           <ToolbarButton icon="pi pi-undo" label="Undo" :disabled="!canUndo" @click="undo" />
-           <ToolbarButton icon="pi pi-refresh" label="Redo" :disabled="!canRedo" @click="redo" />
-           <div class="h-4 w-px bg-neutral-800 mx-1" />
-           <ToolbarButton icon="pi pi-save" label="Save" @click="saveData" />
-           <ToolbarButton icon="pi pi-file" label="New" @click="store.newPatch" />
-           <!-- ... etc ... -->
-           <PlayButton />
-         </div>
-       </header>
-       <!-- ... rest ... -->
-     </div>
-   </template>
-   ```
-
-2. **Keep drag-drop module menu accessible**
-   The MegaMenu drag-drop is useful for discovery. Options:
-   - Keep a small "Modules ▾" dropdown button that opens a compact dropdown with draggable items.
-   - OR rely entirely on the QuickAddPalette (`A` / `Cmd+K`) and remove the drag menu entirely.
-
-   Recommended: keep a minimal dropdown. Create a `ModuleDropdown.vue` component that renders the same `moduleOptions` in a PrimeVue `Menu` overlay with draggable items:
-
-   ```vue
-   <Button icon="pi pi-box" label="Modules" @click="toggleMenu" />
-   <Menu ref="menu" :model="moduleMenuItems" popup>
-     <template #item="{ item }">
-       <DropNewModule v-if="item.type" :icon="item.icon" :label="item.label" :type="item.type" />
-       <span v-else class="px-2 py-1 text-xs text-neutral-500">{{ item.label }}</span>
-     </template>
-   </Menu>
-   ```
-
-3. **Create `ToolbarButton.vue` helper**
-   A tiny wrapper for consistency:
-
-   ```vue
-   <template>
-     <button
-       class="text-xs text-neutral-300 hover:text-white px-2 py-1 rounded hover:bg-white/5 disabled:text-neutral-600 flex items-center gap-1.5 transition-colors"
-       :disabled="disabled"
-     >
-       <i :class="icon" />
-       <span v-if="label">{{ label }}</span>
-     </button>
-   </template>
-   ```
-
-4. **Remove MegaMenu and related pt overrides**
-   The current `MegaMenu` has heavy `:pt` configuration — all of that disappears with the custom layout.
-
-#### Files touched
-
-- `app/layouts/default.vue` — rewrite header
-- `app/components/controls/ModuleDropdown.vue` — new (compact draggable menu)
-- `app/components/controls/ToolbarButton.vue` — new
-- `app/components/controls/PlayButton.vue` — likely untouched, just repositioned
-
-#### Edge cases
-
-- Mobile: the toolbar may wrap. Add `flex-wrap` to the header and ensure minimum viable widths.
-- File menu: group New/Open/Save/Save As/Import/Export into a single "File" dropdown if the toolbar gets too wide.
-- QuickAddPalette already listens for `A` and `Cmd+K` globally — the "Add" button should just call `openQuickAdd()` (expose it from `QuickAddPalette` or emit a global event, e.g. `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }))` — better yet, add a `composable/useQuickAdd.ts` that exposes `open()` and `close()`).
+**What changed:**
+- Replaced the single `MegaMenu` component with a custom zoned `<header>` layout (`left` = ModuleDropdown + Add button + patch name + save-state pill; `right` = Undo/Redo + file actions + Play/Stop + ? info trigger).
+- Created `ToolbarButton.vue` — reusable wrapper with responsive label hiding (labels visible above 1200px) and consistent hover/disabled states.
+- Created `ModuleDropdown.client.vue` — compact draggable module list overlay replacing the MegaMenu grid; uses `pi-angle-down` caret and `DropNewModule` items for drag-to-canvas insertion.
+- Created `FileDropdown.vue` — collapses New/Open/Save/Save As/Import/Export into a single "File ▾" dropdown at widths below `md` (768px); uses a custom overlay with click-outside dismissal.
+- Created `InfoModal.client.vue` — generic info dialog (currently showing keyboard shortcuts with `<kbd>` styling, `?` shortcut trigger, and a "Press ? to toggle" footer).
+- Created `app/composables/useQuickAdd.ts` — shared reactive state so the toolbar **Add** button can open the QuickAddPalette without faking keyboard events; the composable is available for item #4's future enhancements.
+- Updated `QuickAddPalette.client.vue` to consume the shared `useQuickAdd` state.
+- Updated `PlayButton.client.vue` with prominent red/green glow border and shadow to indicate audio running/suspended state.
+- Responsive behavior (three tiers):  
+  **> 1200px** — full labels + individual file buttons  
+  **768px–1200px** — icon-only labels + individual file buttons (middle step)  
+  **< 768px** — icon-only + File dropdown
 
 ---
 
