@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
+import { MiniMap } from '@vue-flow/minimap'
 import { VueFlow } from '@vue-flow/core'
 import type { Node, Edge, ViewportTransform } from '@vue-flow/core'
 
@@ -18,10 +19,24 @@ await audioCtxStore.init()
 
 const dataStore = useDataStore()
 
-const { onConnect, onEdgesChange, addEdges } = useVueFlow()
+const { onConnect, onEdgesChange, addEdges, fitView, getNodes } = useVueFlow()
 const nodes = ref(initialData.nodes)
 const edges = ref(initialData.edges)
 const viewport = ref(initialData.viewport)
+
+function fitToSelection() {
+  const selectedIds: string[] = []
+  for (const n of getNodes.value) {
+    if (n.selected) {
+      selectedIds.push(n.id)
+    }
+  }
+  if (selectedIds.length === 0) {
+    fitView({ padding: 0.2 })
+    return
+  }
+  fitView({ nodes: selectedIds, padding: 0.2 })
+}
 
 const handleSignals = useHandleSignals()
 provide(HandleSignalsKey, handleSignals)
@@ -406,7 +421,20 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
         />
       </template>
       <Background :class="{ 'bg-slate-900': isDragOver }" />
-      <Controls />
+      <Controls position="bottom-right" />
+      <MiniMap
+        pannable
+        zoomable
+        node-color="#333"
+        mask-color="rgba(0,0,0,0.5)"
+      />
+      <button
+        class="absolute bottom-4 right-36 z-10 flex h-8 w-8 items-center justify-center rounded border border-white bg-black text-white hover:bg-gray-700"
+        title="Fit to selection"
+        @click="fitToSelection"
+      >
+        <i class="pi pi-expand" />
+      </button>
     </VueFlow>
   </div>
 </template>

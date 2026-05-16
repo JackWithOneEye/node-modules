@@ -46,25 +46,25 @@ const velocityNodes: ConstantSourceNode[] = []
 
 const activeVoices = new Map<number, { note: number, lastPlayed: number, state: 'on' | 'off' }>()
 watch(selectedOutputCount, (curr, prev) => {
-   prev ??= 0
-   if (curr > prev) {
-     for (let i = prev; i < curr; i++) {
-       const gateNode = new ConstantSourceNode(audioContext, { offset: 0 })
-       gateNode.start()
-       gateNode.connect(gateMergerNode, 0, i)
-       gateNodes.push(gateNode)
-       const noteNode = new ConstantSourceNode(audioContext, { offset: 0 })
-       noteNode.start()
-       noteNode.connect(noteMergerNode, 0, i)
-       noteNodes.push(noteNode)
-       const retriggerNode = new ConstantSourceNode(audioContext, { offset: 0 })
-       retriggerNode.start()
-       retriggerNode.connect(retrigMergerNode, 0, i)
-       retriggerNodes.push(retriggerNode)
-       const velocityNode = new ConstantSourceNode(audioContext, { offset: 0 })
-       velocityNode.start()
-       velocityNode.connect(velocityMergerNode, 0, i)
-       velocityNodes.push(velocityNode)
+  prev ??= 0
+  if (curr > prev) {
+    for (let i = prev; i < curr; i++) {
+      const gateNode = new ConstantSourceNode(audioContext, { offset: 0 })
+      gateNode.start()
+      gateNode.connect(gateMergerNode, 0, i)
+      gateNodes.push(gateNode)
+      const noteNode = new ConstantSourceNode(audioContext, { offset: 0 })
+      noteNode.start()
+      noteNode.connect(noteMergerNode, 0, i)
+      noteNodes.push(noteNode)
+      const retriggerNode = new ConstantSourceNode(audioContext, { offset: 0 })
+      retriggerNode.start()
+      retriggerNode.connect(retrigMergerNode, 0, i)
+      retriggerNodes.push(retriggerNode)
+      const velocityNode = new ConstantSourceNode(audioContext, { offset: 0 })
+      velocityNode.start()
+      velocityNode.connect(velocityMergerNode, 0, i)
+      velocityNodes.push(velocityNode)
 
       activeVoices.set(i, { note: 0, lastPlayed: 0, state: 'off' })
     }

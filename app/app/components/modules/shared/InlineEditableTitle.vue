@@ -61,21 +61,26 @@ watch(() => props.active, (val) => {
 </script>
 
 <template>
-  <span
-    v-if="!editing"
-    class="cursor-pointer select-none"
-    @dblclick.stop="onDblclick"
+  <div
+    v-bind="$attrs"
+    class="inline-flex min-w-0"
   >
-    {{ modelValue }}
-  </span>
-  <input
-    v-else
-    ref="inputRef"
-    v-model="draft"
-    class="!h-6 !text-xs !py-0 !px-1 !w-full nodrag rounded border border-white/30 bg-black/60 text-white outline-none focus:border-white/60"
-    @keydown="onKeydown"
-    @blur="commit"
-    @mousedown.stop
-    @click.stop
-  >
+    <span
+      v-if="!editing"
+      class="cursor-pointer select-none truncate"
+      @dblclick.stop="onDblclick"
+    >
+      {{ modelValue }}
+    </span>
+    <input
+      v-else
+      ref="inputRef"
+      v-model="draft"
+      class="!h-6 !text-xs !py-0 !px-1 !w-full nodrag rounded border border-white/30 bg-black/60 text-white outline-none focus:border-white/60"
+      @keydown="onKeydown"
+      @blur="commit"
+      @mousedown.stop
+      @click.stop
+    >
+  </div>
 </template>

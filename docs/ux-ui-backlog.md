@@ -23,10 +23,10 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 2. 🟨 **Module search, filtering, recents & favorites.** `QuickAddPalette` already provides fast typeahead search with descriptions. Missing: recents list on empty query, star/favorite toggle, and category tabs. *(M)*
 3. ⬜ **Fix module taxonomy & iconography in [module.ts](file:///Users/Sebastian1/programming/node-modules/app/app/utils/module.ts).** Alphabetize within categories; rebalance the single-item "Filter" group; replace the over-reused `pi pi-wave-pulse` (Noise / Oscillator / FM Oscillator / Phaser / Waveshaper / Pitch Tracker / LFO / Oscilloscope all share it) and `pi pi-th-large` (MIDI Input / FM Voice / Kaoss Pad) with distinct, audio-domain glyphs. *(S)*
 4. ⬜ **Multi-select & batch actions:** lasso select, shift-click, drag/duplicate/delete the selection, optional align/distribute later. *(M)*
-5. ⬜ **Add a MiniMap and reposition canvas controls.** The Vue Flow controls currently sit bottom-left and visually collide with the Nuxt DevTools widget. Add tooltips and a "Fit to selection" button. *(S–M)*
+5. ✅ **Add a MiniMap and reposition canvas controls.** The Vue Flow controls currently sit bottom-left and visually collide with the Nuxt DevTools widget. Add tooltips and a "Fit to selection" button. *(S–M)*
 6. ⬜ **Proper index screen + empty-state onboarding.** Replace the current silent redirect in `pages/index.vue` with a branded landing page: app title, "New Patch" and "Open Recent" entrypoints, and a recents list. When a patch canvas is empty, show a "Press A to add" hint, three starter modules (Oscillator, Gain, Destination), and a "Try a starter patch" button. *(M)*
 7. ✅ **One shared `BaseModuleShell` component.** Standardize header (icon + module type + editable title area), body padding, port rails, selected state, and toolbar slot. All 27 modules migrated. *(L)*
-8. ⬜ **Header shows both module type and user title.** Renamed nodes lose recognizability; show `[icon] Oscillator` + small editable title `Bass OSC` in the header row itself. Currently the module type lives in the header and the title sits below it. *(S–M)*
+8. ✅ **Header shows both module type and user title.** Renamed nodes lose recognizability; show `[icon] Oscillator` + small editable title `Bass OSC` in the header row itself. Currently the module type lives in the header and the title sits below it. *(S–M)*
 9. ⬜ **Collapse / Expand for large modules.** [FMVoiceModule](file:///Users/Sebastian1/programming/node-modules/app/app/components/modules/FMVoiceModule.client.vue) (365 lines, 36+ knobs) should have a compact mode. *(M)*
 10. ✅ **Replace hard-coded handle offsets.** `HandleBar.vue` (deleted) and `MidiInputModule` used absolute `top: Xrem` per index, causing misalignment. Replaced with row-based grid via `ModulePortRow` / `ModulePortRail` (single source of truth per port). *(M)*
 11. ✅ **Larger, clearer handles.** Increase visible/hit size, add hover glow, color by signal type. All shipped via `ModuleHandle.vue` (hit target `::before` pseudo, signal-colored border, CSS-driven hover glow). *(S–M)*
@@ -68,6 +68,8 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 6. ✅ Signal-colored handles & edges
 7. ✅ Shared node toolbar (`ModuleActionBar`)
 8. ✅ `BaseModuleShell` + row-based port layout (`ModulePortRow` / `ModulePortRail`)
+9. ✅ MiniMap + repositioned canvas controls
+10. ✅ Header shows both module type and user title (inline merge + floating toolbar)
 
 ---
 
@@ -75,12 +77,12 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 
 1. ⬜ **Multi-select & batch actions** — lasso, shift-click, and group duplicate/delete are the biggest missing canvas primitives now that nodes and edges are individually selectable.
 2. ⬜ **Proper index screen + empty-state onboarding** — replace the silent redirect in `pages/index.vue` with a branded landing page (app title, "New Patch" / "Open Recent" entrypoints, recents list). Canvas empty-state shows "Press A to add" hint and starter modules.
-3. ⬜ **MiniMap + repositioned canvas controls** — improves navigation in larger patches and fixes the DevTools collision.
+3. ✅ **MiniMap + repositioned canvas controls** — improves navigation in larger patches and fixes the DevTools collision.
 4. ⬜ **Module search, filtering, recents & favorites** — extend the existing `QuickAddPalette` with recents on empty query and a star toggle; relatively small scope.
 5. ⬜ **Knob interaction upgrade** — double-click reset, Shift fine-drag, and numeric entry directly improve the parameter-editing loop.
 6. ⬜ **Rework top bar into zoned patch toolbar** — reorganize the existing buttons into a clean left/right layout (Add/Search/Name vs. Undo/Redo/Save/Play/File).
 7. ✅ **Fix module taxonomy & iconography** — rebalance categories, replace duplicated icons, and alphabetize; small visual-only change with high polish payoff.
-8. ⬜ **Header shows both module type and user title** — currently the module type lives in the header and the editable title sits below it; combining them improves node recognizability after renaming.
+8. ✅ **Header shows both module type and user title** — currently the module type lives in the header and the editable title sits below it; combining them improves node recognizability after renaming.
 
 ---
 
@@ -92,12 +94,12 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 |---|------|-----------|------|---------------|--------|
 | 1 | Multi-select & batch actions | Medium | Low–Medium | 5 | ~1 day |
 | 2 | Proper index screen + empty-state onboarding | Medium | Low | 3 | ~1 day |
-| 3 | MiniMap + repositioned canvas controls | Small–Medium | Very low | 3 | ~½ day |
+| 3 | ✅ MiniMap + repositioned canvas controls | Small–Medium | Very low | 3 | ~½ day |
 | 4 | Module search, filtering, recents & favorites | Small–Medium | Low | 3 | ~½–1 day |
 | 5 | Knob interaction upgrade | Medium | Medium | 29+ | ~1–2 days |
 | 6 | Rework top bar into zoned patch toolbar | Small–Medium | Low | 4 | ~½–1 day |
-| 7 | Fix module taxonomy & iconography | Small | Very low | 1 | ~½ day |
-| 8 | Header shows both module type and user title | Small–Medium | Low | 2 | ~½ day |
+| 7 | ✅ Fix module taxonomy & iconography | Small | Very low | 1 | ~½ day |
+| 8 | ✅ Header shows both module type and user title | Small–Medium | Low | 2 | ~½ day |
 
 **Effort legend:** Small = <½ day · Medium = ½–1 day · Large = 1–2 days.
 
@@ -109,31 +111,31 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 |------|----------------------------|
 | #1 Multi-select | None. Enables richer toolbar actions in #6 (batch Delete/Duplicate in the top bar). |
 | #2 Index screen | Benefits from #4 (can show favorite/recent modules on the landing page). Can ship before #4 using basic patch recents. |
-| #3 MiniMap | None. Purely additive. |
+| #3 ✅ MiniMap | None. Purely additive. |
 | #4 Quick-add enhancements | None. Provides an `open()` API that #6's "Add" button can call instead of faking a keydown event. |
 | #5 Knob upgrade | None. Touches all 27 module files — highest regression surface. Best shipped when the canvas is otherwise stable. |
 | #6 Toolbar rework | Benefits from #4 (clean `openQuickAdd()` API). Benefits from #1 (batch actions in toolbar). Can ship without either. |
-| #7 Taxonomy & icons | None. Pure data change. |
-| #8 Header merge | None. Self-contained UI change. |
+| #7 ✅ Taxonomy & icons | None. Pure data change. |
+| #8 ✅ Header merge | None. Self-contained UI change. |
 
 ### Recommended implementation order
 
 | Order | Item | Rationale |
 |-------|------|-----------|
-| **1** | #7 Fix module taxonomy & iconography | Smallest change (~½ day), zero risk, immediate visual payoff. Good warm-up that validates the module-catalog data pipeline before touching QuickAddPalette in #4. |
-| **2** | #8 Header shows both module type and user title | Small, self-contained. Frees ~20 px of vertical space per module and makes the shell layout final before any other shell-adjacent work (e.g. #5 knob sizing). |
-| **3** | #3 MiniMap + repositioned canvas controls | Small, purely additive, no regressions. Gives users navigation affordances early so the canvas feels complete while larger features land. |
+| **1** ✅ | #7 Fix module taxonomy & iconography | Shipped. |
+| **2** ✅ | #8 Header shows both module type and user title | Shipped. |
+| **3** ✅ | #3 MiniMap + repositioned canvas controls | Shipped. |
 | **4** | #6 Rework top bar into zoned patch toolbar | Medium daily-impact change. Cleans up the app's primary chrome. Should land before #4 so the new "Add" button has a clean home. |
 | **5** | #4 Module search, filtering, recents & favorites | Builds on the existing QuickAddPalette. The new toolbar (#6) gets a proper `openQuickAdd()` hook. Recents/favorites data layer can then be reused by the landing page in #2. |
 | **6** | #2 Proper index screen + empty-state onboarding | Medium effort, high user-facing impact. Benefits from #4's recents/favorites (can surface them on the landing page). Empty-state copy can reference the now-polished QuickAddPalette. |
 | **7** | #1 Multi-select & batch actions | Medium complexity. The last major canvas primitive. By this point the toolbar (#6), selection styling (#5 shipped), and action bar are all stable — multi-select slots in cleanly. |
 | **8** | #5 Knob interaction upgrade | Highest file count (27 modules + new component) and regression risk. Ship last when the canvas, shell, and toolbar are all frozen. Also gives time to user-test the new knob sizes in the already-merged shell before standardizing. |
 
-**Parallel tracks:** #7, #8, and #3 can be worked on simultaneously (all small, independent). #6 and #4 are sequential but quick — a single developer can knock both out in 1–1.5 days. #1 and #5 should each get focused attention and QA time.
+**Parallel tracks:** The remaining 4 items (#4, #6, #1, #5) are independent. #6 and #4 are sequential but quick — a single developer can knock both out in 1–1.5 days. #1 and #5 should each get focused attention and QA time.
 
 ---
 
-## Implementation Plans — new top-8
+## Implementation Plans — new top-8 (3 shipped, 5 remaining)
 
 ---
 
@@ -342,112 +344,17 @@ Replace the silent redirect in `pages/index.vue` with a branded landing page, an
 
 ---
 
-### 3. MiniMap + repositioned canvas controls
+### 3. MiniMap + repositioned canvas controls ✅
 
-> **Complexity:** Small–Medium  
-> **Depends on:** None (ships independently)  
-> **Blocked by:** Nothing
+> **Shipped:** 2025-05-16  
+> **Files touched:** `app/package.json`, `app/components/ModularEditor.vue`, `app/app.vue`
 
-#### Goal
-
-Add a MiniMap for navigating large patches, move the zoom/fit controls to a position that doesn't collide with the Nuxt DevTools widget, and add a "Fit to selection" button.
-
-#### Current state
-
-- `@vue-flow/controls` is installed and used in `ModularEditor.vue` (`<Controls />`).
-- `@vue-flow/minimap` is **not installed**.
-- Controls sit at `bottom-left` (Vue Flow default) and overlap with the Nuxt DevTools toggle at `(585, 663)`.
-
-#### Implementation
-
-1. **Install `@vue-flow/minimap`**
-
-   ```bash
-   cd app && bun add @vue-flow/minimap
-   ```
-
-2. **Import and add `<MiniMap>` to `ModularEditor.vue`**
-
-   ```vue
-   <script setup>
-   import { MiniMap } from '@vue-flow/minimap'
-   </script>
-
-   <template>
-     <VueFlow ...>
-       <!-- ... nodes ... -->
-       <Controls position="bottom-right" />
-       <MiniMap
-         pannable
-         zoomable
-         node-color="#333"
-         mask-color="rgba(0,0,0,0.5)"
-       />
-     </VueFlow>
-   </template>
-   ```
-
-3. **Move `<Controls>` to bottom-right**
-   Vue Flow `Controls` accepts a `position` prop: `position="bottom-right"`. This avoids the DevTools widget at bottom-left.
-   Also add tooltips to each control button. Since `<Controls>` is a Vue Flow component, style via CSS or wrap it:
-
-   ```css
-   /* app.vue */
-   .vue-flow__controls {
-     @apply bottom-4 right-4 left-auto top-auto
-   }
-   ```
-
-4. **Add "Fit to selection" button**
-   Create a custom control slot or a standalone button inside `ModularEditor.vue` (positioned near the other controls):
-
-   ```vue
-   <button
-     class="absolute bottom-4 right-36 z-10 ..."
-     title="Fit to selection"
-     @click="fitToSelection"
-   >
-     <i class="pi pi-expand" />
-   </button>
-   ```
-
-   ```ts
-   const { fitView, getNodes } = useVueFlow()
-   function fitToSelection() {
-     const selected = getNodes.value.filter(n => n.selected)
-     if (selected.length === 0) {
-       fitView({ padding: 0.2 })
-     } else {
-       fitView({ nodes: selected.map(n => n.id), padding: 0.2 })
-     }
-   }
-   ```
-
-5. **Style the MiniMap to match the dark theme**
-
-   ```css
-   .vue-flow__minimap {
-     @apply bg-neutral-900 border border-neutral-700 rounded
-   }
-   .vue-flow__minimap-node {
-     @apply fill-neutral-600 stroke-neutral-500
-   }
-   .vue-flow__minimap-mask {
-     @apply fill-black/50
-   }
-   ```
-
-#### Files touched
-
-- `app/package.json` — add `@vue-flow/minimap`
-- `app/components/ModularEditor.vue` — import MiniMap, add fit-to-selection button, move Controls position
-- `app/app.vue` — MiniMap + controls CSS positioning
-
-#### Edge cases
-
-- Empty patch: MiniMap shows nothing (acceptable); "Fit to selection" falls back to `fitView()`.
-- Very large patch: MiniMap scrolls via `pannable`/`zoomable` props.
-- Bottom-right collision on small screens: controls stack vertically via existing `flex-wrap` in `app.vue`.
+**What changed:**
+- Installed `@vue-flow/minimap` (v1.5.4).
+- Added `<MiniMap pannable zoomable>` inside `<VueFlow>` with dark-theme styling (`bg-neutral-900`, `fill-neutral-600`, `max-h-48`).
+- Moved `<Controls>` from default bottom-left to `position="bottom-right"` to avoid Nuxt DevTools collision.
+- Added a "Fit to selection" button (expand icon) at bottom-right. With a selection, zooms to fit those nodes; without, fits the full patch.
+- Added CSS imports and theme styles in `app.vue` for minimap, controls, and node fill/mask colors.
 
 ---
 
@@ -807,87 +714,14 @@ Replace the current MegaMenu-based top bar with a clean, zoned toolbar: left zon
 
 ---
 
-### 8. Header shows both module type and user title
+### 8. Header shows both module type and user title ✅
 
-> **Complexity:** Small–Medium  
-> **Depends on:** None (ships independently)  
-> **Blocked by:** Nothing
+> **Shipped:** 2025-05-16  
+> **Files touched:** `app/components/modules/shared/BaseModuleShell.vue`, `app/components/modules/shared/InlineEditableTitle.vue`, `app/components/modules/shared/ModulePortRail.vue`
 
-#### Goal
-
-Combine the module type label and the editable user title into a single header row, so renamed nodes remain visually recognizable.
-
-#### Current state
-
-`BaseModuleShell.vue` structure:
-
-```
-<header> [icon] MODULE_TYPE    [action bar] </header>
-<div> [editable title] </div>
-<slot> [body] </slot>
-```
-
-When a user renames "Oscillator" to "Bass OSC", the header still says "Oscillator" (good), but the title area below says "Bass OSC". This is actually already partially working. The issue is that the title area is a separate line *below* the header, taking up vertical space, and the module type in the header is uppercase/tiny (10px tracking-wide) while the title is larger (text-sm).
-
-The backlog item wants the header to show `[icon] Oscillator — Bass OSC` in one row, with the title editable inline.
-
-#### Implementation
-
-1. **Merge title into header in `BaseModuleShell.vue`**
-   Replace the separate title `<div>` with an inline editable title in the header row:
-
-   ```vue
-   <header class="mb-2 flex items-center justify-between gap-2">
-     <div class="flex min-w-0 items-center gap-2 flex-1">
-       <i class="text-xs opacity-80" :class="moduleIcon" />
-       <span class="text-[10px] uppercase tracking-wide text-white/70">{{ moduleLabel }}</span>
-       <span class="text-white/30">/</span>
-       <InlineEditableTitle
-         :model-value="title || moduleLabel"
-         :node-id="id"
-         :active="isEditing"
-         class="text-sm text-white flex-1 min-w-0"
-         @commit="onTitleCommit"
-         @done="onEditingDone"
-       />
-     </div>
-     <!-- action bar stays here -->
-   </header>
-   ```
-
-2. **Update `InlineEditableTitle.vue` for inline layout**
-   Currently it likely renders a `<span>` that becomes an `<input>` on edit. Ensure it uses `inline-flex` or `flex` so it flows horizontally within the header. When not editing, render a `<span class="truncate">`. When editing, render `<input class="bg-transparent border-b border-white/30 outline-none w-full min-w-0">`.
-
-3. **Remove the old title `<div>` from `BaseModuleShell.vue`**
-   Delete:
-
-   ```vue
-   <div class="mb-2 text-sm leading-none">
-     <InlineEditableTitle ... />
-   </div>
-   ```
-
-   This frees up ~20px of vertical space per module.
-
-4. **Handle long titles**
-   The header row uses `min-w-0` + `truncate` on the title span. The action bar hides on hover (or when selected), so the title usually has the full width.
-
-5. **Update module type label styling**
-   Instead of 10px uppercase tracking-wide, consider slightly larger (11px) with a subtle background pill:
-
-   ```vue
-   <span class="text-[11px] uppercase tracking-wide text-white/50 bg-white/5 px-1.5 py-0.5 rounded">{{ moduleLabel }}</span>
-   ```
-
-   This visually separates the type from the title.
-
-#### Files touched
-
-- `app/components/modules/shared/BaseModuleShell.vue` — merge title into header
-- `app/components/modules/shared/InlineEditableTitle.vue` — adjust for inline layout, add truncate
-
-#### Edge cases
-
-- Very long user titles: `truncate` + `min-w-0` ensures the header doesn't overflow.
-- Modules with no user title: `InlineEditableTitle` receives `title || moduleLabel` — if the user hasn't renamed, it shows the module label. Consider graying it out or showing a placeholder style when `title === ''` or `title === moduleLabel`.
-- Inline rename during hover: the action bar is visible because `isHovered || isSelected` — no conflict.
+**What changed:**
+- Merged module type label and editable user title into a single header row: `[icon] [TYPE pill] / [title]`, removing the separate title `<div>` below and freeing ~20 px vertical space per module.
+- Moved the action bar out of the module flow entirely — it now floats above the node via Vue Flow's `<NodeToolbar>` (`Position.Top`, `align="end"`), eliminating the previous hover-induced layout shift (0 px width/height delta confirmed across all 27 modules).
+- Made the toolbar visible only when a node is selected (clicked) or inline editing is active, avoiding the "disappears when moving cursor from node to toolbar" problem.
+- Updated `InlineEditableTitle` with a single-root `<div v-bind="$attrs">` wrapper so the parent can pass `flex-1 min-w-0 truncate` for proper inline layout.
+- Added `flex-1` to `ModulePortRail`'s root div so right-side port rails expand to fill leftover horizontal space, fixing the output handle misalignment on the Envelope Generator module (and preventing the same issue on any module whose header text is wider than its body content).

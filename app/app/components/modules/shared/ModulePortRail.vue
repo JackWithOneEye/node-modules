@@ -18,7 +18,7 @@ defineProps<ModulePortRailProps>()
   the body needs to span multiple visual rows alongside many ports.
 -->
 <template>
-  <div class="flex flex-col gap-1.5">
+  <div class="flex flex-col gap-1.5 flex-1">
     <ModulePortRow
       v-for="port in ports"
       :key="port.id"

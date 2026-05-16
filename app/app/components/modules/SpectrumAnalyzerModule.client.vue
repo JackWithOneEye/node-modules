@@ -52,10 +52,10 @@ const gainNode = new GainNode(audioContext)
 const sound = shallowRef<Sound>()
 
 const initializeSound = () => {
-   if (sound.value) {
-     sound.value.analyzer.node.disconnect()
-   }
-   sound.value = Sound.from(gainNode, audioContext).analyze(fftSize.value)
+  if (sound.value) {
+    sound.value.analyzer.node.disconnect()
+  }
+  sound.value = Sound.from(gainNode, audioContext).analyze(fftSize.value)
 }
 
 initializeSound()
