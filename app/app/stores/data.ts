@@ -24,11 +24,12 @@ export const useDataStore = defineStore('data', () => {
   const toObject = flow.toObject
 
   const currentPatchId = ref<string | null>(null)
-  const currentPatchName = ref('Untitled')
+  const currentPatchName = ref('New patch')
   const patches = ref<PatchSummary[]>([])
   const dirty = ref(false)
   const saveState = ref<'saved' | 'dirty' | 'saving' | 'error'>('saved')
   const lastSavedHash = ref<string | null>(null)
+  const pendingImportData = ref<{ nodes: Node[], edges: Edge[], viewport?: ViewportTransform } | null>(null)
 
   function computeHash(): string {
     const obj = toObject()
@@ -70,17 +71,31 @@ export const useDataStore = defineStore('data', () => {
       return
     }
     saveState.value = 'saving'
+    let navigateToUrl: string | null = null
+    const obj = toObject()
     try {
-      const obj = toObject()
-      await $fetch<PatchApiResponse>(`/api/patches/${currentPatchId.value}`, {
-        method: 'post',
-        body: { name: currentPatchName.value, nodes: obj.nodes, edges: obj.edges, viewport: obj.viewport },
-      })
+      if (currentPatchId.value === 'new') {
+        const created = await $fetch<PatchApiResponse>('/api/patches', {
+          method: 'post',
+          body: { name: currentPatchName.value, nodes: obj.nodes, edges: obj.edges, viewport: obj.viewport },
+        })
+        currentPatchId.value = created.id
+        navigateToUrl = `/patches/${created.id}`
+      }
+      else {
+        await $fetch<PatchApiResponse>(`/api/patches/${currentPatchId.value}`, {
+          method: 'post',
+          body: { name: currentPatchName.value, nodes: obj.nodes, edges: obj.edges, viewport: obj.viewport },
+        })
+      }
       markClean()
       await fetchPatchList()
     }
     catch {
       saveState.value = 'error'
+    }
+    if (navigateToUrl) {
+      await navigateTo(navigateToUrl, { replace: true })
     }
   }
 
@@ -104,12 +119,18 @@ export const useDataStore = defineStore('data', () => {
     }
   }
 
+  function resetForNewPatch() {
+    currentPatchId.value = 'new'
+    currentPatchName.value = 'New patch'
+    nodes.value = []
+    edges.value = []
+    pendingImportData.value = null
+    patchLoadStarted()
+  }
+
   async function newPatch() {
-    const created = await $fetch<PatchApiResponse>('/api/patches', {
-      method: 'post',
-      body: { name: 'Untitled', nodes: [], edges: [] },
-    })
-    await navigateTo(`/patches/${created.id}`, { replace: true })
+    resetForNewPatch()
+    await navigateTo('/patches/new', { replace: true })
   }
 
   async function exportPatch() {
@@ -142,11 +163,11 @@ export const useDataStore = defineStore('data', () => {
     if (parsed.version !== 1 || !Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges)) {
       throw new Error('Invalid patch file format')
     }
-    const created = await $fetch<PatchApiResponse>('/api/patches', {
-      method: 'post',
-      body: { name: parsed.name ?? 'Imported', nodes: parsed.nodes, edges: parsed.edges, viewport: parsed.viewport },
-    })
-    await navigateTo(`/patches/${created.id}`, { replace: true })
+    pendingImportData.value = { nodes: parsed.nodes as Node[], edges: parsed.edges as Edge[], viewport: parsed.viewport as ViewportTransform | undefined }
+    currentPatchId.value = 'new'
+    currentPatchName.value = (parsed.name as string) ?? 'Imported'
+    patchLoadStarted()
+    await navigateTo('/patches/new', { replace: true })
   }
 
   return {
@@ -159,9 +180,11 @@ export const useDataStore = defineStore('data', () => {
     save,
     saveAs,
     newPatch,
+    resetForNewPatch,
     patchLoadStarted,
     markClean,
     exportPatch,
     importPatch,
+    pendingImportData,
   }
 })

@@ -156,6 +156,12 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
     }
   }
 
+  function isRegistered(id: string) {
+    return moduleRegistry.value.has(id)
+  }
+
+  const registeredCount = computed(() => moduleRegistry.value.size)
+
   return {
     state,
 
@@ -172,6 +178,9 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
     disconnectModules,
     registerModule,
     unregisterModule,
+
+    isRegistered,
+    registeredCount,
   }
 })
 

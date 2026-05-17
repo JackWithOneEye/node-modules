@@ -25,7 +25,7 @@ export default defineEventHandler(async () => {
     try {
       const raw = await readFile(join(dir, entry), 'utf8')
       const data = JSON.parse(raw)
-      patches.push({ id, name: data.name ?? 'Untitled', updatedAt: data.updatedAt ?? '' })
+      patches.push({ id, name: data.name ?? 'New patch', updatedAt: data.updatedAt ?? '' })
     }
     catch {
       // skip malformed files

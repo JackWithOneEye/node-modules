@@ -80,18 +80,20 @@ onEdgesChange((changes) => {
   }
 })
 
-const init = useNodesInitialized()
-const { stop } = watch(init, (curr) => {
-  if (!curr) {
+const { stop } = watch(() => audioCtxStore.registeredCount, () => {
+  const requiredIds = new Set<string>()
+  for (const { source, target } of edges.value) {
+    requiredIds.add(source)
+    requiredIds.add(target)
+  }
+
+  const allRegistered = requiredIds.size === 0 || requiredIds.values().every(id => audioCtxStore.isRegistered(id))
+  if (!allRegistered) {
     return
   }
+
   for (const { source, sourceHandle, target, targetHandle } of edges.value) {
-    audioCtxStore.connectModules(
-      source,
-      sourceHandle!,
-      target,
-      targetHandle!,
-    )
+    audioCtxStore.connectModules(source, sourceHandle!, target, targetHandle!)
   }
   if (dataStore.currentPatchId) {
     dataStore.markClean()

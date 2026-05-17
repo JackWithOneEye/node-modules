@@ -7,7 +7,7 @@ const { data, pending, error } = useFetch(() => `/api/patches/${route.params.id}
 watch(data, (d) => {
   if (d) {
     store.currentPatchId = id.value
-    store.currentPatchName = d.name ?? 'Untitled'
+    store.currentPatchName = d.name ?? 'New patch'
     store.patchLoadStarted()
   }
 }, { immediate: true })

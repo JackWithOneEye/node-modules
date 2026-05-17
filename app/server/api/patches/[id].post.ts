@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
   const patch = {
     version: 1,
     id,
-    name: body.name ?? existing.name ?? 'Untitled',
+    name: body.name ?? existing.name ?? 'New patch',
     createdAt: existing.createdAt ?? now,
     updatedAt: now,
     nodes: body.nodes ?? (existing.nodes as Record<string, unknown>[]) ?? [],

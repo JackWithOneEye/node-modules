@@ -1,6 +1,13 @@
 <script lang="ts" setup>
 const store = useDataStore()
 const toast = useToast()
+const route = useRoute()
+
+watch(() => route.path, (path) => {
+  if (path === '/patches/new' && store.currentPatchId !== 'new') {
+    store.resetForNewPatch()
+  }
+}, { immediate: true })
 const { canUndo, canRedo, undo, redo } = useEditorHistory()
 const { copy, paste, duplicate, deleteSelection } = useEditorClipboard()
 const { open: openQuickAdd } = useQuickAdd()

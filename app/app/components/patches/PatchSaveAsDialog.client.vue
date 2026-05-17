@@ -4,7 +4,7 @@ const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
 
 const store = useDataStore()
 const toast = useToast()
-const newName = ref(store.currentPatchName || 'Untitled')
+const newName = ref(store.currentPatchName || 'New patch')
 
 async function confirm() {
   const name = newName.value.trim()
@@ -24,7 +24,7 @@ async function confirm() {
 
 watch(() => props.visible, (v) => {
   if (v) {
-    newName.value = store.currentPatchName || 'Untitled'
+    newName.value = store.currentPatchName || 'New patch'
   }
 })
 </script>
