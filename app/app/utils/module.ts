@@ -296,14 +296,30 @@ export function getModuleCatalogEntry(type: string): ModuleCatalogEntry | undefi
   return moduleCatalogByType.get(type)
 }
 
-/** Case-insensitive substring search over label / category / description / keywords. */
-export function searchModuleCatalog(query: string): ModuleCatalogEntry[] {
-  const q = query.trim().toLowerCase()
-  if (!q) {
-    return moduleCatalog
+/** Ordered list of category names derived from `moduleOptions`. */
+export const moduleCategories: string[] = []
+const seenCategories = new Set<string>()
+for (const group of moduleOptions.flat()) {
+  if (!seenCategories.has(group.label)) {
+    seenCategories.add(group.label)
+    moduleCategories.push(group.label)
   }
+}
+
+/** Case-insensitive substring search over label / category / description / keywords.
+ *  If `category` is provided, only entries in that category are returned.
+ */
+export function searchModuleCatalog(query: string, category?: string): ModuleCatalogEntry[] {
+  const q = query.trim().toLowerCase()
   const hits: ModuleCatalogEntry[] = []
   for (const entry of moduleCatalog) {
+    if (category && entry.category !== category) {
+      continue
+    }
+    if (!q) {
+      hits.push(entry)
+      continue
+    }
     if (
       entry.label.toLowerCase().includes(q)
       || entry.category.toLowerCase().includes(q)

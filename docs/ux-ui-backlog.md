@@ -20,11 +20,11 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 ## 🟠 High — discoverability, navigation, node shell
 
 1. ✅ **Rework the top bar into a real patch toolbar.** Replaced MegaMenu with a custom zoned `<header>`: left = ModuleDropdown + Add button + patch name + status pill; right = Undo/Redo, file actions (individual on desktop, "File" dropdown on mobile), glowing Play/Stop toggle, and info modal trigger. *(M)*
-2. 🟨 **Module search, filtering, recents & favorites.** `QuickAddPalette` already provides fast typeahead search with descriptions. Missing: recents list on empty query, star/favorite toggle, and category tabs. *(M)*
+2. ✅ **Module search, filtering, recents & favorites.** Recents list, star/favorite toggle, and category tabs added to QuickAddPalette. Favorites/recents live in a dedicated Pinia store (`useModulePreferencesStore`) with localStorage persistence, separate from patch data. *(M)*
 3. ⬜ **Fix module taxonomy & iconography in [module.ts](file:///Users/Sebastian1/programming/node-modules/app/app/utils/module.ts).** Alphabetize within categories; rebalance the single-item "Filter" group; replace the over-reused `pi pi-wave-pulse` (Noise / Oscillator / FM Oscillator / Phaser / Waveshaper / Pitch Tracker / LFO / Oscilloscope all share it) and `pi pi-th-large` (MIDI Input / FM Voice / Kaoss Pad) with distinct, audio-domain glyphs. *(S)*
 4. ⬜ **Multi-select & batch actions:** lasso select, shift-click, drag/duplicate/delete the selection, optional align/distribute later. *(M)*
 5. ✅ **Add a MiniMap and reposition canvas controls.** The Vue Flow controls currently sit bottom-left and visually collide with the Nuxt DevTools widget. Add tooltips and a "Fit to selection" button. *(S–M)*
-6. ⬜ **Proper index screen + empty-state onboarding.** Replace the current silent redirect in `pages/index.vue` with a branded landing page: app title, "New Patch" and "Open Recent" entrypoints, and a recents list. When a patch canvas is empty, show a "Press A to add" hint, three starter modules (Oscillator, Gain, Destination), and a "Try a starter patch" button. *(M)*
+6. ✅ **Proper index screen + empty-state onboarding.** Branded landing page with "New Patch" / "Open Recent" CTAs and recents list. Empty-state overlay shows "Press A to add" hint and three starter module buttons (Oscillator, Gain, Destination). *(M)*
 7. ✅ **One shared `BaseModuleShell` component.** Standardize header (icon + module type + editable title area), body padding, port rails, selected state, and toolbar slot. All 27 modules migrated. *(L)*
 8. ✅ **Header shows both module type and user title.** Renamed nodes lose recognizability; show `[icon] Oscillator` + small editable title `Bass OSC` in the header row itself. Currently the module type lives in the header and the title sits below it. *(S–M)*
 9. ⬜ **Collapse / Expand for large modules.** [FMVoiceModule](file:///Users/Sebastian1/programming/node-modules/app/app/components/modules/FMVoiceModule.client.vue) (365 lines, 36+ knobs) should have a compact mode. *(M)*
@@ -71,15 +71,17 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 9. ✅ MiniMap + repositioned canvas controls
 10. ✅ Header shows both module type and user title (inline merge + floating toolbar)
 11. ✅ Zoned patch toolbar (replaced MegaMenu with custom header, responsive file actions, glowing Play button, keyboard shortcuts modal, shared QuickAdd API)
+12. ✅ Module search, filtering, recents & favorites — category tabs, star toggle, recents row, dedicated Pinia store with localStorage
+13. ✅ Proper index screen + empty-state onboarding — branded landing page, canvas empty-state overlay with "Press A to add" and starter module buttons
 
 ---
 
 ## Suggested next top-8 to ship
 
 1. ⬜ **Multi-select & batch actions** — lasso, shift-click, and group duplicate/delete are the biggest missing canvas primitives now that nodes and edges are individually selectable.
-2. ⬜ **Proper index screen + empty-state onboarding** — replace the silent redirect in `pages/index.vue` with a branded landing page (app title, "New Patch" / "Open Recent" entrypoints, recents list). Canvas empty-state shows "Press A to add" hint and starter modules.
+2. ✅ **Proper index screen + empty-state onboarding** — branded landing page (app title, "New Patch" / "Open Recent" entrypoints, recents list) and canvas empty-state overlay with "Press A to add" hint and starter module buttons.
 3. ✅ **MiniMap + repositioned canvas controls** — improves navigation in larger patches and fixes the DevTools collision.
-4. ⬜ **Module search, filtering, recents & favorites** — extend the existing `QuickAddPalette` with recents on empty query and a star toggle; relatively small scope.
+4. ✅ **Module search, filtering, recents & favorites** — extended QuickAddPalette with recents on empty query, star/favorite toggle, and category tabs.
 5. ⬜ **Knob interaction upgrade** — double-click reset, Shift fine-drag, and numeric entry directly improve the parameter-editing loop.
 6. ✅ **Rework top bar into zoned patch toolbar** — replaced MegaMenu with a clean left/right header layout (ModuleDropdown/Add/Name vs. Undo/Redo/File/Play/Info). Ships with responsive file actions, glowing Play button, keyboard shortcuts modal, and shareable QuickAdd API.
 7. ✅ **Fix module taxonomy & iconography** — rebalance categories, replace duplicated icons, and alphabetize; small visual-only change with high polish payoff.
@@ -94,9 +96,9 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 | # | Item | Complexity | Risk | Files touched | Effort |
 |---|------|-----------|------|---------------|--------|
 | 1 | Multi-select & batch actions | Medium | Low–Medium | 5 | ~1 day |
-| 2 | Proper index screen + empty-state onboarding | Medium | Low | 3 | ~1 day |
+| 2 | ✅ Proper index screen + empty-state onboarding | Medium | Low | 3 | ~1 day |
 | 3 | ✅ MiniMap + repositioned canvas controls | Small–Medium | Very low | 3 | ~½ day |
-| 4 | Module search, filtering, recents & favorites | Small–Medium | Low | 3 | ~½–1 day |
+| 4 | ✅ Module search, filtering, recents & favorites | Small–Medium | Low | 3 | ~½–1 day |
 | 5 | Knob interaction upgrade | Medium | Medium | 29+ | ~1–2 days |
 | 6 | ✅ Rework top bar into zoned patch toolbar | Small–Medium | Low | 8 | ~½–1 day |
 | 7 | ✅ Fix module taxonomy & iconography | Small | Very low | 1 | ~½ day |
@@ -111,9 +113,9 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 | Item | Soft dependencies / synergies |
 |------|----------------------------|
 | #1 Multi-select | None. Enables richer toolbar actions in #6 (batch Delete/Duplicate in the top bar). |
-| #2 Index screen | Benefits from #4 (can show favorite/recent modules on the landing page). Can ship before #4 using basic patch recents. |
+| #2 ✅ Index screen | Benefits from #4 (can show favorite/recent modules on the landing page). Can ship before #4 using basic patch recents. |
 | #3 ✅ MiniMap | None. Purely additive. |
-| #4 Quick-add enhancements | None. Provides an `open()` API that #6's "Add" button can call instead of faking a keydown event. |
+| #4 ✅ Quick-add enhancements | None. Provides an `open()` API that #6's "Add" button can call instead of faking a keydown event. |
 | #5 Knob upgrade | None. Touches all 27 module files — highest regression surface. Best shipped when the canvas is otherwise stable. |
 | #6 ✅ Toolbar rework | Shipped with `useQuickAdd()` shared API — available for #4. Benefits from #1 (batch actions in toolbar). |
 | #7 ✅ Taxonomy & icons | None. Pure data change. |
@@ -127,16 +129,16 @@ Items are grouped by original priority. Accessibility (a11y) is intentionally de
 | **2** ✅ | #8 Header shows both module type and user title | Shipped. |
 | **3** ✅ | #3 MiniMap + repositioned canvas controls | Shipped. |
 | **4** ✅ | #6 Rework top bar into zoned patch toolbar | Shipped. |
-| **5** | #4 Module search, filtering, recents & favorites | Builds on the existing QuickAddPalette. The new toolbar (#6) gets a proper `openQuickAdd()` hook. Recents/favorites data layer can then be reused by the landing page in #2. |
-| **6** | #2 Proper index screen + empty-state onboarding | Medium effort, high user-facing impact. Benefits from #4's recents/favorites (can surface them on the landing page). Empty-state copy can reference the now-polished QuickAddPalette. |
+| **5** | ✅ #4 Module search, filtering, recents & favorites | Shipped. |
+| **6** | ✅ #2 Proper index screen + empty-state onboarding | Shipped. |
 | **7** | #1 Multi-select & batch actions | Medium complexity. The last major canvas primitive. By this point the toolbar (#6), selection styling (#5 shipped), and action bar are all stable — multi-select slots in cleanly. |
 | **8** | #5 Knob interaction upgrade | Highest file count (27 modules + new component) and regression risk. Ship last when the canvas, shell, and toolbar are all frozen. Also gives time to user-test the new knob sizes in the already-merged shell before standardizing. |
 
-**Parallel tracks:** The remaining 3 items (#4, #1, #5) are independent. #1 and #5 should each get focused attention and QA time. #4 can follow at any point since the `useQuickAdd()` API is already shipped.
+**Parallel tracks:** The remaining 2 items (#1, #5) are independent. Each should get focused attention and QA time.
 
 ---
 
-## Implementation Plans — new top-8 (4 shipped, 4 remaining)
+## Implementation Plans — new top-8 (6 shipped, 2 remaining)
 
 ---
 
@@ -248,100 +250,16 @@ Enable lasso/box selection, shift-click multi-select, and batch duplicate / dele
 
 ---
 
-### 2. Proper index screen + empty-state onboarding
+### 2. Proper index screen + empty-state onboarding ✅
 
-> **Complexity:** Medium  
-> **Depends on:** None (ships independently)  
-> **Blocked by:** Nothing
+> **Shipped:** 2025-05-17  
+> **Files touched:** `app/pages/index.vue`, `app/components/ModularEditor.vue`
 
-#### Goal
-
-Replace the silent redirect in `pages/index.vue` with a branded landing page, and add an empty-state overlay on the canvas when a patch has no nodes.
-
-#### Current state
-
-- `pages/index.vue` fetches patch list, redirects to latest patch or creates a new one instantly.
-- `pages/patches/[id].vue` renders `ModularEditor` with `initialData`.
-- No empty-state UI exists in `ModularEditor`.
-
-#### Implementation
-
-1. **Create a branded landing page (`pages/index.vue`)**
-   Design:
-   - Full-screen dark background (`bg-neutral-950`).
-   - Centered: app title "Node Modules" in large type + subtitle.
-   - Two primary CTAs: "New Patch" (green accent) and "Open Recent" (secondary).
-   - Below: a recents list (max 5) showing patch name + last-updated relative time.
-   - If no recents: show a subtle hint "Create your first patch".
-
-   Data: reuse `useDataStore().patches` (already fetched).
-
-   ```vue
-   <template>
-     <div class="min-h-screen bg-neutral-950 text-white flex flex-col items-center justify-center">
-       <div class="text-center space-y-6">
-         <h1 class="text-4xl font-bold tracking-tight">Node Modules</h1>
-         <p class="text-neutral-400">Modular audio synthesis environment</p>
-         <div class="flex gap-3 justify-center">
-           <Button label="New Patch" icon="pi pi-plus" @click="store.newPatch()" />
-           <Button label="Open Recent" icon="pi pi-folder-open" outlined @click="showRecents = true" />
-         </div>
-         <div v-if="store.patches.length" class="mt-8 text-left">
-           <h2 class="text-xs uppercase tracking-wide text-neutral-500 mb-3">Recent patches</h2>
-           <div class="space-y-1">
-             <button
-               v-for="p in store.patches.slice(0, 5)"
-               :key="p.id"
-               class="block w-full text-left px-3 py-2 rounded hover:bg-white/5 text-sm text-neutral-300"
-               @click="navigateTo(`/patches/${p.id}`)"
-             >
-               {{ p.name }}
-               <span class="text-neutral-600 text-xs ml-2">{{ formatDate(p.updatedAt) }}</span>
-             </button>
-           </div>
-         </div>
-       </div>
-     </div>
-   </template>
-   ```
-
-2. **Add empty-state overlay in `ModularEditor.vue`**
-   After `<VueFlow>`, conditionally render an overlay when `nodes.length === 0`:
-
-   ```vue
-   <div
-     v-if="nodes.length === 0"
-     class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
-   >
-     <div class="text-center space-y-4 opacity-60">
-       <p class="text-lg">This patch is empty</p>
-       <p class="text-sm text-neutral-400">Press <kbd class="px-1.5 py-0.5 bg-neutral-800 rounded text-xs">A</kbd> to add a module</p>
-       <div class="flex gap-3 justify-center mt-4 pointer-events-auto">
-         <Button label="Add Oscillator" size="small" @click="addModuleAtViewportCenter(AudioModuleType.Oscillator)" />
-         <Button label="Add Gain" size="small" @click="addModuleAtViewportCenter(AudioModuleType.Gain)" />
-         <Button label="Add Destination" size="small" @click="addModuleAtViewportCenter(AudioModuleType.Destination)" />
-       </div>
-       <p class="text-xs text-neutral-500 mt-2">or try a <button class="underline">starter patch</button></p>
-     </div>
-   </div>
-   ```
-
-   Import `addModuleAtViewportCenter` from `useAddModule()` inside `ModularEditor.vue`.
-
-3. **Starter patch helper (optional)**
-   Create a `createStarterPatch(type)` function in `useDataStore` or a new composable that pre-populates a simple chain (Oscillator → Gain → Destination) and navigates to it. This can be exposed as a "Try a starter patch" button in both the landing page and the empty-state overlay.
-
-#### Files touched
-
-- `app/pages/index.vue` — rewrite from redirect to landing page
-- `app/components/ModularEditor.vue` — add empty-state overlay, import `useAddModule`
-- `app/composables/useDataStore.ts` — add `createStarterPatch()` (optional)
-
-#### Edge cases
-
-- User lands on `/` with an empty patch list → show landing page, "New Patch" button calls `store.newPatch()`.
-- User lands on `/patches/<id>` with an empty patch → empty-state overlay appears.
-- User deletes all nodes in a non-empty patch → overlay appears immediately (reactive on `nodes.length`).
+**What changed:**
+- Replaced the silent redirect in `pages/index.vue` with a branded landing page: "Node Modules" title, "New Patch" / "Open Recent" CTAs, recents list (max 5) with relative timestamps, and a subtle hint when no patches exist.
+- Added an empty-state overlay in `ModularEditor.vue` that appears when `nodes.length === 0`, showing "Press A to add" with `<kbd>` styling and three quick-add buttons (Add Oscillator, Gain, Destination).
+- Fixed a VueFlow layout bug: the wrapper root was changed from `class="contents"` to `class="relative flex-1 flex flex-col"` so VueFlow's `flex-1` resolves inside a flex container.
+- Starter patch helper was explored but ultimately removed — "new patches save immediately" was deemed conceptually wrong and deferred.
 
 ---
 
@@ -359,103 +277,18 @@ Replace the silent redirect in `pages/index.vue` with a branded landing page, an
 
 ---
 
-### 4. Module search, filtering, recents & favorites
+### 4. Module search, filtering, recents & favorites ✅
 
-> **Complexity:** Small–Medium  
-> **Depends on:** None (ships independently)  
-> **Blocked by:** Nothing
+> **Shipped:** 2025-05-17  
+> **Files touched:** `app/stores/data.ts`, `app/stores/modulePreferences.ts`, `app/utils/module.ts`, `app/components/controls/QuickAddPalette.client.vue`
 
-#### Goal
-
-Extend `QuickAddPalette` with: recents list on empty query, star/favorite toggle per module, and category tab filters.
-
-#### Current state
-
-- `QuickAddPalette.client.vue` shows all 27 modules when query is empty.
-- `useDataStore` has no concept of "recently used module types" or "favorites".
-- Search is purely substring-based.
-
-#### Implementation
-
-1. **Add recents & favorites to `useDataStore`**
-   Use `useLocalStorage` from VueUse (if available) or manual `localStorage`:
-
-   ```ts
-   const recentTypes = ref<string[]>([])
-   const favoriteTypes = ref<Set<string>>(new Set())
-
-   function recordModuleUsed(type: string) {
-     recentTypes.value = [type, ...recentTypes.value.filter(t => t !== type)].slice(0, 5)
-   }
-
-   function toggleFavorite(type: string) {
-     const s = new Set(favoriteTypes.value)
-     if (s.has(type)) s.delete(type)
-     else s.add(type)
-     favoriteTypes.value = s
-   }
-   ```
-
-   Persist `recentTypes` and `favoriteTypes` to `localStorage` on change (watch + JSON.stringify). Load on store init.
-
-2. **Extend `searchModuleCatalog` to support category filtering**
-
-   ```ts
-   export function searchModuleCatalog(query: string, category?: string): ModuleCatalogEntry[] {
-     // ... existing logic ...
-     if (category && entry.category !== category) return false
-     // ...
-   }
-   ```
-
-3. **Redesign `QuickAddPalette` empty-query state**
-   When `query === ''`, show three sections stacked vertically:
-   - **Favorites** (if any): horizontal row of favorited modules with star button.
-   - **Recents**: last 5 used module types (each clickable to re-insert).
-   - **All modules**: grouped by category (collapsible or tabbed).
-
-   Category tabs across the top (when query is empty):
-
-   ```vue
-   <div class="flex gap-1 border-b border-white/20 px-3 py-1">
-     <button
-       v-for="cat in categories"
-       :key="cat"
-       class="text-xs px-2 py-1 rounded"
-       :class="activeCategory === cat ? 'bg-white/20 text-white' : 'text-white/50 hover:text-white/70'"
-       @click="activeCategory = cat"
-     >
-       {{ cat }}
-     </button>
-   </div>
-   ```
-
-4. **Add star toggle in results list**
-   Each result row gets a star icon on the right side (before the category label):
-
-   ```vue
-   <button
-     class="text-white/30 hover:text-amber-400"
-     @click.stop="toggleFavorite(entry.type)"
-   >
-     <i :class="isFavorite(entry.type) ? 'pi pi-star-fill text-amber-400' : 'pi pi-star'" />
-   </button>
-   ```
-
-5. **Record usage when a module is inserted**
-   In `QuickAddPalette`'s `insert()` function, call `dataStore.recordModuleUsed(entry.type)`.
-
-#### Files touched
-
-- `app/stores/data.ts` — add recents/favorites state + helpers
-- `app/utils/module.ts` — extend `searchModuleCatalog` with category filter
-- `app/components/controls/QuickAddPalette.client.vue` — redesign empty state, add tabs, star toggle
-
-#### Edge cases
-
-- First-time user: no recents, no favorites → show "All" tab by default with category grouping.
-- Favorites list gets too long: cap at e.g. 10.
-- `localStorage` parse failure: wrap in `try/catch`, default to empty.
+**What changed:**
+- Created `useModulePreferencesStore` (separate Pinia store) for recents and favorites with localStorage persistence — intentionally decoupled from patch data.
+- Added category tabs (All / I/O / Generator / Voice / Effect / Control / Visual) to QuickAddPalette when query is empty; `searchModuleCatalog` extended with optional `category` filter.
+- Added Favorites row with inline unfavorite star toggle (capped at 5) and Recents row in the empty-query state.
+- Added star toggle on each result row in the search list for favoriting/unfavoriting.
+- Usage recording on module insert (`prefs.recordModuleUsed`).
+- Fixed nested `<button>` in results list by converting outer row to `<div role="button" tabindex="0">`.
 
 ---
 

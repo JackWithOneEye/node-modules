@@ -15,13 +15,44 @@
  */
 
 const { visible, open: openQuickAdd, close } = useQuickAdd()
+const prefs = useModulePreferencesStore()
 
 const query = ref('')
 const activeIndex = ref(0)
 const inputRef = ref<HTMLInputElement | null>(null)
 const listRef = ref<HTMLElement | null>(null)
+const activeCategory = ref<string>('All')
 
-const results = computed<ModuleCatalogEntry[]>(() => searchModuleCatalog(query.value))
+const categories = ['All', ...moduleCategories]
+
+const hasQuery = computed(() => query.value.trim().length > 0)
+
+const results = computed<ModuleCatalogEntry[]>(() => {
+  const cat = hasQuery.value ? undefined : activeCategory.value === 'All' ? undefined : activeCategory.value
+  return searchModuleCatalog(query.value, cat)
+})
+
+const favoriteEntries = computed<ModuleCatalogEntry[]>(() => {
+  const entries: ModuleCatalogEntry[] = []
+  for (const type of prefs.favoriteTypes) {
+    const entry = getModuleCatalogEntry(type)
+    if (entry) {
+      entries.push(entry)
+    }
+  }
+  return entries
+})
+
+const recentEntries = computed<ModuleCatalogEntry[]>(() => {
+  const entries: ModuleCatalogEntry[] = []
+  for (const type of prefs.recentTypes) {
+    const entry = getModuleCatalogEntry(type)
+    if (entry) {
+      entries.push(entry)
+    }
+  }
+  return entries
+})
 
 watch(results, () => {
   activeIndex.value = 0
@@ -33,6 +64,7 @@ function open() {
   openQuickAdd()
   query.value = ''
   activeIndex.value = 0
+  activeCategory.value = 'All'
   nextTick(() => inputRef.value?.focus())
 }
 
@@ -42,7 +74,12 @@ function onDialogClose() {
 
 function insert(entry: ModuleCatalogEntry) {
   addModuleAtViewportCenter(entry.type)
+  prefs.recordModuleUsed(entry.type)
   close()
+}
+
+function toggleFavorite(entry: ModuleCatalogEntry) {
+  prefs.toggleFavorite(entry.type)
 }
 
 function move(delta: number) {
@@ -144,6 +181,7 @@ onBeforeUnmount(() => {
     @update:visible="(v: boolean) => !v && onDialogClose()"
   >
     <div class="flex flex-col">
+      <!-- Search input -->
       <div class="flex items-center gap-2 border-b border-white/20 px-3 py-2">
         <i class="pi pi-search text-white/50" />
         <input
@@ -156,6 +194,72 @@ onBeforeUnmount(() => {
         >
         <span class="text-[0.65rem] text-white/40 font-mono">esc</span>
       </div>
+
+      <!-- Category tabs (only when query is empty) -->
+      <div
+        v-if="!hasQuery"
+        class="flex gap-1 border-b border-white/20 px-3 py-1.5 overflow-x-auto"
+      >
+        <button
+          v-for="cat in categories"
+          :key="cat"
+          class="text-xs px-2 py-0.5 rounded whitespace-nowrap transition-colors"
+          :class="activeCategory === cat ? 'bg-white/20 text-white' : 'text-white/50 hover:text-white/70 hover:bg-white/5'"
+          @click="activeCategory = cat"
+        >
+          {{ cat }}
+        </button>
+      </div>
+
+      <!-- Favorites (only when query is empty and favorites exist) -->
+      <div
+        v-if="!hasQuery && favoriteEntries.length > 0"
+        class="px-3 pt-2 pb-1"
+      >
+        <div class="text-[0.65rem] uppercase tracking-wide text-white/40 mb-1.5">
+          Favorites
+        </div>
+        <div class="flex flex-wrap gap-1.5">
+          <button
+            v-for="entry in favoriteEntries"
+            :key="entry.type"
+            class="flex items-center gap-1.5 text-xs px-2 py-1 rounded bg-white/10 text-white/80 hover:bg-white/20 transition-colors"
+            @click="insert(entry)"
+          >
+            <i :class="[entry.icon, 'text-white/60 text-[0.65rem]']" />
+            <span>{{ entry.label }}</span>
+            <i
+              class="pi pi-star-fill text-amber-400 text-[0.6rem] ml-0.5"
+              title="Unfavorite"
+              @click.stop="toggleFavorite(entry)"
+            />
+          </button>
+        </div>
+      </div>
+
+      <!-- Recents (only when query is empty and recents exist) -->
+      <div
+        v-if="!hasQuery && recentEntries.length > 0"
+        class="px-3 pt-2 pb-1"
+        :class="{ 'border-t border-white/10': favoriteEntries.length > 0 }"
+      >
+        <div class="text-[0.65rem] uppercase tracking-wide text-white/40 mb-1.5">
+          Recents
+        </div>
+        <div class="flex flex-wrap gap-1.5">
+          <button
+            v-for="entry in recentEntries"
+            :key="entry.type"
+            class="flex items-center gap-1.5 text-xs px-2 py-1 rounded bg-white/5 text-white/70 hover:bg-white/10 transition-colors"
+            @click="insert(entry)"
+          >
+            <i :class="[entry.icon, 'text-white/50 text-[0.65rem]']" />
+            <span>{{ entry.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Results list -->
       <div
         v-if="results.length === 0"
         class="px-3 py-6 text-center text-sm text-white/50"
@@ -165,17 +269,20 @@ onBeforeUnmount(() => {
       <div
         v-else
         ref="listRef"
-        class="max-h-80 overflow-y-auto py-1"
+        class="max-h-72 overflow-y-auto py-1"
+        :class="{ 'border-t border-white/10': !hasQuery && (favoriteEntries.length > 0 || recentEntries.length > 0) }"
       >
-        <button
+        <div
           v-for="(entry, idx) in results"
           :key="entry.type"
-          type="button"
           :data-index="idx"
-          class="flex w-full items-center gap-3 px-3 py-2 text-left text-sm text-white"
+          class="flex w-full items-center gap-3 px-3 py-2 text-sm text-white"
           :class="idx === activeIndex ? 'bg-white/15' : 'hover:bg-white/5'"
+          role="button"
+          tabindex="0"
           @mousemove="activeIndex = idx"
           @click="insert(entry)"
+          @keydown.enter.prevent="insert(entry)"
         >
           <i :class="[entry.icon, 'text-white/70']" />
           <span class="flex-1">
@@ -187,11 +294,22 @@ onBeforeUnmount(() => {
               {{ entry.description }}
             </span>
           </span>
+          <button
+            class="text-white/30 hover:text-amber-400 px-1"
+            :title="prefs.isFavorite(entry.type) ? 'Unfavorite' : 'Favorite'"
+            @click.stop="toggleFavorite(entry)"
+          >
+            <i
+              :class="prefs.isFavorite(entry.type) ? 'pi pi-star-fill text-amber-400' : 'pi pi-star'"
+            />
+          </button>
           <span class="text-[0.65rem] uppercase tracking-wide text-white/40">
             {{ entry.category }}
           </span>
-        </button>
+        </div>
       </div>
+
+      <!-- Footer -->
       <div
         class="flex items-center justify-between border-t border-white/20 px-3 py-1.5 text-[0.65rem] font-mono text-white/40"
       >

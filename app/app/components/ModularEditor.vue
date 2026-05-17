@@ -24,6 +24,9 @@ const nodes = ref(initialData.nodes)
 const edges = ref(initialData.edges)
 const viewport = ref(initialData.viewport)
 
+const isCanvasEmpty = computed(() => getNodes.value.length === 0)
+const { addModuleAtViewportCenter } = useAddModule()
+
 function fitToSelection() {
   const selectedIds: string[] = []
   for (const n of getNodes.value) {
@@ -117,7 +120,7 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
 
 <template>
   <div
-    class="contents"
+    class="relative flex-1 flex flex-col"
     @drop="onDrop"
     @dragover="onDragOver"
     @dragleave="onDragLeave"
@@ -436,5 +439,44 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
         <i class="pi pi-expand" />
       </button>
     </VueFlow>
+
+    <!-- Empty-state overlay -->
+    <div
+      v-if="isCanvasEmpty"
+      class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20"
+    >
+      <div class="text-center space-y-4 opacity-60">
+        <p class="text-lg text-white/80">
+          This patch is empty
+        </p>
+        <p class="text-sm text-neutral-400">
+          Press
+          <kbd class="px-1.5 py-0.5 bg-neutral-800 rounded text-xs text-white/70 font-mono border border-neutral-700">
+            A
+          </kbd>
+          to add a module
+        </p>
+        <div class="flex gap-3 justify-center mt-4 pointer-events-auto">
+          <Button
+            label="Add Oscillator"
+            size="small"
+            outlined
+            @click="addModuleAtViewportCenter(AudioModuleType.Oscillator)"
+          />
+          <Button
+            label="Add Gain"
+            size="small"
+            outlined
+            @click="addModuleAtViewportCenter(AudioModuleType.Gain)"
+          />
+          <Button
+            label="Add Destination"
+            size="small"
+            outlined
+            @click="addModuleAtViewportCenter(AudioModuleType.Destination)"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
