@@ -306,28 +306,80 @@ for (const group of moduleOptions.flat()) {
   }
 }
 
-/** Case-insensitive substring search over label / category / description / keywords.
- *  If `category` is provided, only entries in that category are returned.
+/**
+ * Ranked search over the module catalog.
+ *
+ * Scoring tiers (higher = better):
+ *  100  – exact label match
+ *   80  – label starts with query
+ *   60  – a word in the label starts with query
+ *   40  – label contains query as substring
+ *   20  – keyword match
+ *   10  – category match
+ *    5  – description match
+ *
+ * Entries with the same score are sorted by label length (shorter first)
+ * then alphabetically. Unmatched entries are excluded.
+ *
+ * If `category` is provided only entries in that category are returned.
+ * If `query` is empty every matching-category entry is returned (score 0).
  */
 export function searchModuleCatalog(query: string, category?: string): ModuleCatalogEntry[] {
   const q = query.trim().toLowerCase()
-  const hits: ModuleCatalogEntry[] = []
+  const hits: { entry: ModuleCatalogEntry, score: number }[] = []
+
   for (const entry of moduleCatalog) {
     if (category && entry.category !== category) {
       continue
     }
     if (!q) {
-      hits.push(entry)
+      hits.push({ entry, score: 0 })
       continue
     }
-    if (
-      entry.label.toLowerCase().includes(q)
-      || entry.category.toLowerCase().includes(q)
-      || entry.description.toLowerCase().includes(q)
-      || entry.keywords.some(k => k.toLowerCase().includes(q))
-    ) {
-      hits.push(entry)
+
+    const label = entry.label.toLowerCase()
+    const description = entry.description.toLowerCase()
+    const cat = entry.category.toLowerCase()
+    const keywords = entry.keywords.map(k => k.toLowerCase())
+
+    let score = 0
+
+    // 100 – exact label match
+    if (label === q) {
+      score = 100
+    }
+    // 80 – label starts with query
+    else if (label.startsWith(q)) {
+      score = 80
+    }
+    // 60 – a word in the label starts with query (e.g. "fi" → "Multi Filter")
+    else if (label.split(/\s+/).some(word => word.startsWith(q))) {
+      score = 60
+    }
+    // 40 – label contains query anywhere
+    else if (label.includes(q)) {
+      score = 40
+    }
+    // 20 – keyword match
+    else if (keywords.some(k => k.includes(q))) {
+      score = 20
+    }
+    // 10 – category match
+    else if (cat.includes(q)) {
+      score = 10
+    }
+    // 5 – description match
+    else if (description.includes(q)) {
+      score = 5
+    }
+
+    if (score > 0) {
+      hits.push({ entry, score })
     }
   }
-  return hits
+
+  // Sort: higher score first, then shorter label, then alphabetical
+  hits.sort((a, b) => b.score - a.score || a.entry.label.length - b.entry.label.length || a.entry.label.localeCompare(b.entry.label))
+
+  return hits.map(h => h.entry)
 }
