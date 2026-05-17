@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import type { Node, Edge, ViewportTransform } from '@vue-flow/core'
 
+definePageMeta({
+  layout: 'editor',
+})
+
 const store = useDataStore()
 const editorKey = ref(0)
 const importData = ref<{ nodes: Node[], edges: Edge[], viewport?: ViewportTransform }>(

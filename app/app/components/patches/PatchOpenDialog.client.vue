@@ -32,38 +32,43 @@ function formatDate(iso: string): string {
     header="Open Patch"
     modal
     :style="{ width: '30rem' }"
+    :pt="{
+      root: tw`max-h-[85vh]`,
+    }"
     @update:visible="emit('update:visible', $event)"
     @show="open"
   >
-    <DataView
-      :value="sortedPatches"
-      layout="list"
-    >
-      <template #list="slotProps">
-        <div
-          v-for="(patch, i) in slotProps.items"
-          :key="patch.id"
-          class="flex items-center justify-between p-3 cursor-pointer hover:bg-neutral-700 rounded-md"
-          :class="{ 'border-t border-neutral-600': (i as number) > 0 }"
-          @click="openPatch(patch.id)"
-        >
-          <div class="flex flex-col gap-1">
-            <span class="font-medium">{{ patch.name }}</span>
-            <span class="text-sm text-neutral-400">{{ formatDate(patch.updatedAt) }}</span>
+    <div class="max-h-[60vh] overflow-y-auto min-h-[12rem]">
+      <DataView
+        :value="sortedPatches"
+        layout="list"
+      >
+        <template #list="slotProps">
+          <div
+            v-for="(patch, i) in slotProps.items"
+            :key="patch.id"
+            class="flex items-center justify-between p-3 cursor-pointer hover:bg-neutral-700 rounded-md"
+            :class="{ 'border-t border-neutral-600': (i as number) > 0 }"
+            @click="openPatch(patch.id)"
+          >
+            <div class="flex flex-col gap-1">
+              <span class="font-medium">{{ patch.name }}</span>
+              <span class="text-sm text-neutral-400">{{ formatDate(patch.updatedAt) }}</span>
+            </div>
+            <Button
+              icon="pi pi-chevron-right"
+              text
+              rounded
+              severity="secondary"
+            />
           </div>
-          <Button
-            icon="pi pi-chevron-right"
-            text
-            rounded
-            severity="secondary"
-          />
-        </div>
-      </template>
-      <template #empty>
-        <div class="p-4 text-center text-neutral-400">
-          No saved patches yet.
-        </div>
-      </template>
-    </DataView>
+        </template>
+        <template #empty>
+          <div class="p-4 text-center text-neutral-400">
+            No saved patches yet.
+          </div>
+        </template>
+      </DataView>
+    </div>
   </Dialog>
 </template>

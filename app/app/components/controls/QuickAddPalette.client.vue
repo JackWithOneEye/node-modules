@@ -172,15 +172,15 @@ onBeforeUnmount(() => {
     :closable="false"
     :show-header="false"
     :dismissable-mask="true"
-    class="w-[32rem]"
+    class="w-[32rem] h-[32rem] max-h-[85vh]"
     :pt="{
       root: tw`border border-white/30 rounded-md shadow-2xl overflow-hidden`,
-      content: tw`bg-black p-0`,
+      content: tw`bg-black p-0 flex flex-col overflow-hidden`,
       mask: tw`backdrop-blur-sm`,
     }"
     @update:visible="(v: boolean) => !v && onDialogClose()"
   >
-    <div class="flex flex-col">
+    <div class="flex flex-col h-full">
       <!-- Search input -->
       <div class="flex items-center gap-2 border-b border-white/20 px-3 py-2">
         <i class="pi pi-search text-white/50" />
@@ -259,53 +259,57 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- Results list -->
+      <!-- Results area -->
       <div
-        v-if="results.length === 0"
-        class="px-3 py-6 text-center text-sm text-white/50"
-      >
-        No modules match "{{ query }}"
-      </div>
-      <div
-        v-else
-        ref="listRef"
-        class="max-h-72 overflow-y-auto py-1"
+        class="flex-1 overflow-y-auto min-h-[8rem]"
         :class="{ 'border-t border-white/10': !hasQuery && (favoriteEntries.length > 0 || recentEntries.length > 0) }"
       >
         <div
-          v-for="(entry, idx) in results"
-          :key="entry.type"
-          :data-index="idx"
-          class="flex w-full items-center gap-3 px-3 py-2 text-sm text-white"
-          :class="idx === activeIndex ? 'bg-white/15' : 'hover:bg-white/5'"
-          role="button"
-          tabindex="0"
-          @mousemove="activeIndex = idx"
-          @click="insert(entry)"
-          @keydown.enter.prevent="insert(entry)"
+          v-if="results.length === 0"
+          class="px-3 py-6 text-center text-sm text-white/50"
         >
-          <i :class="[entry.icon, 'text-white/70']" />
-          <span class="flex-1">
-            <span class="font-medium">{{ entry.label }}</span>
-            <span
-              v-if="entry.description"
-              class="ml-2 text-xs text-white/50"
-            >
-              {{ entry.description }}
-            </span>
-          </span>
-          <button
-            class="text-white/30 hover:text-amber-400 px-1"
-            :title="prefs.isFavorite(entry.type) ? 'Unfavorite' : 'Favorite'"
-            @click.stop="toggleFavorite(entry)"
+          No modules match "{{ query }}"
+        </div>
+        <div
+          v-else
+          ref="listRef"
+          class="py-1"
+        >
+          <div
+            v-for="(entry, idx) in results"
+            :key="entry.type"
+            :data-index="idx"
+            class="flex w-full items-center gap-3 px-3 py-2 text-sm text-white"
+            :class="idx === activeIndex ? 'bg-white/15' : 'hover:bg-white/5'"
+            role="button"
+            tabindex="0"
+            @mousemove="activeIndex = idx"
+            @click="insert(entry)"
+            @keydown.enter.prevent="insert(entry)"
           >
-            <i
-              :class="prefs.isFavorite(entry.type) ? 'pi pi-star-fill text-amber-400' : 'pi pi-star'"
-            />
-          </button>
-          <span class="text-[0.65rem] uppercase tracking-wide text-white/40">
-            {{ entry.category }}
-          </span>
+            <i :class="[entry.icon, 'text-white/70']" />
+            <span class="flex-1">
+              <span class="font-medium">{{ entry.label }}</span>
+              <span
+                v-if="entry.description"
+                class="ml-2 text-xs text-white/50"
+              >
+                {{ entry.description }}
+              </span>
+            </span>
+            <button
+              class="text-white/30 hover:text-amber-400 px-1"
+              :title="prefs.isFavorite(entry.type) ? 'Unfavorite' : 'Favorite'"
+              @click.stop="toggleFavorite(entry)"
+            >
+              <i
+                :class="prefs.isFavorite(entry.type) ? 'pi pi-star-fill text-amber-400' : 'pi pi-star'"
+              />
+            </button>
+            <span class="text-[0.65rem] uppercase tracking-wide text-white/40">
+              {{ entry.category }}
+            </span>
+          </div>
         </div>
       </div>
 

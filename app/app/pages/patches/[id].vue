@@ -13,6 +13,7 @@ watch(data, (d) => {
 }, { immediate: true })
 
 definePageMeta({
+  layout: 'editor',
   validate: (route) => {
     return typeof route.params.id === 'string' && route.params.id.length > 0
   },
