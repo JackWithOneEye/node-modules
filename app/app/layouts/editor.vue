@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const store = useDataStore()
 const toast = useToast()
+const confirm = useConfirm()
 const route = useRoute()
 
 watch(() => route.path, (path) => {
@@ -62,6 +63,21 @@ function isTypingTarget(target: EventTarget | null): boolean {
   }
   const tag = target.tagName
   return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
+}
+
+function confirmDeleteCurrentPatch() {
+  confirm.require({
+    message: `Are you sure you want to delete "${store.currentPatchName}"? This cannot be undone.`,
+    header: 'Delete Patch',
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: 'Delete',
+    rejectLabel: 'Cancel',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      await store.deletePatch(store.currentPatchId!)
+      toast.add({ severity: 'success', summary: 'Deleted', detail: 'Patch deleted', life: 3000 })
+    },
+  })
 }
 
 function onShortcut(e: KeyboardEvent) {
@@ -170,25 +186,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
             label="Open"
             @click="showOpenDialog = true"
           />
-          <ToolbarButton
-            icon="pi pi-save"
-            label="Save"
-            @click="saveData"
+          <SaveDropdown
+            @save="saveData"
+            @save-as="showSaveAsDialog = true"
           />
-          <ToolbarButton
-            icon="pi pi-save"
-            label="Save As"
-            @click="showSaveAsDialog = true"
-          />
-          <ToolbarButton
-            icon="pi pi-upload"
-            label="Import"
-            @click="importInput?.click()"
-          />
-          <ToolbarButton
-            icon="pi pi-download"
-            label="Export"
-            @click="store.exportPatch()"
+          <ActionsDropdown
+            :can-delete="!!store.currentPatchId && store.currentPatchId !== 'new'"
+            @copy="store.copyCurrentPatch()"
+            @import="importInput?.click()"
+            @export="store.exportPatch()"
+            @delete="confirmDeleteCurrentPatch"
           />
         </div>
 
@@ -199,8 +206,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
           @open-patch="showOpenDialog = true"
           @save-patch="saveData"
           @save-as-patch="showSaveAsDialog = true"
+          @copy-patch="store.copyCurrentPatch()"
           @import-patch="importInput?.click()"
           @export-patch="store.exportPatch()"
+          @delete-patch="confirmDeleteCurrentPatch"
         />
 
         <div class="h-4 w-px bg-neutral-800 mx-1" />
@@ -236,6 +245,5 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
     <slot />
     <QuickAddPalette />
     <InfoModal ref="infoModalRef" />
-    <Toast />
   </div>
 </template>

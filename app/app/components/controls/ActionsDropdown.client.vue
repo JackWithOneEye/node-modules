@@ -1,30 +1,24 @@
 <script lang="ts" setup>
+const props = defineProps<{
+  canDelete: boolean
+}>()
+
 const emit = defineEmits<{
-  newPatch: []
-  openPatch: []
-  savePatch: []
-  saveAsPatch: []
-  copyPatch: []
-  importPatch: []
-  exportPatch: []
-  deletePatch: []
+  copy: []
+  import: []
+  export: []
+  delete: []
 }>()
 
 const menu = ref()
 
 const items = ref([
-  { label: 'New', icon: 'pi pi-file', command: () => { emit('newPatch') } },
-  { label: 'Open', icon: 'pi pi-folder-open', command: () => { emit('openPatch') } },
+  { label: 'Copy Patch', icon: 'pi pi-copy', command: () => { emit('copy') } },
   { separator: true },
-  { label: 'Save', icon: 'pi pi-save', command: () => { emit('savePatch') } },
-  { label: 'Save As', icon: 'pi pi-save', command: () => { emit('saveAsPatch') } },
+  { label: 'Import', icon: 'pi pi-upload', command: () => { emit('import') } },
+  { label: 'Export', icon: 'pi pi-download', command: () => { emit('export') } },
   { separator: true },
-  { label: 'Copy Patch', icon: 'pi pi-copy', command: () => { emit('copyPatch') } },
-  { separator: true },
-  { label: 'Import', icon: 'pi pi-upload', command: () => { emit('importPatch') } },
-  { label: 'Export', icon: 'pi pi-download', command: () => { emit('exportPatch') } },
-  { separator: true },
-  { label: 'Delete Patch', icon: 'pi pi-trash', command: () => { emit('deletePatch') } },
+  { label: 'Delete Patch', icon: 'pi pi-trash', command: () => { emit('delete') }, disabled: !props.canDelete },
 ])
 
 function toggle(event: MouseEvent) {
@@ -35,19 +29,18 @@ function toggle(event: MouseEvent) {
 <template>
   <div>
     <Button
-      icon="pi pi-file"
-      label="File"
+      icon="pi pi-ellipsis-v"
+      title="More actions"
       :pt="{
         root: { class: 'text-xs text-neutral-300 hover:text-white px-2 py-1 rounded hover:bg-white/5 bg-transparent border-0' },
         icon: { class: 'text-neutral-300' },
-        label: { class: 'text-neutral-300' },
       }"
       aria-haspopup="true"
-      aria-controls="file_menu"
+      aria-controls="actions_menu"
       @click="toggle"
     />
     <Menu
-      id="file_menu"
+      id="actions_menu"
       ref="menu"
       :model="items"
       :popup="true"

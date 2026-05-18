@@ -165,7 +165,36 @@ export const useDataStore = defineStore('data', () => {
     }
     pendingImportData.value = { nodes: parsed.nodes as Node[], edges: parsed.edges as Edge[], viewport: parsed.viewport as ViewportTransform | undefined }
     currentPatchId.value = 'new'
-    currentPatchName.value = (parsed.name as string) ?? 'Imported'
+    currentPatchName.value = (parsed.name as string) ?? 'Imported Patch'
+    patchLoadStarted()
+    await navigateTo('/patches/new', { replace: true })
+  }
+
+  async function deletePatch(id: string) {
+    try {
+      await $fetch(`/api/patches/${id}`, { method: 'delete' })
+      await fetchPatchList()
+      if (currentPatchId.value === id) {
+        currentPatchId.value = null
+        currentPatchName.value = 'New patch'
+        nodes.value = []
+        edges.value = []
+        pendingImportData.value = null
+        patchLoadStarted()
+        await navigateTo('/', { replace: true })
+      }
+    }
+    catch {
+      // silently handled by caller via toast
+    }
+  }
+
+  async function copyCurrentPatch() {
+    const newName = `Copy of ${currentPatchName.value}`
+    const obj = toObject()
+    pendingImportData.value = { nodes: obj.nodes, edges: obj.edges, viewport: obj.viewport }
+    currentPatchId.value = 'new'
+    currentPatchName.value = newName
     patchLoadStarted()
     await navigateTo('/patches/new', { replace: true })
   }
@@ -185,6 +214,8 @@ export const useDataStore = defineStore('data', () => {
     markClean,
     exportPatch,
     importPatch,
+    deletePatch,
+    copyCurrentPatch,
     pendingImportData,
   }
 })

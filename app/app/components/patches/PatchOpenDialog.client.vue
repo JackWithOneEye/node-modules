@@ -3,6 +3,8 @@ const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
 
 const store = useDataStore()
+const confirm = useConfirm()
+const toast = useToast()
 
 async function open() {
   await store.fetchPatchList()
@@ -23,6 +25,21 @@ function formatDate(iso: string): string {
   }
   const d = new Date(iso)
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+function confirmDelete(patch: { id: string, name: string }) {
+  confirm.require({
+    message: `Are you sure you want to delete "${patch.name}"?`,
+    header: 'Delete Patch',
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: 'Delete',
+    rejectLabel: 'Cancel',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      await store.deletePatch(patch.id)
+      toast.add({ severity: 'success', summary: 'Deleted', detail: `Deleted "${patch.name}"`, life: 3000 })
+    },
+  })
 }
 </script>
 
@@ -55,12 +72,22 @@ function formatDate(iso: string): string {
               <span class="font-medium">{{ patch.name }}</span>
               <span class="text-sm text-neutral-400">{{ formatDate(patch.updatedAt) }}</span>
             </div>
-            <Button
-              icon="pi pi-chevron-right"
-              text
-              rounded
-              severity="secondary"
-            />
+            <div class="flex items-center gap-1">
+              <Button
+                icon="pi pi-trash"
+                text
+                rounded
+                severity="danger"
+                title="Delete patch"
+                @click.stop="confirmDelete(patch)"
+              />
+              <Button
+                icon="pi pi-chevron-right"
+                text
+                rounded
+                severity="secondary"
+              />
+            </div>
           </div>
         </template>
         <template #empty>
