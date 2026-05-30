@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { Direction, ToneType } from '~/utils'
-
 export type GraindrModuleProps = {
   id: string
   type: string
@@ -125,27 +123,27 @@ onUnmounted(() => {
       <div class="nodrag flex flex-col gap-2 border border-white/80 rounded-md p-2">
         <div class="flex gap-1">
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="dryWetMix"
               :size="40"
               :min="0"
               :max="100"
-              :value-template="(value) => `${value}%`"
+              :format-fn="(v) => v + '%'"
             />
             <span class="text-handle">Mix</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="grainSizeMs"
               :size="40"
               :min="1"
               :max="1000"
-              :value-template="(value) => `${value}ms`"
+              :format-fn="(v) => v + 'ms'"
             />
             <span class="text-handle">Grain Size</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="pitchShift"
               :size="40"
               :min="-12"
@@ -154,7 +152,7 @@ onUnmounted(() => {
             <span class="text-handle">Pitch Shift</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="fineTune"
               :size="40"
               :min="-100"
@@ -165,7 +163,7 @@ onUnmounted(() => {
         </div>
         <div class="flex gap-1">
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="texture"
               :size="40"
               :min="0"
@@ -174,7 +172,7 @@ onUnmounted(() => {
             <span class="text-handle">Texture</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="stretch"
               :size="40"
               :min="1"
@@ -183,59 +181,55 @@ onUnmounted(() => {
             <span class="text-handle">Stretch</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="shimmer"
               :size="40"
               :min="0"
               :max="100"
-              :value-template="(value) => `${value}%`"
+              :format-fn="(v) => v + '%'"
             />
             <span class="text-handle">Shimmer</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="feedback"
               :size="40"
               :min="0"
               :max="100"
-              :value-template="(value) => `${value}%`"
+              :format-fn="(v) => v + '%'"
             />
             <span class="text-handle">Feedback</span>
           </div>
         </div>
         <div class="flex gap-1 justify-between">
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="hicutScaled"
               :size="40"
               :min="0"
               :max="hicutControlRange"
-              :value-template="() => `${(hicutHz * 0.001).toFixed(1)}kHz`"
+              :format-fn="(v) => (hicutHz * 0.001).toFixed(1) + 'kHz'"
             />
             <span class="text-handle">Hi Cut</span>
           </div>
           <div class="flex flex-col gap-1">
-            <Select
+            <USelect
               v-model="playbackDirection"
-              class="border h-6 w-full"
-              :pt="{
-                input: tw`p-1 text-xs`,
-              }"
-              :options="playbackOptions"
-              option-label="label"
-              option-value="value"
+              :items="playbackOptions"
+              label-key="label"
+              value-key="value"
               placeholder="Playback direction"
+              class="w-full text-xs"
+              size="sm"
             />
-            <Select
+            <USelect
               v-model="toneType"
-              class="border h-6 w-full"
-              :pt="{
-                input: tw`p-1 text-xs`,
-              }"
-              :options="toneTypeOptions"
-              option-label="label"
-              option-value="value"
+              :items="toneTypeOptions"
+              label-key="label"
+              value-key="value"
               placeholder="Tone"
+              class="w-full text-xs"
+              size="sm"
             />
           </div>
         </div>

@@ -71,19 +71,14 @@ onUnmounted(() => {
         ]"
       />
       <div class="nodrag">
-        <InputNumber
+        <UInput
           v-model="delayTime"
+          type="number"
           :min="0"
           :max="2"
           :step="0.01"
-          :max-fraction-digits="3"
-          :pt="{
-            root: tw`[&>input]:w-24 [&>input]:border [&>input]:border-white/50 [&>input]:focus:border-white [&>input]:text-sm [&>input]:p-2 [&>input]:outline-none`,
-          }"
-          :min-fraction-digits="0"
-          suffix="s"
-          mode="decimal"
-          show-buttons
+          variant="none"
+          :ui="{ base: 'w-24 border border-white/50 focus:border-white text-sm p-2 outline-none bg-transparent text-white rounded' }"
         />
       </div>
       <ModulePortRail

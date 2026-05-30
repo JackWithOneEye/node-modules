@@ -1,15 +1,11 @@
 <script lang="ts" setup>
-import type { Node, Edge, ViewportTransform } from '@vue-flow/core'
-
 definePageMeta({
   layout: 'editor',
 })
 
 const store = useDataStore()
 const editorKey = ref(0)
-const importData = ref<{ nodes: Node[], edges: Edge[], viewport?: ViewportTransform }>(
-  { nodes: [], edges: [], viewport: undefined },
-)
+const importData = ref<ImportData>({ nodes: [], edges: [], viewport: undefined })
 
 if (store.pendingImportData) {
   importData.value = store.pendingImportData
@@ -32,7 +28,7 @@ watch(() => store.pendingImportData, (data) => {
   >
     <ModularEditor
       :key="`new-${editorKey}`"
-      :initial-data="importData"
+      :initial-data="importData as ImportData"
     />
   </ClientOnly>
 </template>

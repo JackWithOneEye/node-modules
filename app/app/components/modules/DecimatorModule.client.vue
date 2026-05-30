@@ -87,23 +87,23 @@ onUnmounted(() => {
       />
       <div class="nodrag flex gap-1 border border-white/80 rounded-md p-2">
         <div class="flex flex-col items-center">
-          <Knob
+          <KnobInput
             v-model="scaledReduction"
             :size="40"
             :min="0"
             :max="maxReductionSliderVal"
-            :value-template="() => reductionLabel"
+            :format-fn="(v) => reductionLabel"
           />
           <span class="text-handle">Reduction</span>
         </div>
         <div class="flex flex-col items-center">
-          <Knob
+          <KnobInput
             v-model="stereoShift"
             :size="40"
             :min="0"
             :max="1"
             :step="0.1"
-            :value-template="() => `${stereoShift.toFixed(1)}`"
+            :format-fn="(v) => stereoShift.toFixed(1)"
           />
           <span class="text-handle">Shift</span>
         </div>

@@ -107,7 +107,7 @@ onUnmounted(() => {
       <div class="nodrag flex flex-col items-center gap-2 border border-white/80 rounded-md p-2">
         <div class="flex items-center gap-2">
           <span class="text-xs">Steps:</span>
-          <Knob
+          <KnobInput
             v-model="numSteps"
             :size="30"
             :min="1"
@@ -120,10 +120,10 @@ onUnmounted(() => {
             :key="row"
             class="flex gap-2"
           >
-            <Knob
+            <KnobInput
               v-for="col in COLUMNS"
               :key="`${row}-${col}`"
-              v-model="values[(row - 1) * COLUMNS + (col - 1)]"
+              v-model="values[(row - 1) * COLUMNS + (col - 1)]!"
               :class="{
                 'bg-red-400': currentStep === (row - 1) * COLUMNS + (col - 1) && values[(row - 1) * COLUMNS + (col - 1)] !== 0,
                 'bg-gray-400': currentStep === (row - 1) * COLUMNS + (col - 1) && values[(row - 1) * COLUMNS + (col - 1)] === 0,
@@ -132,7 +132,7 @@ onUnmounted(() => {
               :size="40"
               :min="0"
               :max="max"
-              :value-template="(row - 1) * COLUMNS + (col - 1) >= numSteps ? () => '' : valueLabel"
+              :format-fn="(v) => { const idx = (row - 1) * COLUMNS + (col - 1); return idx >= numSteps ? '' : valueLabel(v) }"
               :disabled="(row - 1) * COLUMNS + (col - 1) >= numSteps"
             />
           </div>

@@ -19,7 +19,11 @@ const prefs = useModulePreferencesStore()
 
 const query = ref('')
 const activeIndex = ref(0)
-const inputRef = ref<HTMLInputElement | null>(null)
+interface InputComponentInstance {
+  inputRef?: HTMLInputElement
+}
+
+const inputRef = ref<InputComponentInstance | null>(null)
 const listRef = ref<HTMLElement | null>(null)
 const activeCategory = ref<string>('All')
 
@@ -65,7 +69,10 @@ function open() {
   query.value = ''
   activeIndex.value = 0
   activeCategory.value = 'All'
-  nextTick(() => inputRef.value?.focus())
+  nextTick(() => {
+    const el = inputRef.value?.inputRef as HTMLInputElement | undefined
+    el?.focus()
+  })
 }
 
 function onDialogClose() {
@@ -166,160 +173,179 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <Dialog
-    :visible="visible"
-    modal
-    :closable="false"
-    :show-header="false"
-    :dismissable-mask="true"
-    class="w-[32rem] h-[32rem] max-h-[85vh]"
-    :pt="{
-      root: tw`border border-white/30 rounded-md shadow-2xl overflow-hidden`,
-      content: tw`bg-black p-0 flex flex-col overflow-hidden`,
-      mask: tw`backdrop-blur-sm`,
-    }"
-    @update:visible="(v: boolean) => !v && onDialogClose()"
+  <UModal
+    v-model:open="visible"
+    :close="false"
+    @update:open="(v: boolean) => !v && onDialogClose()"
   >
-    <div class="flex flex-col h-full">
-      <!-- Search input -->
-      <div class="flex items-center gap-2 border-b border-white/20 px-3 py-2">
-        <i class="pi pi-search text-white/50" />
-        <input
-          ref="inputRef"
-          v-model="query"
-          class="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/40"
-          placeholder="Add a module… (type to search)"
-          autocomplete="off"
-          spellcheck="false"
-        >
-        <span class="text-[0.65rem] text-white/40 font-mono">esc</span>
-      </div>
-
-      <!-- Category tabs (only when query is empty) -->
-      <div
-        v-if="!hasQuery"
-        class="flex gap-1 border-b border-white/20 px-3 py-1.5 overflow-x-auto"
-      >
-        <button
-          v-for="cat in categories"
-          :key="cat"
-          class="text-xs px-2 py-0.5 rounded whitespace-nowrap transition-colors"
-          :class="activeCategory === cat ? 'bg-white/20 text-white' : 'text-white/50 hover:text-white/70 hover:bg-white/5'"
-          @click="activeCategory = cat"
-        >
-          {{ cat }}
-        </button>
-      </div>
-
-      <!-- Favorites (only when query is empty and favorites exist) -->
-      <div
-        v-if="!hasQuery && favoriteEntries.length > 0"
-        class="px-3 pt-2 pb-1"
-      >
-        <div class="text-[0.65rem] uppercase tracking-wide text-white/40 mb-1.5">
-          Favorites
+    <template #body>
+      <div class="flex flex-col h-128 max-h-[85vh]">
+        <!-- Search input -->
+        <div class="flex items-center gap-2 border-b border-white/20 px-3 py-2">
+          <UIcon
+            name="ph:magnifying-glass"
+            class="text-white/50"
+          />
+          <UInput
+            ref="inputRef"
+            v-model="query"
+            variant="none"
+            class="flex-1"
+            :ui="{ base: 'text-sm text-white placeholder:text-white/40' }"
+            placeholder="Add a module… (type to search)"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <span class="text-[0.65rem] text-white/40 font-mono">esc</span>
         </div>
-        <div class="flex flex-wrap gap-1.5">
-          <button
-            v-for="entry in favoriteEntries"
-            :key="entry.type"
-            class="flex items-center gap-1.5 text-xs px-2 py-1 rounded bg-white/10 text-white/80 hover:bg-white/20 transition-colors"
-            @click="insert(entry)"
-          >
-            <i :class="[entry.icon, 'text-white/60 text-[0.65rem]']" />
-            <span>{{ entry.label }}</span>
-            <i
-              class="pi pi-star-fill text-amber-400 text-[0.6rem] ml-0.5"
-              title="Unfavorite"
-              @click.stop="toggleFavorite(entry)"
-            />
-          </button>
-        </div>
-      </div>
 
-      <!-- Recents (only when query is empty and recents exist) -->
-      <div
-        v-if="!hasQuery && recentEntries.length > 0"
-        class="px-3 pt-2 pb-1"
-        :class="{ 'border-t border-white/10': favoriteEntries.length > 0 }"
-      >
-        <div class="text-[0.65rem] uppercase tracking-wide text-white/40 mb-1.5">
-          Recents
-        </div>
-        <div class="flex flex-wrap gap-1.5">
-          <button
-            v-for="entry in recentEntries"
-            :key="entry.type"
-            class="flex items-center gap-1.5 text-xs px-2 py-1 rounded bg-white/5 text-white/70 hover:bg-white/10 transition-colors"
-            @click="insert(entry)"
-          >
-            <i :class="[entry.icon, 'text-white/50 text-[0.65rem]']" />
-            <span>{{ entry.label }}</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Results area -->
-      <div
-        class="flex-1 overflow-y-auto min-h-[8rem]"
-        :class="{ 'border-t border-white/10': !hasQuery && (favoriteEntries.length > 0 || recentEntries.length > 0) }"
-      >
+        <!-- Category tabs (only when query is empty) -->
         <div
-          v-if="results.length === 0"
-          class="px-3 py-6 text-center text-sm text-white/50"
+          v-if="!hasQuery"
+          class="flex gap-1 border-b border-white/20 px-3 py-1.5 overflow-x-auto"
         >
-          No modules match "{{ query }}"
-        </div>
-        <div
-          v-else
-          ref="listRef"
-          class="py-1"
-        >
-          <div
-            v-for="(entry, idx) in results"
-            :key="entry.type"
-            :data-index="idx"
-            class="flex w-full items-center gap-3 px-3 py-2 text-sm text-white"
-            :class="idx === activeIndex ? 'bg-white/15' : 'hover:bg-white/5'"
-            role="button"
-            tabindex="0"
-            @mousemove="activeIndex = idx"
-            @click="insert(entry)"
-            @keydown.enter.prevent="insert(entry)"
+          <UButton
+            v-for="cat in categories"
+            :key="cat"
+            size="xs"
+            variant="ghost"
+            :class="activeCategory === cat ? 'bg-white/20 text-white' : 'text-white/50 hover:text-white/70 hover:bg-white/5'"
+            @click="activeCategory = cat"
           >
-            <i :class="[entry.icon, 'text-white/70']" />
-            <span class="flex-1">
-              <span class="font-medium">{{ entry.label }}</span>
-              <span
-                v-if="entry.description"
-                class="ml-2 text-xs text-white/50"
-              >
-                {{ entry.description }}
-              </span>
-            </span>
-            <button
-              class="text-white/30 hover:text-amber-400 px-1"
-              :title="prefs.isFavorite(entry.type) ? 'Unfavorite' : 'Favorite'"
-              @click.stop="toggleFavorite(entry)"
+            {{ cat }}
+          </UButton>
+        </div>
+
+        <!-- Favorites (only when query is empty and favorites exist) -->
+        <div
+          v-if="!hasQuery && favoriteEntries.length > 0"
+          class="px-3 pt-2 pb-1"
+        >
+          <div class="text-[0.65rem] uppercase tracking-wide text-white/40 mb-1.5">
+            Favorites
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <UButton
+              v-for="entry in favoriteEntries"
+              :key="entry.type"
+              size="xs"
+              variant="soft"
+              color="neutral"
+              class="bg-white/10 text-white/80 hover:bg-white/20"
+              @click="insert(entry)"
             >
-              <i
-                :class="prefs.isFavorite(entry.type) ? 'pi pi-star-fill text-amber-400' : 'pi pi-star'"
+              <UIcon
+                :name="entry.icon"
+                class="text-white/60 text-[0.65rem]"
               />
-            </button>
-            <span class="text-[0.65rem] uppercase tracking-wide text-white/40">
-              {{ entry.category }}
-            </span>
+              <span>{{ entry.label }}</span>
+              <UIcon
+                name="ph:star-fill"
+                class="text-amber-400 text-[0.6rem] ml-0.5"
+                title="Unfavorite"
+                @click.stop="toggleFavorite(entry)"
+              />
+            </UButton>
           </div>
         </div>
-      </div>
 
-      <!-- Footer -->
-      <div
-        class="flex items-center justify-between border-t border-white/20 px-3 py-1.5 text-[0.65rem] font-mono text-white/40"
-      >
-        <span>↑ ↓ navigate &nbsp; ↵ insert</span>
-        <span>{{ results.length }} module{{ results.length === 1 ? '' : 's' }}</span>
+        <!-- Recents (only when query is empty and recents exist) -->
+        <div
+          v-if="!hasQuery && recentEntries.length > 0"
+          class="px-3 pt-2 pb-1"
+          :class="{ 'border-t border-white/10': favoriteEntries.length > 0 }"
+        >
+          <div class="text-[0.65rem] uppercase tracking-wide text-white/40 mb-1.5">
+            Recents
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <UButton
+              v-for="entry in recentEntries"
+              :key="entry.type"
+              size="xs"
+              variant="ghost"
+              color="neutral"
+              class="bg-white/5 text-white/70 hover:bg-white/10"
+              @click="insert(entry)"
+            >
+              <UIcon
+                :name="entry.icon"
+                class="text-white/50 text-[0.65rem]"
+              />
+              <span>{{ entry.label }}</span>
+            </UButton>
+          </div>
+        </div>
+
+        <!-- Results area -->
+        <div
+          class="flex-1 overflow-y-auto min-h-32"
+          :class="{ 'border-t border-white/10': !hasQuery && (favoriteEntries.length > 0 || recentEntries.length > 0) }"
+        >
+          <div
+            v-if="results.length === 0"
+            class="px-3 py-6 text-center text-sm text-white/50"
+          >
+            No modules match "{{ query }}"
+          </div>
+          <div
+            v-else
+            ref="listRef"
+            class="py-1"
+          >
+            <div
+              v-for="(entry, idx) in results"
+              :key="entry.type"
+              :data-index="idx"
+              class="flex w-full items-center gap-3 px-3 py-2 text-sm text-white"
+              :class="idx === activeIndex ? 'bg-white/15' : 'hover:bg-white/5'"
+              role="button"
+              tabindex="0"
+              @mousemove="activeIndex = idx"
+              @click="insert(entry)"
+              @keydown.enter.prevent="insert(entry)"
+            >
+              <UIcon
+                :name="entry.icon"
+                class="text-white/70"
+              />
+              <span class="flex-1">
+                <span class="font-medium">{{ entry.label }}</span>
+                <span
+                  v-if="entry.description"
+                  class="ml-2 text-xs text-white/50"
+                >
+                  {{ entry.description }}
+                </span>
+              </span>
+              <UButton
+                variant="ghost"
+                color="neutral"
+                size="xs"
+                class="text-white/30 hover:text-amber-400 px-1"
+                :title="prefs.isFavorite(entry.type) ? 'Unfavorite' : 'Favorite'"
+                @click.stop="toggleFavorite(entry)"
+              >
+                <UIcon
+                  :name="prefs.isFavorite(entry.type) ? 'ph:star-fill' : 'ph:star'"
+                  :class="prefs.isFavorite(entry.type) ? 'text-amber-400' : ''"
+                />
+              </UButton>
+              <span class="text-[0.65rem] uppercase tracking-wide text-white/40">
+                {{ entry.category }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div
+          class="flex items-center justify-between border-t border-white/20 px-3 py-1.5 text-[0.65rem] font-mono text-white/40"
+        >
+          <span>↑ ↓ navigate &nbsp; ↵ insert</span>
+          <span>{{ results.length }} module{{ results.length === 1 ? '' : 's' }}</span>
+        </div>
       </div>
-    </div>
-  </Dialog>
+    </template>
+  </UModal>
 </template>

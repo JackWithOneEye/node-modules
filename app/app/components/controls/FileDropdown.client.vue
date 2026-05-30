@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { DropdownMenuItem } from '@nuxt/ui'
+
 const emit = defineEmits<{
   newPatch: []
   openPatch: []
@@ -10,56 +12,39 @@ const emit = defineEmits<{
   deletePatch: []
 }>()
 
-const menu = ref()
-
-const items = ref([
-  { label: 'New', icon: 'pi pi-file', command: () => { emit('newPatch') } },
-  { label: 'Open', icon: 'pi pi-folder-open', command: () => { emit('openPatch') } },
-  { separator: true },
-  { label: 'Save', icon: 'pi pi-save', command: () => { emit('savePatch') } },
-  { label: 'Save As', icon: 'pi pi-save', command: () => { emit('saveAsPatch') } },
-  { separator: true },
-  { label: 'Copy Patch', icon: 'pi pi-copy', command: () => { emit('copyPatch') } },
-  { separator: true },
-  { label: 'Import', icon: 'pi pi-upload', command: () => { emit('importPatch') } },
-  { label: 'Export', icon: 'pi pi-download', command: () => { emit('exportPatch') } },
-  { separator: true },
-  { label: 'Delete Patch', icon: 'pi pi-trash', command: () => { emit('deletePatch') } },
+const items = ref<DropdownMenuItem[][]>([
+  [
+    { label: 'New', icon: 'ph:file', onSelect: () => { emit('newPatch') } },
+    { label: 'Open', icon: 'ph:folder-open', onSelect: () => { emit('openPatch') } },
+  ],
+  [
+    { label: 'Save', icon: 'ph:floppy-disk', onSelect: () => { emit('savePatch') } },
+    { label: 'Save As', icon: 'ph:floppy-disk', onSelect: () => { emit('saveAsPatch') } },
+  ],
+  [
+    { label: 'Copy Patch', icon: 'ph:copy', onSelect: () => { emit('copyPatch') } },
+  ],
+  [
+    { label: 'Import', icon: 'ph:upload', onSelect: () => { emit('importPatch') } },
+    { label: 'Export', icon: 'ph:download', onSelect: () => { emit('exportPatch') } },
+  ],
+  [
+    { label: 'Delete Patch', icon: 'ph:trash', color: 'error', onSelect: () => { emit('deletePatch') } },
+  ],
 ])
-
-function toggle(event: MouseEvent) {
-  menu.value?.toggle(event)
-}
 </script>
 
 <template>
-  <div>
-    <Button
-      icon="pi pi-file"
+  <UDropdownMenu
+    :items="items"
+    :content="{ align: 'start', side: 'bottom' }"
+    :ui="{ content: 'w-48' }"
+  >
+    <UButton
+      icon="ph:file"
       label="File"
-      :pt="{
-        root: { class: 'text-xs text-neutral-300 hover:text-white px-2 py-1 rounded hover:bg-white/5 bg-transparent border-0' },
-        icon: { class: 'text-neutral-300' },
-        label: { class: 'text-neutral-300' },
-      }"
-      aria-haspopup="true"
-      aria-controls="file_menu"
-      @click="toggle"
+      color="neutral"
+      variant="ghost"
     />
-    <Menu
-      id="file_menu"
-      ref="menu"
-      :model="items"
-      :popup="true"
-      :pt="{
-        root: { class: 'bg-neutral-900 border border-neutral-700 rounded shadow-xl p-0 overflow-hidden' },
-        menu: { class: 'p-0' },
-        menuitem: { class: 'p-0' },
-        action: { class: 'text-xs text-neutral-300 hover:text-white hover:bg-white/5 px-3 py-2 gap-2 flex items-center' },
-        icon: { class: 'text-neutral-300' },
-        label: { class: 'text-neutral-300' },
-        separator: { class: 'bg-neutral-800 my-0' },
-      }"
-    />
-  </div>
+  </UDropdownMenu>
 </template>

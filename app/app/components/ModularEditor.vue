@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { Background } from '@vue-flow/background'
-import { Controls } from '@vue-flow/controls'
-import { MiniMap } from '@vue-flow/minimap'
 import { VueFlow } from '@vue-flow/core'
+import { Controls } from '@vue-flow/controls'
+import { Background } from '@vue-flow/background'
+import { MiniMap } from '@vue-flow/minimap'
 import type { Node, Edge, ViewportTransform } from '@vue-flow/core'
 
 export type ModuleEditorProps = {
@@ -128,7 +128,7 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
     @dragleave="onDragLeave"
   >
     <VueFlow
-      :nodes="nodes"
+      :nodes="nodes as Node[]"
       :edges="edges"
       :default-viewport="viewport"
       class="flex-1 bg-black text-white"
@@ -433,13 +433,15 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
         node-color="#333"
         mask-color="rgba(0,0,0,0.5)"
       />
-      <button
-        class="absolute bottom-4 right-36 z-10 flex h-8 w-8 items-center justify-center rounded border border-white bg-black text-white hover:bg-gray-700"
+      <UButton
+        icon="ph:arrows-out"
+        size="sm"
+        variant="outline"
+        color="neutral"
+        class="absolute bottom-4 right-36 z-10"
         title="Fit to selection"
         @click="fitToSelection"
-      >
-        <i class="pi pi-expand" />
-      </button>
+      />
     </VueFlow>
 
     <!-- Empty-state overlay -->
@@ -459,22 +461,25 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           to add a module
         </p>
         <div class="flex gap-3 justify-center mt-4 pointer-events-auto">
-          <Button
+          <UButton
             label="Add Oscillator"
-            size="small"
-            outlined
+            size="sm"
+            variant="outline"
+            color="neutral"
             @click="addModuleAtViewportCenter(AudioModuleType.Oscillator)"
           />
-          <Button
+          <UButton
             label="Add Gain"
-            size="small"
-            outlined
+            size="sm"
+            variant="outline"
+            color="neutral"
             @click="addModuleAtViewportCenter(AudioModuleType.Gain)"
           />
-          <Button
+          <UButton
             label="Add Destination"
-            size="small"
-            outlined
+            size="sm"
+            variant="outline"
+            color="neutral"
             @click="addModuleAtViewportCenter(AudioModuleType.Destination)"
           />
         </div>

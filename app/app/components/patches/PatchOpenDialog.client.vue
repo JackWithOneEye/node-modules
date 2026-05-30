@@ -3,15 +3,24 @@ const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
 
 const store = useDataStore()
-const confirm = useConfirm()
+const { confirm: showConfirm } = useConfirmModal()
 const toast = useToast()
+
+const visible = computed({
+  get: () => props.visible,
+  set: v => emit('update:visible', v),
+})
 
 async function open() {
   await store.fetchPatchList()
 }
 
+watch(() => props.visible, (v) => {
+  if (v) open()
+})
+
 function openPatch(id: string) {
-  emit('update:visible', false)
+  visible.value = false
   navigateTo(`/patches/${id}`)
 }
 
@@ -28,74 +37,64 @@ function formatDate(iso: string): string {
 }
 
 function confirmDelete(patch: { id: string, name: string }) {
-  confirm.require({
+  showConfirm({
+    title: 'Delete Patch',
     message: `Are you sure you want to delete "${patch.name}"?`,
-    header: 'Delete Patch',
-    icon: 'pi pi-exclamation-triangle',
-    acceptLabel: 'Delete',
-    rejectLabel: 'Cancel',
-    acceptClass: 'p-button-danger',
-    accept: async () => {
+    confirmLabel: 'Delete',
+    confirmVariant: 'error',
+    onConfirm: async () => {
       await store.deletePatch(patch.id)
-      toast.add({ severity: 'success', summary: 'Deleted', detail: `Deleted "${patch.name}"`, life: 3000 })
+      toast.add({
+        title: 'Deleted',
+        description: `Deleted "${patch.name}"`,
+        color: 'success',
+        duration: 3000,
+      })
     },
   })
 }
 </script>
 
 <template>
-  <Dialog
-    :visible="props.visible"
-    header="Open Patch"
-    modal
-    :style="{ width: '30rem' }"
-    :pt="{
-      root: tw`max-h-[85vh]`,
-    }"
-    @update:visible="emit('update:visible', $event)"
-    @show="open"
+  <UModal
+    v-model:open="visible"
+    title="Open Patch"
   >
-    <div class="max-h-[60vh] overflow-y-auto min-h-[12rem]">
-      <DataView
-        :value="sortedPatches"
-        layout="list"
-      >
-        <template #list="slotProps">
-          <div
-            v-for="(patch, i) in slotProps.items"
-            :key="patch.id"
-            class="flex items-center justify-between p-3 cursor-pointer hover:bg-neutral-700 rounded-md"
-            :class="{ 'border-t border-neutral-600': (i as number) > 0 }"
-            @click="openPatch(patch.id)"
-          >
-            <div class="flex flex-col gap-1">
-              <span class="font-medium">{{ patch.name }}</span>
-              <span class="text-sm text-neutral-400">{{ formatDate(patch.updatedAt) }}</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <Button
-                icon="pi pi-trash"
-                text
-                rounded
-                severity="danger"
-                title="Delete patch"
-                @click.stop="confirmDelete(patch)"
-              />
-              <Button
-                icon="pi pi-chevron-right"
-                text
-                rounded
-                severity="secondary"
-              />
-            </div>
+    <template #body>
+      <div class="max-h-[60vh] overflow-y-auto min-h-48">
+        <div
+          v-if="sortedPatches.length === 0"
+          class="p-4 text-center text-neutral-400"
+        >
+          No saved patches yet.
+        </div>
+        <div
+          v-for="(patch, i) in sortedPatches"
+          :key="patch.id"
+          class="flex items-center justify-between p-3 cursor-pointer hover:bg-neutral-700 rounded-md"
+          :class="{ 'border-t border-neutral-600': i > 0 }"
+          @click="openPatch(patch.id)"
+        >
+          <div class="flex flex-col gap-1">
+            <span class="font-medium">{{ patch.name }}</span>
+            <span class="text-sm text-neutral-400">{{ formatDate(patch.updatedAt) }}</span>
           </div>
-        </template>
-        <template #empty>
-          <div class="p-4 text-center text-neutral-400">
-            No saved patches yet.
+          <div class="flex items-center gap-1">
+            <UButton
+              icon="ph:trash"
+              variant="ghost"
+              color="error"
+              title="Delete patch"
+              @click.stop="confirmDelete(patch)"
+            />
+            <UButton
+              icon="ph:caret-right"
+              variant="ghost"
+              color="neutral"
+            />
           </div>
-        </template>
-      </DataView>
-    </div>
-  </Dialog>
+        </div>
+      </div>
+    </template>
+  </UModal>
 </template>

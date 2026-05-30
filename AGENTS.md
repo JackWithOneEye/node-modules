@@ -12,12 +12,12 @@
 - **app/**: Nuxt 4 Vue frontend — node-based modular audio editor using @vue-flow
 - **audio-processors/**: Rust WASM audio DSP (`wasm/src/`) + JS AudioWorklet wrappers (`processors/`), custom Go builder (`build/cmd/main.go`)
 - **app/server/api/**: Nuxt server routes — patch persistence (`patches/index.get/post.ts`, `patches/[id].get/post.ts`) and AudioWorklet script serving (`audio-processors-script.get.ts`)
-- **app/stores/**: Pinia stores (audio-context, data, midi, waveshapers)
+- **app/app/stores/**: Pinia stores (audio-context, data, midi, waveshapers, modulePreferences)
 - **app/app/composables/**: 13 composables (add-module, editor-history, editor-clipboard, editor-actions, DnD, handle-signals, params, etc.)
 - **27 module components** in `app/app/components/modules/*.client.vue`, all client-only
 - **Data persistence**: JSON files at `$DATA_STORE_DIRECTORY` (default: `~/.node-modules/`), loaded/saved via Nuxt server API
 - **AudioWorklet loading**: `audioContext.audioWorklet.addModule('/api/audio-processors-script')` — served from the bundled output file
-- **Dependencies**: Vue Flow (node editor), Pinia (state), PrimeVue + Tailwind (UI), WebMIDI
+- **Dependencies**: Vue Flow (node editor), Pinia (state), @nuxt/ui + Tailwind CSS 4 (UI), WebMIDI, pts (canvas)
 - **Rust**: wasm-bindgen, rustfft, pitch-detection, rand; no_std-friendly; `wasm_utils` proc-macro crate
 
 ## Code Style

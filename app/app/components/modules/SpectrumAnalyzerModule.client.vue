@@ -156,23 +156,17 @@ onUnmounted(() => {
     <ModulePortRow :input="{ id: 'input', label: 'in', signal: 'audio' }">
       <div
         ref="wrapper"
-        class="flex items-center justify-center border border-white/50 p-1 [&>canvas]:max-h-[300px] [&>canvas]:max-w-[500px]"
+        class="flex items-center justify-center border border-white/50 p-1 [&>canvas]:max-h-75 [&>canvas]:max-w-125"
       />
     </ModulePortRow>
     <div class="nodrag flex items-center gap-2 pl-2">
       <label class="text-xs">FFT Size:</label>
-      <select
-        v-model.number="fftSize"
-        class="text-xs bg-gray-800 border border-gray-600 rounded px-1 py-0.5"
-      >
-        <option
-          v-for="size in fftSizeOptions"
-          :key="size"
-          :value="size"
-        >
-          {{ size }}
-        </option>
-      </select>
+      <USelect
+        v-model="fftSize"
+        :items="fftSizeOptions.map(s => ({ label: String(s), value: s }))"
+        size="xs"
+        class="text-xs"
+      />
     </div>
   </BaseModuleShell>
 </template>

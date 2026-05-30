@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { NoiseType } from '~/utils'
-
 export type NoiseModuleProps = {
   id: string
   type: string
@@ -57,16 +55,14 @@ onUnmounted(() => {
   >
     <ModulePortRow :output="{ id: 'output', label: 'out', signal: 'audio' }">
       <div class="nodrag flex flex-col gap-2 border border-white/80 rounded-md p-2">
-        <Select
+        <USelect
           v-model="noiseType"
-          class="border h-6 w-full"
-          :pt="{
-            input: tw`p-1 text-xs`,
-          }"
-          :options="noiseTypeOptions"
-          option-label="label"
-          option-value="value"
+          :items="noiseTypeOptions"
+          label-key="label"
+          value-key="value"
           placeholder="Type"
+          class="w-full text-xs"
+          size="sm"
         />
       </div>
     </ModulePortRow>

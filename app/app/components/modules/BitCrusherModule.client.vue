@@ -75,12 +75,12 @@ onUnmounted(() => {
       />
       <div class="nodrag flex gap-1 border border-white/80 rounded-md p-2">
         <div class="flex flex-col items-center">
-          <Knob
+          <KnobInput
             v-model="scaledBits"
             :size="40"
             :min="0"
             :max="maxBitSliderVal"
-            :value-template="() => `${actualBits.toFixed()} bits`"
+            :format-fn="(v) => `${actualBits.toFixed()} bits`"
           />
         </div>
       </div>

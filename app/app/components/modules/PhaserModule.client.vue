@@ -64,13 +64,13 @@ onUnmounted(() => {
       />
       <div class="nodrag flex gap-1 border border-white/80 rounded-md p-2">
         <div class="flex flex-col items-center">
-          <Knob
+          <KnobInput
             v-model="rate"
             :size="60"
             :min="0.1"
             :max="20"
             :step="0.1"
-            :value-template="() => `${rate.toFixed(1)}Hz`"
+            :format-fn="(v) => rate.toFixed(1) + 'Hz'"
           />
           <span class="text-handle">Rate</span>
         </div>

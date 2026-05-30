@@ -27,14 +27,19 @@ onBeforeUnmount(() => window.removeEventListener('click', onClickOutside))
     ref="dropdownRef"
     class="relative"
   >
-    <button
-      class="flex items-center gap-1.5 text-xs text-neutral-300 hover:text-white px-2 py-1 rounded hover:bg-white/5 transition-colors"
+    <UButton
+      icon="ph:package"
+      variant="ghost"
+      color="neutral"
+      size="xs"
       @click.stop="toggle"
     >
-      <i class="pi pi-box" />
       <span class="hidden [@media(min-width:1200px)]:inline">Modules</span>
-      <i class="pi pi-angle-down text-neutral-400 text-[10px]" />
-    </button>
+      <UIcon
+        name="ph:caret-down"
+        class="text-neutral-400 text-[10px]"
+      />
+    </UButton>
     <div
       v-if="open"
       class="absolute left-0 mt-1 bg-neutral-900 border border-neutral-700 rounded shadow-xl w-56 max-h-[32rem] overflow-y-auto z-50"

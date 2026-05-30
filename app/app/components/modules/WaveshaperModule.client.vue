@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { useVueFlow } from '@vue-flow/core'
-
 export type WaveshaperNodeModuleProps = {
   id: string
   type: string
@@ -156,28 +154,26 @@ onUnmounted(() => {
     >
       <div class="flex flex-col gap-4">
         <div class="flex items-center gap-1 border border-white/80 rounded-md p-2 nodrag mt-2">
-          <Knob
+          <KnobInput
             v-model="modifier"
             :size="40"
             :min="0"
             :max="100"
           />
-          <Select
+          <USelect
             v-model="waveshaper"
-            class="border h-6 w-full"
-            :pt="{
-              input: tw`p-1 text-xs`,
-            }"
-            :options="waveshaperOptions"
-            option-label="label"
-            option-value="value"
+            :items="waveshaperOptions"
+            label-key="label"
+            value-key="value"
             placeholder="Waveshaper"
+            class="w-full text-xs"
+            size="sm"
           />
         </div>
       </div>
       <div
         ref="canvasWrap"
-        class="relative flex-1 min-w-[180px] min-h-[120px] max-h-[200px] max-w-[320px] border border-white/30 rounded overflow-hidden"
+        class="relative flex-1 min-w-45 min-h-30 max-h-50 max-w-[320px] border border-white/30 rounded overflow-hidden"
       >
         <canvas
           ref="canvasEl"

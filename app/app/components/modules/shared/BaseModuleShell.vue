@@ -18,7 +18,7 @@ provide(ParentNodeIdKey, props.id)
 
 const moduleEntry = computed(() => getModuleCatalogEntry(props.type))
 const moduleLabel = computed(() => moduleEntry.value?.label ?? props.type)
-const moduleIcon = computed(() => moduleEntry.value?.icon ?? 'pi pi-box')
+const moduleIcon = computed(() => moduleEntry.value?.icon ?? 'ph:package')
 
 const isEditing = ref(false)
 const isSelected = computed(() => {
@@ -73,9 +73,9 @@ function onEditingDone() {
     </NodeToolbar>
 
     <header class="mb-1.5 flex items-center gap-1.5 min-w-0">
-      <i
+      <UIcon
+        :name="moduleIcon"
         class="text-xs opacity-80 shrink-0"
-        :class="moduleIcon"
       />
       <span class="shrink-0 text-[11px] uppercase tracking-wide text-white/50 bg-white/5 px-1.5 py-0.5 rounded">{{ moduleLabel }}</span>
       <span class="shrink-0 text-white/30">/</span>

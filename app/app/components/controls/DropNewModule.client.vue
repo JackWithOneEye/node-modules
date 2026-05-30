@@ -9,7 +9,7 @@ const { onDragStart } = useDnDModule()
     :draggable="true"
     @dragstart="onDragStart($event, props.type)"
   >
-    <i :class="props.icon" />
+    <UIcon :name="props.icon" />
     <span>{{ props.label }}</span>
   </div>
 </template>

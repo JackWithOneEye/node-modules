@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { useVueFlow } from '@vue-flow/core'
-
 export type KaossPadModuleProps = {
   id: string
   type: string

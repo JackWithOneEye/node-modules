@@ -103,56 +103,56 @@ onUnmounted(() => {
       <div class="nodrag flex gap-1 border border-white/80 rounded-md p-3">
         <div class="flex flex-col gap-1">
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="threshold"
               :size="40"
               :min="-100"
               :max="0"
-              :value-template="(value) => `${value}dB`"
+              :format-fn="(v) => v + 'dB'"
             />
             <span class="text-xs">Threshold</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="knee"
               :size="40"
               :min="0"
               :max="40"
-              :value-template="(value) => `${value}dB`"
+              :format-fn="(v) => v + 'dB'"
             />
             <span class="text-xs">Knee</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="ratio"
               :size="40"
               :min="1"
               :max="20"
-              :value-template="(value) => `${value}:1`"
+              :format-fn="(v) => v + ':1'"
             />
             <span class="text-xs">Ratio</span>
           </div>
         </div>
         <div class="flex flex-col gap-1">
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="attack"
               :size="40"
               :min="0"
               :max="1"
               :step="0.001"
-              :value-template="(value) => `${(value * 1000).toFixed(1)}ms`"
+              :format-fn="(v) => (v * 1000).toFixed(1) + 'ms'"
             />
             <span class="text-xs">Attack</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="release"
               :size="40"
               :min="0"
               :max="1"
               :step="0.01"
-              :value-template="(value) => `${(value * 1000).toFixed(0)}ms`"
+              :format-fn="(v) => (v * 1000).toFixed(0) + 'ms'"
             />
             <span class="text-xs">Release</span>
           </div>

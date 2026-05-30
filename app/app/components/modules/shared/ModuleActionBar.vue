@@ -9,39 +9,39 @@ const emit = defineEmits<{
 
 <template>
   <div class="nodrag flex items-center gap-0.5">
-    <Button
+    <UButton
       v-tooltip.top="'Rename'"
-      icon="pi pi-pencil"
-      severity="secondary"
-      variant="text"
-      size="small"
+      icon="ph:pencil"
+      color="neutral"
+      variant="ghost"
+      size="sm"
       @mousedown.stop
       @click.stop="emit('rename')"
     />
-    <Button
+    <UButton
       v-tooltip.top="'Duplicate'"
-      icon="pi pi-copy"
-      severity="secondary"
-      variant="text"
-      size="small"
+      icon="ph:copy"
+      color="neutral"
+      variant="ghost"
+      size="sm"
       @mousedown.stop
       @click.stop="emit('duplicate')"
     />
-    <Button
+    <UButton
       v-tooltip.top="'Delete'"
-      icon="pi pi-trash"
-      severity="secondary"
-      variant="text"
-      size="small"
+      icon="ph:trash"
+      color="neutral"
+      variant="ghost"
+      size="sm"
       @mousedown.stop
       @click.stop="emit('delete')"
     />
-    <Button
+    <UButton
       v-tooltip.top="'Disconnect all'"
-      icon="pi pi-minus-circle"
-      severity="secondary"
-      variant="text"
-      size="small"
+      icon="ph:minus-circle"
+      color="neutral"
+      variant="ghost"
+      size="sm"
       @mousedown.stop
       @click.stop="emit('disconnectAll')"
     />

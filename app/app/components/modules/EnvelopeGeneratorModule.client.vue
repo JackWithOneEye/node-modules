@@ -145,9 +145,9 @@ onUnmounted(() => {
 
         <div class="flex gap-1 items-center">
           <label class="text-xs">VEL EN</label>
-          <ToggleSwitch
+          <USwitch
             v-model="applyVelocity"
-            :binary="true"
+            size="sm"
           />
         </div>
       </div>

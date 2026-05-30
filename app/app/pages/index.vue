@@ -50,16 +50,17 @@ function formatRelativeTime(iso: string): string {
 
       <!-- CTAs -->
       <div class="flex gap-3 justify-center">
-        <Button
+        <UButton
           label="New Patch"
-          icon="pi pi-plus"
+          icon="ph:plus"
           class="bg-emerald-600 border-emerald-600 hover:bg-emerald-500 hover:border-emerald-500"
           @click="store.newPatch()"
         />
-        <Button
+        <UButton
           label="Open Patch"
-          icon="pi pi-folder-open"
-          outlined
+          icon="ph:folder-open"
+          variant="outline"
+          color="neutral"
           @click="showOpenDialog = true"
         />
       </div>
@@ -73,13 +74,15 @@ function formatRelativeTime(iso: string): string {
           Recent patches
         </h2>
         <div class="space-y-1">
-          <button
+          <UButton
             v-for="p in sortedPatches.slice(0, 5)"
             :key="p.id"
-            class="block w-full text-left px-3 py-2.5 rounded hover:bg-white/5 transition-colors group"
+            variant="ghost"
+            color="neutral"
+            class="w-full justify-start px-3 py-2.5 h-auto"
             @click="navigateTo(`/patches/${p.id}`)"
           >
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between w-full">
               <span class="text-sm text-neutral-300 group-hover:text-white truncate mr-3">
                 {{ p.name }}
               </span>
@@ -87,7 +90,7 @@ function formatRelativeTime(iso: string): string {
                 {{ formatRelativeTime(p.updatedAt) }}
               </span>
             </div>
-          </button>
+          </UButton>
         </div>
       </div>
 

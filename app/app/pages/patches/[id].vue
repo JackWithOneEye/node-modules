@@ -25,7 +25,10 @@ definePageMeta({
     v-if="pending"
     class="flex-1 flex items-center justify-center bg-black text-white"
   >
-    <i class="pi pi-spin pi-spinner text-2xl" />
+    <UIcon
+      name="ph:spinner"
+      class="animate-spin text-2xl"
+    />
   </div>
   <div
     v-else-if="error"

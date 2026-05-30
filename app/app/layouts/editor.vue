@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const store = useDataStore()
 const toast = useToast()
-const confirm = useConfirm()
+const { confirm: showConfirm } = useConfirmModal()
 const route = useRoute()
 
 watch(() => route.path, (path) => {
@@ -31,10 +31,10 @@ const statusLabel = computed(() => {
 async function saveData() {
   await store.save()
   if (store.saveState === 'saved') {
-    toast.add({ severity: 'success', summary: 'Saved', detail: `Saved "${store.currentPatchName}"`, life: 3000 })
+    toast.add({ color: 'success', title: 'Saved', description: `Saved "${store.currentPatchName}"`, duration: 3000 })
   }
   else if (store.saveState === 'error') {
-    toast.add({ severity: 'error', summary: 'Save failed', detail: `Could not save "${store.currentPatchName}"`, life: 5000 })
+    toast.add({ color: 'error', title: 'Save failed', description: `Could not save "${store.currentPatchName}"`, duration: 5000 })
   }
 }
 
@@ -46,10 +46,10 @@ async function onImportFile(event: Event) {
   }
   try {
     await store.importPatch(file)
-    toast.add({ severity: 'success', summary: 'Imported', detail: `Imported "${file.name}"`, life: 3000 })
+    toast.add({ color: 'success', title: 'Imported', description: `Imported "${file.name}"`, duration: 3000 })
   }
   catch (e) {
-    toast.add({ severity: 'error', summary: 'Import failed', detail: e instanceof Error ? e.message : 'Unknown error', life: 5000 })
+    toast.add({ color: 'error', title: 'Import failed', description: e instanceof Error ? e.message : 'Unknown error', duration: 5000 })
   }
   input.value = ''
 }
@@ -66,16 +66,14 @@ function isTypingTarget(target: EventTarget | null): boolean {
 }
 
 function confirmDeleteCurrentPatch() {
-  confirm.require({
+  showConfirm({
+    title: 'Delete Patch',
     message: `Are you sure you want to delete "${store.currentPatchName}"? This cannot be undone.`,
-    header: 'Delete Patch',
-    icon: 'pi pi-exclamation-triangle',
-    acceptLabel: 'Delete',
-    rejectLabel: 'Cancel',
-    acceptClass: 'p-button-danger',
-    accept: async () => {
+    confirmLabel: 'Delete',
+    confirmVariant: 'error',
+    onConfirm: async () => {
       await store.deletePatch(store.currentPatchId!)
-      toast.add({ severity: 'success', summary: 'Deleted', detail: 'Patch deleted', life: 3000 })
+      toast.add({ color: 'success', title: 'Deleted', description: 'Patch deleted', duration: 3000 })
     },
   })
 }
@@ -133,18 +131,21 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
       <!-- Left zone -->
       <div class="flex items-center gap-2 flex-1 min-w-0">
         <ModuleDropdown />
-        <button
-          class="flex items-center gap-1.5 text-xs text-neutral-300 hover:text-white px-2 py-1 rounded hover:bg-white/5 transition-colors"
+        <UButton
+          icon="ph:plus"
+          variant="ghost"
+          color="neutral"
+          size="xs"
           @click="openQuickAdd()"
         >
-          <i class="pi pi-plus" />
           <span class="hidden [@media(min-width:1200px)]:inline">Add</span>
-        </button>
+        </UButton>
         <div class="h-4 w-px bg-neutral-800" />
-        <InputText
+        <UInput
           v-if="store.currentPatchId"
           v-model="store.currentPatchName"
-          class="w-36 lg:w-48 text-xs py-1 px-2 bg-neutral-900 border border-neutral-700 text-neutral-200 placeholder-neutral-500 h-7 rounded"
+          variant="none"
+          :ui="{ base: 'w-36 lg:w-48 text-xs py-1 px-2 bg-neutral-900 border border-neutral-700 text-neutral-200 placeholder-neutral-500 h-7 rounded' }"
           @keydown.enter="($event.target as HTMLInputElement).blur()"
         />
         <span
@@ -161,13 +162,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
       <!-- Right zone -->
       <div class="flex items-center gap-1">
         <ToolbarButton
-          icon="pi pi-undo"
+          icon="ph:arrow-u-up-left"
           label="Undo"
           :disabled="!canUndo"
           @click="undo"
         />
         <ToolbarButton
-          icon="pi pi-refresh"
+          icon="ph:arrow-clockwise"
           label="Redo"
           :disabled="!canRedo"
           @click="redo"
@@ -177,12 +178,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
         <!-- Desktop file buttons -->
         <div class="hidden md:flex items-center gap-1">
           <ToolbarButton
-            icon="pi pi-file"
+            icon="ph:file"
             label="New"
             @click="store.newPatch()"
           />
           <ToolbarButton
-            icon="pi pi-folder-open"
+            icon="ph:folder-open"
             label="Open"
             @click="showOpenDialog = true"
           />
@@ -215,13 +216,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
         <div class="h-4 w-px bg-neutral-800 mx-1" />
         <PlayButton />
         <div class="h-4 w-px bg-neutral-800 mx-1" />
-        <button
-          class="w-7 h-7 rounded-full border border-neutral-600 text-neutral-400 hover:text-white hover:border-neutral-400 flex items-center justify-center text-xs transition-colors"
+        <UButton
+          icon="ph:question"
+          variant="outline"
+          color="neutral"
+          size="xs"
+          class="rounded-full w-7 h-7 p-0"
           title="Keyboard shortcuts (?)"
           @click="infoModalRef?.open()"
-        >
-          <i class="pi pi-question" />
-        </button>
+        />
       </div>
     </header>
 

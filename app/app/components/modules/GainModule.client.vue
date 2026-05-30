@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import KnobInput from '~/components/ui/KnobInput.vue'
+
 export type GainModuleProps = {
   id: string
   type: string
@@ -78,33 +80,33 @@ onUnmounted(() => {
       />
       <div class="nodrag flex gap-1 border border-white/80 rounded-md p-2">
         <div class="flex flex-col gap-2">
-          <Button
-            class="w-5 text-xs"
-            icon="pi pi-plus"
-            icon-class="!text-xs"
+          <UButton
+            class="w-5"
+            icon="ph:plus"
+            size="xs"
             :disabled="gain >= maxGain"
             @click="gain++"
           />
-          <Button
-            class="w-5 text-xs"
-            icon="pi pi-minus"
-            icon-class="!text-xs"
+          <UButton
+            class="w-5"
+            icon="ph:minus"
+            size="xs"
             :disabled="gain <= minGain"
             @click="gain--"
           />
         </div>
         <div class="flex flex-col items-center">
-          <Knob
+          <KnobInput
             v-model="gain"
             :disabled="!gainEnabled"
             :size="40"
             :min="minGain"
             :max="maxGain"
-            :value-template="(value) => `${value}dB`"
+            :format-fn="(v) => v + 'dB'"
           />
-          <ToggleSwitch
+          <USwitch
             v-model="gainEnabled"
-            :binary="true"
+            size="sm"
           />
         </div>
       </div>

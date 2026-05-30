@@ -17,6 +17,8 @@ interface PatchApiResponse {
   updatedAt: string
 }
 
+export type ImportData = { nodes: Node[], edges: Edge[], viewport?: ViewportTransform }
+
 export const useDataStore = defineStore('data', () => {
   const flow = useVueFlow()
   const nodes = flow.nodes // as Ref<Node[]>
@@ -29,7 +31,7 @@ export const useDataStore = defineStore('data', () => {
   const dirty = ref(false)
   const saveState = ref<'saved' | 'dirty' | 'saving' | 'error'>('saved')
   const lastSavedHash = ref<string | null>(null)
-  const pendingImportData = ref<{ nodes: Node[], edges: Edge[], viewport?: ViewportTransform } | null>(null)
+  const pendingImportData = ref<ImportData | null>(null)
 
   function computeHash(): string {
     const obj = toObject()

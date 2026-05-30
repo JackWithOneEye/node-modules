@@ -70,18 +70,18 @@ onUnmounted(() => {
       <div class="nodrag flex flex-col gap-2 border border-white/80 rounded-md p-2">
         <div class="flex gap-1">
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="frequency"
               :size="60"
               :min="0.0"
               :max="4186.009"
               :step="0.1"
-              :value-template="() => `${frequency.toFixed(1)}Hz`"
+              :format-fn="(v) => v.toFixed(1) + 'Hz'"
             />
             <span class="text-handle">Frequency</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="pitchShift"
               :size="60"
               :min="-24"

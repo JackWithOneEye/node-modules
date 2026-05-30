@@ -12,15 +12,20 @@ const emit = defineEmits<{
 
 const editing = ref(false)
 const draft = ref('')
-const inputRef = ref<HTMLInputElement | null>(null)
+interface InputComponentInstance {
+  inputRef?: HTMLInputElement
+}
+
+const inputRef = ref<InputComponentInstance | null>(null)
 
 async function enterEdit() {
   draft.value = props.modelValue
   editing.value = true
   await nextTick()
-  if (inputRef.value) {
-    inputRef.value.focus()
-    inputRef.value.select()
+  const el = inputRef.value?.inputRef as HTMLInputElement | undefined
+  if (el) {
+    el.focus()
+    el.select()
   }
 }
 
@@ -72,15 +77,16 @@ watch(() => props.active, (val) => {
     >
       {{ modelValue }}
     </span>
-    <input
+    <UInput
       v-else
       ref="inputRef"
       v-model="draft"
-      class="!h-6 !text-xs !py-0 !px-1 !w-full nodrag rounded border border-white/30 bg-black/60 text-white outline-none focus:border-white/60"
+      variant="none"
+      :ui="{ base: 'h-6 text-xs py-0 px-1 w-full nodrag rounded border border-white/30 bg-black/60 text-white outline-none focus:border-white/60' }"
       @keydown="onKeydown"
       @blur="commit"
       @mousedown.stop
       @click.stop
-    >
+    />
   </div>
 </template>

@@ -104,17 +104,17 @@ export const moduleOptions = [
       items: [
         {
           type: AudioModuleType.AudioSource,
-          icon: 'pi pi-microphone',
+          icon: 'ph:microphone',
           label: 'Audio Source',
         },
         {
           type: AudioModuleType.Destination,
-          icon: 'pi pi-headphones',
+          icon: 'ph:headphones',
           label: 'Destination',
         },
         {
           type: AudioModuleType.MidiInput,
-          icon: 'pi pi-key',
+          icon: 'ph:keyboard',
           label: 'MIDI Input',
         },
       ],
@@ -124,22 +124,22 @@ export const moduleOptions = [
       items: [
         {
           type: AudioModuleType.FMOscillator,
-          icon: 'pi pi-sort-alt',
+          icon: 'ph:arrows-left-right',
           label: 'FM Oscillator',
         },
         {
           type: AudioModuleType.LFO,
-          icon: 'pi pi-clock',
+          icon: 'ph:clock',
           label: 'LFO',
         },
         {
           type: AudioModuleType.Noise,
-          icon: 'pi pi-bolt',
+          icon: 'ph:lightning',
           label: 'Noise',
         },
         {
           type: AudioModuleType.Oscillator,
-          icon: 'pi pi-wave-pulse',
+          icon: 'ph:wave-sine',
           label: 'Oscillator',
         },
       ],
@@ -151,12 +151,12 @@ export const moduleOptions = [
       items: [
         {
           type: AudioModuleType.FMVoice,
-          icon: 'pi pi-th-large',
+          icon: 'ph:squares-four',
           label: 'FM Voice',
         },
         {
           type: AudioModuleType.Gain,
-          icon: 'pi pi-gauge',
+          icon: 'ph:gauge',
           label: 'Gain',
         },
       ],
@@ -166,42 +166,42 @@ export const moduleOptions = [
       items: [
         {
           type: AudioModuleType.BitCrusher,
-          icon: 'pi pi-eraser',
+          icon: 'ph:eraser',
           label: 'Bit Crusher',
         },
         {
           type: AudioModuleType.Decimator,
-          icon: 'pi pi-filter-slash',
+          icon: 'ph:funnel-x',
           label: 'Decimator',
         },
         {
           type: AudioModuleType.DelayLine,
-          icon: 'pi pi-history',
+          icon: 'ph:clock-counter-clockwise',
           label: 'Delay Line',
         },
         {
           type: AudioModuleType.DynamicsCompressor,
-          icon: 'pi pi-compress',
+          icon: 'ph:arrows-in-line-vertical',
           label: 'Dynamics Compressor',
         },
         {
           type: AudioModuleType.Graindr,
-          icon: 'pi pi-box',
+          icon: 'ph:package',
           label: 'Graindr',
         },
         {
           type: AudioModuleType.MultiFilter,
-          icon: 'pi pi-filter',
+          icon: 'ph:funnel',
           label: 'Multi Filter',
         },
         {
           type: AudioModuleType.Phaser,
-          icon: 'pi pi-sync',
+          icon: 'ph:arrows-clockwise',
           label: 'Phaser',
         },
         {
           type: AudioModuleType.Waveshaper,
-          icon: 'pi pi-hammer',
+          icon: 'ph:hammer',
           label: 'Waveshaper',
         },
       ],
@@ -213,42 +213,42 @@ export const moduleOptions = [
       items: [
         {
           type: AudioModuleType.ADSR,
-          icon: 'pi pi-sliders-h',
+          icon: 'ph:sliders-horizontal',
           label: 'ADSR',
         },
         {
           type: AudioModuleType.EnvelopeGenerator,
-          icon: 'pi pi-sliders-h',
+          icon: 'ph:sliders-horizontal',
           label: 'Envelope Generator',
         },
         {
           type: AudioModuleType.EnvelopeTracker,
-          icon: 'pi pi-chart-line',
+          icon: 'ph:chart-line-up',
           label: 'Envelope Tracker',
         },
         {
           type: AudioModuleType.KaossPad,
-          icon: 'pi pi-arrows-alt',
+          icon: 'ph:arrows-out-cardinal',
           label: 'Kaoss Pad',
         },
         {
           type: AudioModuleType.Multiplier,
-          icon: 'pi pi-times',
+          icon: 'ph:x',
           label: 'Multiplier',
         },
         {
           type: AudioModuleType.PitchTracker,
-          icon: 'pi pi-search',
+          icon: 'ph:magnifying-glass',
           label: 'Pitch Tracker',
         },
         {
           type: AudioModuleType.Sequencer,
-          icon: 'pi pi-forward',
+          icon: 'ph:skip-forward',
           label: 'Sequencer',
         },
         {
           type: AudioModuleType.Value,
-          icon: 'pi pi-calculator',
+          icon: 'ph:calculator',
           label: 'Value',
         },
       ],
@@ -258,12 +258,12 @@ export const moduleOptions = [
       items: [
         {
           type: AudioModuleType.Oscilloscope,
-          icon: 'pi pi-desktop',
+          icon: 'ph:desktop',
           label: 'Oscilloscope',
         },
         {
           type: AudioModuleType.SpectrumAnalyzer,
-          icon: 'pi pi-chart-bar',
+          icon: 'ph:chart-bar',
           label: 'Spectrum Analyzer',
         },
       ],

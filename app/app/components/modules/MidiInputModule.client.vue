@@ -300,37 +300,41 @@ onUnmounted(() => {
   >
     <div class="flex gap-2">
       <div class="nodrag flex flex-col gap-2">
-        <Select
+        <USelect
           v-model="selectedMidiInput"
-          class="border h-8 text-xs w-full"
-          :options="midiStore.midiInputs"
-          option-label="name"
-          option-value="id"
+          :items="midiStore.midiInputs"
+          label-key="name"
+          value-key="id"
           placeholder="Input Device"
+          class="w-full text-xs"
+          size="sm"
         />
-        <Select
+        <USelect
           v-model="selectedPriority"
-          class="border h-8 text-xs w-full"
-          :options="priorities"
-          option-label="label"
-          option-value="value"
+          :items="priorities"
+          label-key="label"
+          value-key="value"
           placeholder="Priority"
+          class="w-full text-xs"
+          size="sm"
         />
-        <Select
+        <USelect
           v-model="selectedOutputCount"
-          class="border h-8 text-xs w-full"
-          :options="outputOptions"
-          option-label="label"
-          option-value="value"
+          :items="outputOptions"
+          label-key="label"
+          value-key="value"
           placeholder="Outputs"
+          class="w-full text-xs"
+          size="sm"
         />
-        <Select
+        <USelect
           v-model="selectedPitchBendRange"
-          class="border h-8 text-xs w-full"
-          :options="pitchBendRangeOptions"
-          option-label="label"
-          option-value="value"
+          :items="pitchBendRangeOptions"
+          label-key="label"
+          value-key="value"
           placeholder="Pitch Bend Range"
+          class="w-full text-xs"
+          size="sm"
         />
       </div>
       <ModulePortRail

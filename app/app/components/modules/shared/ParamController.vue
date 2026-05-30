@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import KnobInput from '~/components/ui/KnobInput.vue'
+
 export type ParamControllerProps = {
   name: string
   defaultValue: number
@@ -17,18 +19,18 @@ const props = withDefaults(defineProps<ParamControllerProps>(), {
 })
 const emit = defineEmits<{ (e: 'onChange', value: number): void }>()
 
-const [param] = useAudioParam(props.name, props.defaultValue, value => emit('onChange', value), linearConverter(props.scalingFactor))
+const [paramRef] = useAudioParam(props.name, props.defaultValue, value => emit('onChange', value), linearConverter(props.scalingFactor))
 </script>
 
 <template>
   <div class="flex flex-col items-center">
-    <Knob
-      v-model="param"
+    <KnobInput
+      v-model="paramRef"
       :size="60"
       :min="min"
       :max="max"
       :step="step"
-      :value-template="() => `${param.toFixed()}${unit}`"
+      :format-fn="(v) => v.toFixed() + unit"
     />
     <span class="text-handle">{{ label }}</span>
   </div>

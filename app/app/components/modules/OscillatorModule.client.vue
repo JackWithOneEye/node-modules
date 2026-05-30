@@ -122,35 +122,36 @@ onUnmounted(() => {
       <div class="nodrag flex flex-col gap-3 border border-slate-500 rounded-md p-2">
         <div class="flex gap-1">
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="frequencyScaled"
               :disabled="!frequencyEnabled"
               :size="60"
               :min="0"
               :max="freqControlRange"
-              :value-template="() => `${frequencyHz.toFixed()}Hz`"
+              :format-fn="(v) => frequencyHz.toFixed() + 'Hz'"
             />
             <span class="text-handle">Frequency</span>
-            <ToggleSwitch
+            <USwitch
               v-model="frequencyEnabled"
-              :binary="true"
+              size="sm"
             />
           </div>
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="detune"
               :size="60"
               :min="0"
               :max="100"
-              :value-template="(value) => `${value}ct`"
+              :format-fn="(v) => v + 'ct'"
             />
             <span class="text-handle">Detune</span>
           </div>
         </div>
-        <Select
+        <USelect
           v-model="waveform"
-          class="border h-8 text-xs w-full"
-          :options="waveforms"
+          :items="waveforms"
+          class="w-full text-xs"
+          size="sm"
         />
       </div>
       <ModulePortRail

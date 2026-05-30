@@ -47,28 +47,28 @@ onUnmounted(() => {
     <ModulePortRow :input="{ id: 'input', label: 'in', signal: 'audio' }">
       <div class="nodrag flex gap-1 border border-slate-500 rounded-md p-2">
         <div class="flex flex-col gap-2">
-          <Button
-            class="w-5 text-xs"
-            icon="pi pi-plus"
-            icon-class="!text-xs"
+          <UButton
+            class="w-5"
+            icon="ph:plus"
+            size="xs"
             :disabled="gain >= maxGain"
             @click="gain++"
           />
-          <Button
-            class="w-5 text-xs"
-            icon="pi pi-minus"
-            icon-class="!text-xs"
+          <UButton
+            class="w-5"
+            icon="ph:minus"
+            size="xs"
             :disabled="gain <= minGain"
             @click="gain--"
           />
         </div>
         <div class="flex flex-col items-center">
-          <Knob
+          <KnobInput
             v-model="gain"
             :size="40"
             :min="minGain"
             :max="maxGain"
-            :value-template="(value) => `${value}dB`"
+            unit="dB"
           />
           <span class="text-xs">Gain</span>
         </div>

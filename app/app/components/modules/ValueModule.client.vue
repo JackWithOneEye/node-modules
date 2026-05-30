@@ -51,16 +51,14 @@ onUnmounted(() => {
   >
     <ModulePortRow :output="{ id: 'output', label: 'out', signal: 'cv' }">
       <div class="nodrag">
-        <InputNumber
+        <UInput
           v-model="offset"
-          :pt="{
-            root: tw`[&>input]:w-24 [&>input]:border [&>input]:border-white/50 [&>input]:focus:border-white [&>input]:text-sm [&>input]:p-2 [&>input]:outline-none`,
-          }"
-          mode="decimal"
-          show-buttons
+          type="number"
           :min="0"
           :max="10000"
           :step="0.1"
+          variant="none"
+          :ui="{ base: 'w-24 border border-white/50 focus:border-white text-sm p-2 outline-none bg-transparent text-white rounded' }"
         />
       </div>
     </ModulePortRow>

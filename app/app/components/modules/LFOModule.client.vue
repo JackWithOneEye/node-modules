@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { LFOPolarity, LFOWaveform } from '~/utils'
-
 export type LFOModuleProps = {
   id: string
   type: string
@@ -88,50 +86,46 @@ onUnmounted(() => {
       <div class="nodrag flex flex-col gap-2 border border-white/80 rounded-md p-2">
         <div class="flex items-center gap-2">
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="frequency"
               :size="60"
               :min="0.1"
               :max="20"
               :step="0.1"
-              :value-template="() => `${frequency.toFixed(1)}Hz`"
+              :format-fn="(v) => v.toFixed(1) + 'Hz'"
             />
             <span class="text-handle">Frequency</span>
           </div>
           <div class="flex flex-col items-center">
-            <Knob
+            <KnobInput
               v-model="phase"
               :size="60"
               :min="0"
               :max="1"
               :step="1 / 180"
-              :value-template="(value) => `${(value * 180).toFixed()}°`"
+              :format-fn="(v) => (v * 180).toFixed() + '°'"
             />
             <span class="text-handle">Phase</span>
           </div>
         </div>
         <div class="flex gap-2">
-          <Select
+          <USelect
             v-model="polarity"
-            class="border h-6 w-full"
-            :pt="{
-              input: tw`p-1 text-xs`,
-            }"
-            :options="polarityOptions"
-            option-label="label"
-            option-value="value"
+            :items="polarityOptions"
+            label-key="label"
+            value-key="value"
             placeholder="Polarity"
+            class="w-full text-xs"
+            size="sm"
           />
-          <Select
+          <USelect
             v-model="waveform"
-            class="border h-6 w-full"
-            :pt="{
-              input: tw`p-1 text-xs`,
-            }"
-            :options="waveformOptions"
-            option-label="label"
-            option-value="value"
+            :items="waveformOptions"
+            label-key="label"
+            value-key="value"
             placeholder="Waveform"
+            class="w-full text-xs"
+            size="sm"
           />
         </div>
       </div>
