@@ -9,6 +9,7 @@ watch(() => route.path, (path) => {
     store.resetForNewPatch()
   }
 }, { immediate: true })
+const themeStore = useThemeStore()
 const { canUndo, canRedo, undo, redo } = useEditorHistory()
 const { copy, paste, duplicate, deleteSelection } = useEditorClipboard()
 const { open: openQuickAdd } = useQuickAdd()
@@ -121,13 +122,16 @@ function onShortcut(e: KeyboardEvent) {
   }
 }
 
-onMounted(() => window.addEventListener('keydown', onShortcut))
+onMounted(() => {
+  themeStore.init()
+  window.addEventListener('keydown', onShortcut)
+})
 onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
 </script>
 
 <template>
   <div class="flex flex-col min-h-screen">
-    <header class="h-10 z-10 bg-neutral-950 border-b border-neutral-800 flex items-center px-3 gap-2 shrink-0">
+    <header class="h-12 z-10 bg-neutral-950 border-b-2 border-neutral-700 flex items-center px-3 gap-2 shrink-0">
       <!-- Left zone -->
       <div class="flex items-center gap-2 flex-1 min-w-0">
         <ModuleDropdown />
@@ -135,22 +139,22 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
           icon="ph:plus"
           variant="ghost"
           color="neutral"
-          size="xs"
+          size="md"
           @click="openQuickAdd()"
         >
           <span class="hidden [@media(min-width:1200px)]:inline">Add</span>
         </UButton>
-        <div class="h-4 w-px bg-neutral-800" />
+        <div class="h-5 w-px bg-neutral-800" />
         <UInput
           v-if="store.currentPatchId"
           v-model="store.currentPatchName"
           variant="none"
-          :ui="{ base: 'w-36 lg:w-48 text-xs py-1 px-2 bg-neutral-900 border border-neutral-700 text-neutral-200 placeholder-neutral-500 h-7 rounded' }"
+          :ui="{ base: 'w-36 lg:w-48 text-sm py-1 px-2 bg-neutral-900 border border-neutral-700 text-neutral-200 placeholder-neutral-500 h-8 rounded' }"
           @keydown.enter="($event.target as HTMLInputElement).blur()"
         />
         <span
           v-if="store.currentPatchId"
-          class="text-[11px] leading-none rounded-sm px-1.5 py-0.5"
+          class="text-xs leading-none rounded-sm px-1.5 py-0.5"
           :class="{
             'bg-neutral-800 text-neutral-500': store.saveState === 'saved' || store.saveState === 'saving',
             'bg-amber-900/40 text-amber-400': store.saveState === 'dirty',
@@ -162,18 +166,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
       <!-- Right zone -->
       <div class="flex items-center gap-1">
         <ToolbarButton
-          icon="ph:arrow-u-up-left"
+          icon="ph:arrow-bend-up-left"
           label="Undo"
           :disabled="!canUndo"
           @click="undo"
         />
         <ToolbarButton
-          icon="ph:arrow-clockwise"
+          icon="ph:arrow-bend-up-right"
           label="Redo"
           :disabled="!canRedo"
           @click="redo"
         />
-        <div class="h-4 w-px bg-neutral-800 mx-1" />
+        <div class="h-5 w-px bg-neutral-800 mx-1" />
 
         <!-- Desktop file buttons -->
         <div class="hidden md:flex items-center gap-1">
@@ -213,15 +217,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
           @delete-patch="confirmDeleteCurrentPatch"
         />
 
-        <div class="h-4 w-px bg-neutral-800 mx-1" />
+        <div class="h-5 w-px bg-neutral-800 mx-1" />
         <PlayButton />
-        <div class="h-4 w-px bg-neutral-800 mx-1" />
+        <div class="h-5 w-px bg-neutral-800 mx-1" />
+        <ThemeSwitcher />
         <UButton
           icon="ph:question"
           variant="outline"
           color="neutral"
-          size="xs"
-          class="rounded-full w-7 h-7 p-0"
+          size="md"
+          class="rounded-full w-9 h-9 p-0 justify-center"
           title="Keyboard shortcuts (?)"
           @click="infoModalRef?.open()"
         />

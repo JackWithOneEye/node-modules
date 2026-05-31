@@ -14,13 +14,14 @@ const items = ref<DropdownMenuItem[][]>([
 </script>
 
 <template>
-  <div class="flex items-center rounded hover:bg-white/5">
+  <div class="flex items-center">
     <UButton
       label="Save"
       icon="ph:floppy-disk"
       color="neutral"
       variant="ghost"
-      class="text-xs text-neutral-300 hover:text-white pl-2 pr-1 py-1 rounded-l hover:bg-white/5 bg-transparent border-0"
+      size="md"
+      class="rounded-r-none"
       @click="emit('save')"
     />
     <UDropdownMenu
@@ -29,11 +30,16 @@ const items = ref<DropdownMenuItem[][]>([
       :ui="{ content: 'w-48' }"
     >
       <UButton
-        icon="ph:caret-down"
         color="neutral"
         variant="ghost"
-        class="text-xs text-neutral-400 hover:text-white pr-1 pl-1 py-1 rounded-r hover:bg-white/5 bg-transparent border-0 border-l border-neutral-700/50"
-      />
+        size="md"
+        class="rounded-l-none px-1.5 justify-center"
+      >
+        <UIcon
+          name="ph:caret-down"
+          class="text-neutral-400 size-3.5"
+        />
+      </UButton>
     </UDropdownMenu>
   </div>
 </template>

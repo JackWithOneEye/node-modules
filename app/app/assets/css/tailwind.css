@@ -6,6 +6,51 @@
 @import '@vue-flow/controls/dist/style.css';
 @import '@vue-flow/minimap/dist/style.css';
 
+:root {
+  --ui-bg: var(--color-black);
+  --ui-bg-muted: var(--color-neutral-950);
+  --ui-bg-elevated: var(--color-neutral-900);
+  --ui-bg-accented: var(--color-neutral-800);
+  --ui-bg-inverted: var(--color-white);
+
+  --ui-text: var(--color-white);
+  --ui-text-muted: var(--color-neutral-200);
+  --ui-text-dimmed: var(--color-neutral-400);
+  --ui-text-highlighted: var(--color-white);
+
+  --ui-border: var(--color-neutral-700);
+  --ui-border-muted: var(--color-neutral-800);
+  --ui-border-accented: var(--color-neutral-600);
+  --ui-border-inverted: var(--color-white);
+
+  --ui-color-neutral-50: oklch(98.5% 0 0);
+  --ui-color-neutral-100: oklch(96.7% 0 0);
+  --ui-color-neutral-200: oklch(92.8% 0 0);
+  --ui-color-neutral-300: oklch(87.2% 0 0);
+  --ui-color-neutral-400: oklch(70.9% 0 0);
+  --ui-color-neutral-500: oklch(55.6% 0 0);
+  --ui-color-neutral-600: oklch(45.1% 0 0);
+  --ui-color-neutral-700: oklch(37.3% 0 0);
+  --ui-color-neutral-800: oklch(27.8% 0 0);
+  --ui-color-neutral-900: oklch(21.0% 0 0);
+  --ui-color-neutral-950: oklch(13.0% 0 0);
+
+  --ui-color-primary-50: oklch(100% 0 0);
+  --ui-color-primary-100: oklch(100% 0 0);
+  --ui-color-primary-200: oklch(100% 0 0);
+  --ui-color-primary-300: oklch(100% 0 0);
+  --ui-color-primary-400: oklch(100% 0 0);
+  --ui-color-primary-500: oklch(100% 0 0);
+  --ui-color-primary-600: oklch(90% 0 0);
+  --ui-color-primary-700: oklch(80% 0 0);
+  --ui-color-primary-800: oklch(70% 0 0);
+  --ui-color-primary-900: oklch(60% 0 0);
+  --ui-color-primary-950: oklch(50% 0 0);
+
+  --theme-accent: #ffffff;
+  --theme-accent-track: #3f3f46;
+}
+
 .nodrag {
   @apply cursor-auto
 }

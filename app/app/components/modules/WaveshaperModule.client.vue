@@ -15,6 +15,7 @@ const props = withDefaults(defineProps<WaveshaperNodeModuleProps>(), {
 const { getAudioContext, registerModule, unregisterModule } = useAudioContextStore()
 
 const waveshaperTables = useWaveshapersStore()
+const themeStore = useThemeStore()
 
 const { onViewportChange, getViewport } = useVueFlow()
 
@@ -106,7 +107,7 @@ function drawCurve() {
       c.lineTo(x, y)
     }
   }
-  c.strokeStyle = '#fff'
+  c.strokeStyle = themeStore.accent
   c.lineWidth = 2
   c.stroke()
 }
@@ -121,6 +122,11 @@ watch(canvasEl, () => {
 }, { once: true })
 
 watch([waveshaper, modifier], () => {
+  cancelAnimationFrame(raf)
+  raf = requestAnimationFrame(drawCurve)
+})
+
+watch(() => themeStore.accent, () => {
   cancelAnimationFrame(raf)
   raf = requestAnimationFrame(drawCurve)
 })

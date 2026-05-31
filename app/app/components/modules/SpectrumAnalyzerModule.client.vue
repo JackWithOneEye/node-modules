@@ -15,6 +15,7 @@ const props = withDefaults(defineProps<SpectrumAnalyzerModuleProps>(), {
 
 const store = useAudioContextStore()
 const audioContext = store.getAudioContext()
+const themeStore = useThemeStore()
 
 const fftSizeOptions = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192]
 const fftSize = useParam('fftSize', props.fftSize)
@@ -122,7 +123,7 @@ watch(wrapper, () => {
         }
 
         poly.push(new Pt(totalWidth, height))
-        form.fillOnly('#ffffff').polygon(poly)
+        form.fillOnly(themeStore.accent).polygon(poly)
 
         form.strokeOnly('#555555').rect([new Pt(marginLeft, 0), new Pt(totalWidth, height)])
       }

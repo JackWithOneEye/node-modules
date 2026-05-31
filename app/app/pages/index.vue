@@ -53,7 +53,7 @@ function formatRelativeTime(iso: string): string {
         <UButton
           label="New Patch"
           icon="ph:plus"
-          class="bg-emerald-600 border-emerald-600 hover:bg-emerald-500 hover:border-emerald-500"
+          class="bg-white text-black border-white hover:bg-neutral-200 hover:border-neutral-200"
           @click="store.newPatch()"
         />
         <UButton

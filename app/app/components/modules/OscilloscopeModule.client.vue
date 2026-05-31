@@ -11,6 +11,7 @@ const props = withDefaults(defineProps<OscilloscopeModuleProps>(), {
 })
 
 const store = useAudioContextStore()
+const themeStore = useThemeStore()
 const audioContext = store.getAudioContext()
 
 const gainNode = new GainNode(audioContext, { gain: 0.5 })
@@ -36,6 +37,7 @@ watch(wrapper, () => {
   space.add({
     animate: () => {
       if (sound) {
+        form!.strokeOnly(themeStore.accent)
         form!.points(
           sound.timeDomainTo(space.size),
           0.1,

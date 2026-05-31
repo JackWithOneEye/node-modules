@@ -45,6 +45,7 @@ const items = ref<DropdownMenuItem[][]>([
       label="File"
       color="neutral"
       variant="ghost"
+      size="md"
     />
   </UDropdownMenu>
 </template>

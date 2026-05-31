@@ -48,14 +48,14 @@ onUnmounted(() => {
       <div class="nodrag flex gap-1 border border-slate-500 rounded-md p-2">
         <div class="flex flex-col gap-2">
           <UButton
-            class="w-5"
+            class="w-5 justify-center"
             icon="ph:plus"
             size="xs"
             :disabled="gain >= maxGain"
             @click="gain++"
           />
           <UButton
-            class="w-5"
+            class="w-5 justify-center"
             icon="ph:minus"
             size="xs"
             :disabled="gain <= minGain"

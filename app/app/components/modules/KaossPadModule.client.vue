@@ -16,6 +16,8 @@ const {
   unregisterModule,
 } = useAudioContextStore()
 
+const themeStore = useThemeStore()
+
 const audioContext = getAudioContext()
 const { onViewportChange, getViewport } = useVueFlow()
 
@@ -67,7 +69,7 @@ function drawPad() {
   c.fillRect(0, 0, width, height)
 
   // Draw grid lines
-  c.strokeStyle = 'rgba(255, 255, 255, 0.2)'
+  c.strokeStyle = `${themeStore.accent}33`
   c.lineWidth = 1
   c.beginPath()
   // Center horizontal line
@@ -84,7 +86,7 @@ function drawPad() {
   const crosshairX = (x.value + 1) * halfWidth
   const crosshairY = (1 - y.value) * halfHeight
 
-  c.fillStyle = '#fff'
+  c.fillStyle = themeStore.accent
   c.beginPath()
   c.arc(crosshairX, crosshairY, 4, 0, 2 * Math.PI)
   c.fill()
@@ -173,6 +175,11 @@ watch(
 )
 
 watch([x, y], () => {
+  cancelAnimationFrame(raf)
+  raf = requestAnimationFrame(drawPad)
+})
+
+watch(() => themeStore.accent, () => {
   cancelAnimationFrame(raf)
   raf = requestAnimationFrame(drawPad)
 })

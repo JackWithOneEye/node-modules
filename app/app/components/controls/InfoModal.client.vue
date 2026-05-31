@@ -28,6 +28,7 @@ function close() {
             variant="ghost"
             color="neutral"
             size="xs"
+            class="justify-center"
             @click="close"
           />
         </div>

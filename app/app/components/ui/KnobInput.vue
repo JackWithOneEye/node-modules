@@ -66,14 +66,20 @@ const valueAngleDeg = computed(() => {
 })
 
 const valueArc = computed(() => {
-  if (props.modelValue <= props.min) return ''
+  if (props.modelValue <= props.min) {
+    return ''
+  }
   const endAngle = valueAngleDeg.value
-  if (endAngle <= startAngleDeg) return ''
+  if (endAngle <= startAngleDeg) {
+    return ''
+  }
   return describeArc(cx, cy, radius.value, startAngleDeg, endAngle)
 })
 
 const displayValue = computed(() => {
-  if (props.formatFn) return props.formatFn(props.modelValue)
+  if (props.formatFn) {
+    return props.formatFn(props.modelValue)
+  }
   return `${props.modelValue}${props.unit}`
 })
 
@@ -82,7 +88,9 @@ function clamp(v: number, min: number, max: number) {
 }
 
 function onPointerDown(e: PointerEvent) {
-  if (props.disabled) return
+  if (props.disabled) {
+    return
+  }
   e.preventDefault()
   isDragging.value = true
   dragStartY.value = e.clientY
@@ -91,7 +99,9 @@ function onPointerDown(e: PointerEvent) {
 }
 
 function onPointerMove(e: PointerEvent) {
-  if (!isDragging.value || props.disabled) return
+  if (!isDragging.value || props.disabled) {
+    return
+  }
   const dy = dragStartY.value - e.clientY
   const range = props.max - props.min
   const sensitivity = Math.max(range / 120, props.step)
@@ -107,7 +117,9 @@ function onPointerUp(e: PointerEvent) {
 }
 
 function onKeydown(e: KeyboardEvent) {
-  if (props.disabled) return
+  if (props.disabled) {
+    return
+  }
   if (e.key === 'ArrowUp' || e.key === 'ArrowRight') {
     e.preventDefault()
     const next = Math.min(props.max, props.modelValue + props.step)
@@ -153,7 +165,7 @@ function onKeydown(e: KeyboardEvent) {
       <path
         :d="backgroundArc"
         fill="none"
-        stroke="#3f3f46"
+        stroke="var(--theme-accent-track)"
         :stroke-width="strokeWidth"
         stroke-linecap="round"
       />
@@ -161,7 +173,7 @@ function onKeydown(e: KeyboardEvent) {
         v-if="valueArc"
         :d="valueArc"
         fill="none"
-        stroke="#22d3ee"
+        stroke="var(--theme-accent)"
         :stroke-width="strokeWidth"
         stroke-linecap="round"
       />

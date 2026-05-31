@@ -6,8 +6,8 @@ const suspended = computed(() => audioCtxStore.state === 'suspended' || audioCtx
 <template>
   <UButton
     :icon="suspended ? 'ph:play' : 'ph:stop'"
-    size="sm"
-    class="w-8 h-8"
+    size="md"
+    class="w-9 h-9 justify-center"
     :class="{
       'text-green-400 border-green-500/30 shadow-[0_0_10px_rgba(34,197,94,0.3)]': suspended,
       'text-red-400 border-red-500/30 shadow-[0_0_10px_rgba(239,68,68,0.3)]': !suspended,

@@ -100,7 +100,7 @@ onUnmounted(() => {
           { id: 'release', label: 'rel', signal: 'cv' },
         ]"
       />
-      <div class="nodrag flex gap-1 border border-white/80 rounded-md p-3">
+      <div class="nodrag flex gap-1 border border-neutral-600 rounded-md p-3">
         <div class="flex flex-col gap-1">
           <div class="flex flex-col items-center">
             <KnobInput
@@ -157,8 +157,8 @@ onUnmounted(() => {
             <span class="text-xs">Release</span>
           </div>
           <div class="flex flex-col items-center">
-            <div class="w-10 h-10 border border-gray-400 rounded-full flex items-center justify-center bg-gray-900">
-              <span class="text-xs text-green-400 font-mono">{{ reduction.toFixed(1) }}</span>
+            <div class="w-10 h-10 border border-neutral-600 rounded-full flex items-center justify-center bg-neutral-900">
+              <span class="text-xs text-white font-mono">{{ reduction.toFixed(1) }}</span>
             </div>
             <span class="text-xs">Reduction (dB)</span>
           </div>

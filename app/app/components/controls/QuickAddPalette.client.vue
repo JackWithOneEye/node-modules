@@ -241,7 +241,7 @@ onBeforeUnmount(() => {
               <span>{{ entry.label }}</span>
               <UIcon
                 name="ph:star-fill"
-                class="text-amber-400 text-[0.6rem] ml-0.5"
+                class="text-amber-400 text-[0.75rem] ml-0.5"
                 title="Unfavorite"
                 @click.stop="toggleFavorite(entry)"
               />
@@ -322,12 +322,13 @@ onBeforeUnmount(() => {
                 variant="ghost"
                 color="neutral"
                 size="xs"
-                class="text-white/30 hover:text-amber-400 px-1"
+                class="text-white/30 hover:text-amber-400 px-0.5"
                 :title="prefs.isFavorite(entry.type) ? 'Unfavorite' : 'Favorite'"
                 @click.stop="toggleFavorite(entry)"
               >
                 <UIcon
                   :name="prefs.isFavorite(entry.type) ? 'ph:star-fill' : 'ph:star'"
+                  class="text-[0.75rem]"
                   :class="prefs.isFavorite(entry.type) ? 'text-amber-400' : ''"
                 />
               </UButton>

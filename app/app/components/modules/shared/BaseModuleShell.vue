@@ -50,7 +50,7 @@ function onEditingDone() {
 
 <template>
   <section
-    class="module-shell rounded-md border border-white/70 bg-black/80 px-2 py-2 shadow-sm transition-[box-shadow,transform,border-color] duration-150"
+    class="module-shell rounded-md border border-neutral-600 bg-black px-2 py-2 shadow-sm transition-[box-shadow,transform,border-color] duration-150"
     :data-node-id="id"
     :data-module-type="type"
   >
@@ -61,7 +61,7 @@ function onEditingDone() {
       :offset="8"
       class="nodrag"
     >
-      <div class="flex items-center gap-1 rounded-md border border-white/10 bg-neutral-900/90 px-1.5 py-1 shadow-lg backdrop-blur-sm">
+      <div class="flex items-center gap-1 rounded-md border border-neutral-600 bg-neutral-900/90 px-1.5 py-1 shadow-lg backdrop-blur-sm">
         <ModuleActionBar
           @rename="onRename"
           @duplicate="duplicateNode(id)"

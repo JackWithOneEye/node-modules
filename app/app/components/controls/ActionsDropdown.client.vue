@@ -37,6 +37,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
       title="More actions"
       color="neutral"
       variant="ghost"
+      size="md"
     />
   </UDropdownMenu>
 </template>

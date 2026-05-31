@@ -31,13 +31,13 @@ onBeforeUnmount(() => window.removeEventListener('click', onClickOutside))
       icon="ph:package"
       variant="ghost"
       color="neutral"
-      size="xs"
+      size="md"
       @click.stop="toggle"
     >
       <span class="hidden [@media(min-width:1200px)]:inline">Modules</span>
       <UIcon
         name="ph:caret-down"
-        class="text-neutral-400 text-[10px]"
+        class="text-neutral-400 size-3.5"
       />
     </UButton>
     <div

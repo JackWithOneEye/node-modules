@@ -18,7 +18,7 @@ function onOpenChange(value: boolean) {
       <div class="flex items-start gap-3">
         <UIcon
           name="ph:warning"
-          class="w-6 h-6 text-amber-400 shrink-0 mt-0.5"
+          class="w-6 h-6 text-white shrink-0 mt-0.5"
         />
         <p class="text-neutral-300 text-sm">
           {{ config?.message }}

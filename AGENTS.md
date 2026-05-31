@@ -6,6 +6,7 @@
 - **Postinstall** (audio-processors): compiles `build/cmd/main.go` → `./builder` binary — run once after clone
 - **WASM only**: `cd audio-processors/wasm && wasm-pack build --target=web --out-dir ../pkg`
 - **Lint**: `cd app && bun eslint .` (ESLint via @nuxt/eslint with stylistic rules)
+- **Lint fix**: `cd app && bun eslint . --fix` — **USE THIS instead of manually fixing lint errors/warnings.** ESLint auto-fixes most stylistic issues.
 - **No test framework** configured anywhere
 
 ## Architecture
@@ -21,6 +22,7 @@
 - **Rust**: wasm-bindgen, rustfft, pitch-detection, rand; no_std-friendly; `wasm_utils` proc-macro crate
 
 ## Code Style
+- **IMPORTANT**: Do NOT manually fix lint errors/warnings. Always run `cd app && bun eslint . --fix` instead. Manual edits for stylistic issues waste time and can introduce inconsistencies.
 - **TypeScript**: Strict types, `defineProps<Type>()` with `withDefaults()` when needed
 - **Vue**: Composition API, PascalCase components, `.client.vue` for client-only
 - **Imports**: Named imports; Nuxt auto-imports composables/utils

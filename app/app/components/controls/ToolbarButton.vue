@@ -14,7 +14,7 @@ defineProps<{
     :title="title ?? label"
     variant="ghost"
     color="neutral"
-    size="xs"
+    size="md"
   >
     <span class="hidden [@media(min-width:1200px)]:inline">{{ label }}</span>
   </UButton>
