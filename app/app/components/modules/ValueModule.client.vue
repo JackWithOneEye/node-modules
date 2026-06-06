@@ -50,17 +50,16 @@ onUnmounted(() => {
     :title="props.title"
   >
     <ModulePortRow :output="{ id: 'output', label: 'out', signal: 'cv' }">
-      <div class="nodrag">
-        <UInput
-          v-model="offset"
-          type="number"
-          :min="0"
-          :max="10000"
-          :step="0.1"
-          variant="none"
-          :ui="{ base: 'w-24 border border-white/50 focus:border-white text-sm p-2 outline-none bg-transparent text-white rounded' }"
-        />
-      </div>
+      <UInput
+        v-model="offset"
+        class="nodrag"
+        type="number"
+        :min="0"
+        :max="10000"
+        :step="0.1"
+        variant="none"
+        :ui="{ base: 'w-24 border border-white/50 focus:border-white text-sm p-2 outline-none bg-transparent text-white rounded' }"
+      />
     </ModulePortRow>
   </BaseModuleShell>
 </template>

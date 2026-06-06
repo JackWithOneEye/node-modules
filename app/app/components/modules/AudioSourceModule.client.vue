@@ -54,6 +54,9 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <ModulePortRow :output="{ id: 'output', label: 'out', signal: 'audio' }" />
+    <div class="flex">
+      <div class="flex-1" />
+      <ModulePortRow :output="{ id: 'output', label: 'out', signal: 'audio' }" />
+    </div>
   </BaseModuleShell>
 </template>

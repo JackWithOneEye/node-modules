@@ -155,27 +155,27 @@ onUnmounted(() => {
     :title="props.title"
   >
     <ModulePortRow
+      class="pb-1"
       :input="{ id: 'input', label: 'in', signal: 'audio' }"
       :output="{ id: 'output', label: 'out', signal: 'audio' }"
     >
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center gap-1 border border-white/80 rounded-md p-2 nodrag mt-2">
-          <KnobInput
-            v-model="modifier"
-            :size="40"
-            :min="0"
-            :max="100"
-          />
-          <USelect
-            v-model="waveshaper"
-            :items="waveshaperOptions"
-            label-key="label"
-            value-key="value"
-            placeholder="Waveshaper"
-            class="w-full text-xs"
-            size="sm"
-          />
-        </div>
+      <div class="flex items-center gap-1">
+        <KnobInput
+          v-model="modifier"
+          label="modifier"
+          center-label
+          :min="0"
+          :max="100"
+        />
+        <USelect
+          v-model="waveshaper"
+          :items="waveshaperOptions"
+          label-key="label"
+          value-key="value"
+          placeholder="Waveshaper"
+          class="nodrag w-full text-xs"
+          size="sm"
+        />
       </div>
       <div
         ref="canvasWrap"

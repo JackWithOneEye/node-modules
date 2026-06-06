@@ -10,7 +10,6 @@ const emit = defineEmits<{
 <template>
   <div class="nodrag flex items-center gap-0.5">
     <UButton
-      v-tooltip.top="'Rename'"
       icon="ph:pencil"
       color="neutral"
       variant="ghost"
@@ -19,7 +18,6 @@ const emit = defineEmits<{
       @click.stop="emit('rename')"
     />
     <UButton
-      v-tooltip.top="'Duplicate'"
       icon="ph:copy"
       color="neutral"
       variant="ghost"
@@ -28,7 +26,6 @@ const emit = defineEmits<{
       @click.stop="emit('duplicate')"
     />
     <UButton
-      v-tooltip.top="'Delete'"
       icon="ph:trash"
       color="neutral"
       variant="ghost"
@@ -37,7 +34,6 @@ const emit = defineEmits<{
       @click.stop="emit('delete')"
     />
     <UButton
-      v-tooltip.top="'Disconnect all'"
       icon="ph:minus-circle"
       color="neutral"
       variant="ghost"

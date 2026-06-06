@@ -41,6 +41,6 @@ onUnmounted(() => {
     :position="position"
     :data-signal="signal ?? undefined"
     :style="{ borderColor, '--signal-color': borderColor, '--signal-glow': signalGlow }"
-    class="module-handle !h-3 !w-3 !border !bg-black before:absolute before:-inset-2 before:content-[''] transition-shadow duration-150 hover:shadow-[0_0_0_4px_var(--signal-glow)]"
+    class="module-handle border! bg-black! before:absolute before:-inset-x-2 before:inset-y-0 before:content-[''] transition-shadow duration-150 hover:shadow-[0_0_0_2px_var(--signal-glow)]"
   />
 </template>

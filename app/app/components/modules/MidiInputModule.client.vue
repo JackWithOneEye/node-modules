@@ -298,15 +298,15 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <div class="flex gap-2">
-      <div class="nodrag flex flex-col gap-2">
+    <div class="flex">
+      <div class="flex flex-col gap-2">
         <USelect
           v-model="selectedMidiInput"
           :items="midiStore.midiInputs"
           label-key="name"
           value-key="id"
           placeholder="Input Device"
-          class="w-full text-xs"
+          class="nodrag w-full text-xs"
           size="sm"
         />
         <USelect

@@ -10,22 +10,14 @@ export type ModulePortRowProps = {
 
 const props = defineProps<ModulePortRowProps>()
 
-/**
- * Pick the narrowest possible grid template so empty sides do not leave
- * phantom columns / extra gap. Columns:
- *   left handle / left label / body / right label / right handle
- *
- * The grid uses no `gap`; spacing is controlled per-edge so labels sit
- * close to their handles and farther from the body.
- */
 const gridTemplate = computed(() => {
   const cols: string[] = []
   if (props.input) {
-    cols.push('16px', 'auto')
+    cols.push('8px')
   }
   cols.push('minmax(0,1fr)')
   if (props.output) {
-    cols.push('auto', '16px')
+    cols.push('8px')
   }
   return cols.join(' ')
 })
@@ -33,36 +25,46 @@ const gridTemplate = computed(() => {
 
 <template>
   <div
-    class="grid items-center gap-0"
+    class="grid items-center"
     :style="{ gridTemplateColumns: gridTemplate }"
   >
     <template v-if="input">
-      <div class="relative h-6 w-4">
-        <ModuleHandle
-          :id="input.id"
-          type="target"
-          :position="Position.Left"
-          :signal="input.signal"
-        />
+      <div class="relative h-2 w-2 translate-x-[-4.5px]">
+        <UTooltip
+          :text="input.id"
+          arrow
+          :delay-duration="0"
+          :disable-closing-trigger="true"
+          :content="{ side: 'left', sideOffset: 8 }"
+        >
+          <ModuleHandle
+            :id="input.id"
+            type="target"
+            :position="Position.Left"
+            :signal="input.signal"
+          />
+        </UTooltip>
       </div>
-      <HandleLabel class="justify-self-start pl-0.5 pr-3">
-        {{ input.label }}
-      </HandleLabel>
     </template>
     <div class="min-w-0">
       <slot />
     </div>
     <template v-if="output">
-      <HandleLabel class="justify-self-end pl-3 pr-0.5">
-        {{ output.label }}
-      </HandleLabel>
-      <div class="relative h-6 w-4">
-        <ModuleHandle
-          :id="output.id"
-          type="source"
-          :position="Position.Right"
-          :signal="output.signal"
-        />
+      <div class="relative h-2 w-2 translate-x-[4.5px]">
+        <UTooltip
+          :text="output.id"
+          arrow
+          :delay-duration="0"
+          :disable-closing-trigger="true"
+          :content="{ side: 'right', sideOffset: 8 }"
+        >
+          <ModuleHandle
+            :id="output.id"
+            type="source"
+            :position="Position.Right"
+            :signal="output.signal"
+          />
+        </UTooltip>
       </div>
     </template>
   </div>

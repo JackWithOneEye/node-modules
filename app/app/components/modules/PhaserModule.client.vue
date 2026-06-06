@@ -54,7 +54,7 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <div class="flex gap-2">
+    <div class="flex">
       <ModulePortRail
         position="left"
         :ports="[
@@ -62,19 +62,14 @@ onUnmounted(() => {
           { id: 'rate', label: 'rate', signal: 'cv' },
         ]"
       />
-      <div class="nodrag flex gap-1 border border-white/80 rounded-md p-2">
-        <div class="flex flex-col items-center">
-          <KnobInput
-            v-model="rate"
-            :size="60"
-            :min="0.1"
-            :max="20"
-            :step="0.1"
-            :format-fn="(v) => rate.toFixed(1) + 'Hz'"
-          />
-          <span class="text-handle">Rate</span>
-        </div>
-      </div>
+      <KnobInput
+        v-model="rate"
+        label="rate"
+        :min="0.1"
+        :max="20"
+        :step="0.1"
+        :format-fn="(v) => v.toFixed(1) + 'Hz'"
+      />
       <ModulePortRail
         position="right"
         :ports="[{ id: 'output', label: 'out', signal: 'audio' }]"

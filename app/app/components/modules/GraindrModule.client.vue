@@ -49,16 +49,16 @@ const [shimmer] = useAudioParam('shimmer', props.shimmer, value => setParamValue
 const [feedback] = useAudioParam('feedback', props.feedback, value => setParamValue(graindrNode.feedback, value, 'lin'), pctConv)
 const { scaled: hicutScaled, hz: hicutHz, controlRange: hicutControlRange } = useFrequencyParam('hicut', props.hicut, 20, 10, value => setParamValue(graindrNode.hiCut, value))
 const playbackDirection = useOptionParam('playbackDirection', props.playbackDirection, value => setParamValue(graindrNode.playbackDirection, value))
-const playbackOptions = [
-  { label: 'Forward', value: Direction.Forward },
-  { label: 'Reverse', value: Direction.Reverse },
-  { label: 'Alternate', value: Direction.Alternate },
-]
+const playbackOptLabels = {
+  [Direction.Forward]: 'fwd',
+  [Direction.Reverse]: 'rev',
+  [Direction.Alternate]: 'alt',
+} as const
 const toneType = useOptionParam('toneType', props.toneType, value => setParamValue(graindrNode.toneType, value))
-const toneTypeOptions = [
-  { label: 'Digital', value: ToneType.Digital },
-  { label: 'Tape-ish', value: ToneType.Tape },
-]
+const toneOptLabels = {
+  [ToneType.Digital]: 'digi',
+  [ToneType.Tape]: 'tape',
+} as const
 
 registerModule(id, {
   meta: { id, type },
@@ -120,124 +120,85 @@ onUnmounted(() => {
           { id: 'feedback', label: 'fdbk', signal: 'cv' },
         ]"
       />
-      <div class="nodrag flex flex-col gap-2 border border-white/80 rounded-md p-2">
-        <div class="flex gap-1">
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="dryWetMix"
-              :size="40"
-              :min="0"
-              :max="100"
-              :format-fn="(v) => v + '%'"
-            />
-            <span class="text-handle">Mix</span>
-          </div>
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="grainSizeMs"
-              :size="40"
-              :min="1"
-              :max="1000"
-              :format-fn="(v) => v + 'ms'"
-            />
-            <span class="text-handle">Grain Size</span>
-          </div>
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="pitchShift"
-              :size="40"
-              :min="-12"
-              :max="12"
-            />
-            <span class="text-handle">Pitch Shift</span>
-          </div>
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="fineTune"
-              :size="40"
-              :min="-100"
-              :max="100"
-            />
-            <span class="text-handle">Fine Tune</span>
-          </div>
-        </div>
-        <div class="flex gap-1">
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="texture"
-              :size="40"
-              :min="0"
-              :max="100"
-            />
-            <span class="text-handle">Texture</span>
-          </div>
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="stretch"
-              :size="40"
-              :min="1"
-              :max="4"
-            />
-            <span class="text-handle">Stretch</span>
-          </div>
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="shimmer"
-              :size="40"
-              :min="0"
-              :max="100"
-              :format-fn="(v) => v + '%'"
-            />
-            <span class="text-handle">Shimmer</span>
-          </div>
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="feedback"
-              :size="40"
-              :min="0"
-              :max="100"
-              :format-fn="(v) => v + '%'"
-            />
-            <span class="text-handle">Feedback</span>
-          </div>
-        </div>
-        <div class="flex gap-1 justify-between">
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="hicutScaled"
-              :size="40"
-              :min="0"
-              :max="hicutControlRange"
-              :format-fn="(v) => (hicutHz * 0.001).toFixed(1) + 'kHz'"
-            />
-            <span class="text-handle">Hi Cut</span>
-          </div>
-          <div class="flex flex-col gap-1">
-            <USelect
-              v-model="playbackDirection"
-              :items="playbackOptions"
-              label-key="label"
-              value-key="value"
-              placeholder="Playback direction"
-              class="w-full text-xs"
-              size="sm"
-            />
-            <USelect
-              v-model="toneType"
-              :items="toneTypeOptions"
-              label-key="label"
-              value-key="value"
-              placeholder="Tone"
-              class="w-full text-xs"
-              size="sm"
-            />
-          </div>
-        </div>
+      <div class="flex">
+        <KnobInput
+          v-model="dryWetMix"
+          label="wet mix"
+          :min="0"
+          :max="100"
+          :format-fn="(v) => v + '%'"
+        />
+        <KnobInput
+          v-model="grainSizeMs"
+          label="grain size"
+          :min="1"
+          :max="1000"
+          :format-fn="(v) => v + 'ms'"
+        />
+        <KnobInput
+          v-model="pitchShift"
+          label="pitch uhift"
+          :min="-12"
+          :max="12"
+        />
+        <KnobInput
+          v-model="fineTune"
+          label="fine tune"
+          :min="-100"
+          :max="100"
+        />
+        <KnobInput
+          v-model="texture"
+          label="texture"
+          :min="0"
+          :max="100"
+        />
+        <KnobInput
+          v-model="stretch"
+          label="stretch"
+          :min="1"
+          :max="4"
+        />
+        <KnobInput
+          v-model="shimmer"
+          label="shimmer"
+          :min="0"
+          :max="100"
+          :format-fn="(v) => v + '%'"
+        />
+        <KnobInput
+          v-model="feedback"
+          label="feedback"
+          :min="0"
+          :max="100"
+          :format-fn="(v) => v + '%'"
+        />
+        <KnobInput
+          v-model="hicutScaled"
+          label="hi cut"
+          :min="0"
+          :max="hicutControlRange"
+          :format-fn="() => (hicutHz * 0.001).toFixed(1) + 'kHz'"
+        />
+        <KnobInput
+          v-model="playbackDirection"
+          label="playback direction"
+          :min="Direction.Forward"
+          :max="Direction.Alternate"
+          :format-fn="(v) => playbackOptLabels[v as Direction]"
+        />
+        <KnobInput
+          v-model="toneType"
+          label="tone type"
+          :min="ToneType.Digital"
+          :max="ToneType.Tape"
+          :format-fn="(v) => toneOptLabels[v as ToneType]"
+        />
+        <ModulePortRail
+          position="right"
+          :ports="[{ id: 'output', label: 'out', signal: 'audio' }]"
+        />
       </div>
-      <ModulePortRail
-        position="right"
-        :ports="[{ id: 'output', label: 'out', signal: 'audio' }]"
-      />
     </div>
   </BaseModuleShell>
 </template>

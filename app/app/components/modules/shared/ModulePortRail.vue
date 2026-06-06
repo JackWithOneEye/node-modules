@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { ModulePort } from '~/utils/module'
-
 export type ModulePortRailProps = {
   position: 'left' | 'right'
   ports: ModulePort[]
@@ -18,7 +16,7 @@ defineProps<ModulePortRailProps>()
   the body needs to span multiple visual rows alongside many ports.
 -->
 <template>
-  <div class="flex flex-col gap-1.5 flex-1">
+  <div class="flex flex-col flex-1">
     <ModulePortRow
       v-for="port in ports"
       :key="port.id"

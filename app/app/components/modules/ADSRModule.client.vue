@@ -74,57 +74,52 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <div class="flex gap-2">
+    <div class="flex">
       <ModulePortRail
         :ports="targetPorts"
         position="left"
       />
-      <div class="nodrag flex flex-col gap-3 border border-white rounded-md p-2">
-        <div class="flex gap-1">
-          <ParamController
-            name="attack"
-            :default-value="attack"
-            label="ATK"
-            :min="0"
-            :max="2000"
-            :scaling-factor="1000"
-            unit="ms"
-            @on-change="value => setParamValue(adsrNode.attack, value)"
-          />
-          <ParamController
-            name="decay"
-            :default-value="decay"
-            label="DEC"
-            :min="0"
-            :max="2000"
-            :scaling-factor="1000"
-            unit="ms"
-            @on-change="value => setParamValue(adsrNode.decay, value)"
-          />
-        </div>
-
-        <div class="flex gap-1">
-          <ParamController
-            name="sustain"
-            :default-value="sustain"
-            label="SUS"
-            :min="0"
-            :max="100"
-            :scaling-factor="100"
-            unit="%"
-            @on-change="value => setParamValue(adsrNode.sustain, value)"
-          />
-          <ParamController
-            name="release"
-            :default-value="release"
-            label="REL"
-            :min="0"
-            :max="2000"
-            :scaling-factor="1000"
-            unit="ms"
-            @on-change="value => setParamValue(adsrNode.release, value)"
-          />
-        </div>
+      <div class="nodrag flex gap-1">
+        <ParamController
+          name="attack"
+          :default-value="attack"
+          label="attack"
+          :min="0"
+          :max="2000"
+          :scaling-factor="1000"
+          unit="ms"
+          @on-change="value => setParamValue(adsrNode.attack, value)"
+        />
+        <ParamController
+          name="decay"
+          :default-value="decay"
+          label="dacay"
+          :min="0"
+          :max="2000"
+          :scaling-factor="1000"
+          unit="ms"
+          @on-change="value => setParamValue(adsrNode.decay, value)"
+        />
+        <ParamController
+          name="sustain"
+          :default-value="sustain"
+          label="sustain"
+          :min="0"
+          :max="100"
+          :scaling-factor="100"
+          unit="%"
+          @on-change="value => setParamValue(adsrNode.sustain, value)"
+        />
+        <ParamController
+          name="release"
+          :default-value="release"
+          label="release"
+          :min="0"
+          :max="2000"
+          :scaling-factor="1000"
+          unit="ms"
+          @on-change="value => setParamValue(adsrNode.release, value)"
+        />
       </div>
       <ModulePortRail
         :ports="sourcePorts"

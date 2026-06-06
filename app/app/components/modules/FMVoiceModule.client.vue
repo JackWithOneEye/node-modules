@@ -231,127 +231,114 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <div class="flex gap-2">
+    <div class="flex">
       <ModulePortRail
         :ports="targetPorts"
         position="left"
       />
-
-      <div class="nodrag flex flex-col gap-3 border border-white rounded-md p-3">
+      <div class="pb-2">
         <!-- Global Parameters Section -->
-        <div class="border-b border-white/30 pb-3">
-          <div class="text-xs text-white/70 mb-2 uppercase tracking-wide">
-            Global
+        <div class="flex justify-center items-center gap-1 pb-2">
+          <div class="text-xs text-white font-mono text-center">
+            algorithm
           </div>
-          <div class="flex gap-2">
-            <ParamController
-              name="algorithm"
-              :default-value="algorithm"
-              label="Algo"
-              :min="1"
-              :max="32"
-              :scaling-factor="1"
-              unit=""
-              @on-change="value => setParamValue(fmVoiceNode.algorithm, value)"
-            />
-          </div>
+          <ParamController
+            name="algorithm"
+            :default-value="algorithm"
+            label="algorithm"
+            center-label
+            :min="1"
+            :max="32"
+            :scaling-factor="1"
+            unit=""
+            @on-change="value => setParamValue(fmVoiceNode.algorithm, value)"
+          />
         </div>
 
         <!-- Operators Section -->
-        <div>
-          <div class="text-xs text-white/70 mb-2 uppercase tracking-wide">
-            Operators
-          </div>
-          <div class="grid grid-cols-3 gap-3">
-            <div
-              v-for="(op, index) in operatorParams"
-              :key="`op-${index + 1}`"
-              class="border border-white/20 rounded-md p-2"
-            >
-              <div class="text-xs text-white/80 mb-2 text-center">
-                OP{{ index + 1 }}
-              </div>
-
-              <!-- Pitch, Fine Tune and Level -->
-              <div class="flex gap-1 mb-2">
-                <ParamController
-                  :name="`op${index + 1}PitchShift`"
-                  :default-value="op.pitchShift.value"
-                  label="Pitch"
-                  :min="-24"
-                  :max="24"
-                  :scaling-factor="1"
-                  unit="st"
-                  @on-change="(value) => op.pitchShift.value = value"
-                />
-                <ParamController
-                  :name="`op${index + 1}FineTune`"
-                  :default-value="op.fineTune.value"
-                  label="Fine"
-                  :min="-100"
-                  :max="100"
-                  :scaling-factor="1"
-                  unit="c"
-                  @on-change="(value) => op.fineTune.value = value"
-                />
-              </div>
-              <div class="flex gap-1 mb-2">
-                <ParamController
-                  :name="`op${index + 1}Level`"
-                  :default-value="op.level.value"
-                  label="Level"
-                  :min="0"
-                  :max="100"
-                  :scaling-factor="100"
-                  unit="%"
-                  @on-change="(value) => op.level.value = value"
-                />
-              </div>
-
-              <!-- ADSR -->
-              <div class="grid grid-cols-2 gap-1">
-                <ParamController
-                  :name="`op${index + 1}Attack`"
-                  :default-value="op.attack.value"
-                  label="A"
-                  :min="0"
-                  :max="2000"
-                  :scaling-factor="1000"
-                  unit="ms"
-                  @on-change="(value) => op.attack.value = value"
-                />
-                <ParamController
-                  :name="`op${index + 1}Decay`"
-                  :default-value="op.decay.value"
-                  label="D"
-                  :min="0"
-                  :max="2000"
-                  :scaling-factor="1000"
-                  unit="ms"
-                  @on-change="(value) => op.decay.value = value"
-                />
-                <ParamController
-                  :name="`op${index + 1}Sustain`"
-                  :default-value="op.sustain.value"
-                  label="S"
-                  :min="0"
-                  :max="100"
-                  :scaling-factor="100"
-                  unit="%"
-                  @on-change="(value) => op.sustain.value = value"
-                />
-                <ParamController
-                  :name="`op${index + 1}Release`"
-                  :default-value="op.release.value"
-                  label="R"
-                  :min="0"
-                  :max="2000"
-                  :scaling-factor="1000"
-                  unit="ms"
-                  @on-change="(value) => op.release.value = value"
-                />
-              </div>
+        <div class="grid grid-cols-6 gap-2">
+          <div
+            v-for="(op, index) in operatorParams"
+            :key="`op-${index + 1}`"
+            class="flex flex-col border border-white/40 rounded-md p-1"
+          >
+            <div class="text-xs text-white font-mono font-bold text-center">
+              OP{{ index + 1 }}
             </div>
+
+            <!-- Pitch, Fine Tune and Level -->
+            <ParamController
+              :name="`op${index + 1}PitchShift`"
+              :default-value="op.pitchShift.value"
+              label="pitch"
+              :min="-24"
+              :max="24"
+              :scaling-factor="1"
+              unit="st"
+              @on-change="(value) => op.pitchShift.value = value"
+            />
+            <ParamController
+              :name="`op${index + 1}FineTune`"
+              :default-value="op.fineTune.value"
+              label="fine tune"
+              :min="-100"
+              :max="100"
+              :scaling-factor="1"
+              unit="c"
+              @on-change="(value) => op.fineTune.value = value"
+            />
+            <ParamController
+              :name="`op${index + 1}Level`"
+              :default-value="op.level.value"
+              label="level"
+              :min="0"
+              :max="100"
+              :scaling-factor="100"
+              unit="%"
+              @on-change="(value) => op.level.value = value"
+            />
+
+            <!-- ADSR -->
+            <ParamController
+              :name="`op${index + 1}Attack`"
+              :default-value="op.attack.value"
+              label="attack"
+              :min="0"
+              :max="2000"
+              :scaling-factor="1000"
+              unit="ms"
+              @on-change="(value) => op.attack.value = value"
+            />
+            <ParamController
+              :name="`op${index + 1}Decay`"
+              :default-value="op.decay.value"
+              label="decay"
+              :min="0"
+              :max="2000"
+              :scaling-factor="1000"
+              unit="ms"
+              @on-change="(value) => op.decay.value = value"
+            />
+            <ParamController
+              :name="`op${index + 1}Sustain`"
+              :default-value="op.sustain.value"
+              label="sustain"
+              :min="0"
+              :max="100"
+              :scaling-factor="100"
+              unit="%"
+              @on-change="(value) => op.sustain.value = value"
+            />
+            <ParamController
+              :name="`op${index + 1}Release`"
+              :default-value="op.release.value"
+              label="release"
+              :min="0"
+              :max="2000"
+              :scaling-factor="1000"
+              unit="ms"
+              @on-change="(value) => op.release.value = value"
+            />
           </div>
         </div>
       </div>

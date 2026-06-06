@@ -104,35 +104,36 @@ onUnmounted(() => {
       :input="{ id: 'gateIn', label: 'gate', signal: 'gate' }"
       :output="{ id: 'output', label: 'out', signal: 'cv' }"
     >
-      <div class="nodrag flex flex-col items-center gap-2 border border-white/80 rounded-md p-2">
-        <div class="flex items-center gap-2">
-          <span class="text-xs">Steps:</span>
+      <div class="flex flex-col items-center">
+        <div class="flex items-center gap-1">
+          <span class="text-xs">Steps</span>
           <KnobInput
             v-model="numSteps"
-            :size="30"
+            label="steps"
+            center-label
             :min="1"
             :max="16"
           />
         </div>
-        <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-1">
           <div
             v-for="row in ROWS"
             :key="row"
-            class="flex gap-2"
+            class="flex gap-1"
           >
             <KnobInput
               v-for="col in COLUMNS"
               :key="`${row}-${col}`"
               v-model="values[(row - 1) * COLUMNS + (col - 1)]!"
+              :label="`step ${(row - 1) * COLUMNS + col}`"
               :class="{
                 'bg-red-400': currentStep === (row - 1) * COLUMNS + (col - 1) && values[(row - 1) * COLUMNS + (col - 1)] !== 0,
                 'bg-gray-400': currentStep === (row - 1) * COLUMNS + (col - 1) && values[(row - 1) * COLUMNS + (col - 1)] === 0,
                 'opacity-50': (row - 1) * COLUMNS + (col - 1) >= numSteps,
               }"
-              :size="40"
               :min="0"
               :max="max"
-              :format-fn="(v) => { const idx = (row - 1) * COLUMNS + (col - 1); return idx >= numSteps ? '' : valueLabel(v) }"
+              :format-fn="(v) => { const idx = (row - 1) * COLUMNS + (col - 1); return idx >= numSteps ? '-' : valueLabel(v) }"
               :disabled="(row - 1) * COLUMNS + (col - 1) >= numSteps"
             />
           </div>

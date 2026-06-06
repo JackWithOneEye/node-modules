@@ -8,16 +8,20 @@ interface Props {
   formatFn?: (value: number) => string
   unit?: string
   disabled?: boolean
+  label?: string
+  centerLabel?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   min: 0,
   max: 100,
   step: 1,
-  size: 40,
+  size: 60,
   formatFn: undefined,
   unit: '',
   disabled: false,
+  label: undefined,
+  centerLabel: false,
 })
 
 const emit = defineEmits<{
@@ -34,8 +38,8 @@ const cy = 50
 const radius = computed(() => props.size * 0.44)
 const strokeWidth = computed(() => Math.max(props.size * 0.14, 5))
 
-const startAngleDeg = 210
-const sweepDeg = 300
+const startAngleDeg = 230
+const sweepDeg = 260
 
 function degToRad(deg: number) {
   return (deg * Math.PI) / 180
@@ -55,6 +59,29 @@ function describeArc(cx: number, cy: number, r: number, startAngle: number, endA
   const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0
   return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`
 }
+
+const arcBoundingBox = computed(() => {
+  const r = radius.value
+  const sw = strokeWidth.value
+  const pad = sw / 2
+  const minX = cx - r - pad
+  const maxX = cx + r + pad
+  const minY = cy - r - pad
+  const maxY = cy + r * Math.sqrt(3) / 2 + pad
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY }
+})
+
+const svgViewBox = computed(() => {
+  const b = arcBoundingBox.value
+  const maxDim = Math.max(b.width, b.height)
+  const centerX = b.x + b.width / 2
+  const centerY = b.y + b.height / 2
+  return `${centerX - maxDim / 2} ${centerY - maxDim / 2} ${maxDim} ${maxDim}`
+})
+
+const svgSize = computed(() => {
+  return Math.max(arcBoundingBox.value.width, arcBoundingBox.value.height) * (props.size / 100)
+})
 
 const backgroundArc = computed(() => {
   return describeArc(cx, cy, radius.value, startAngleDeg, startAngleDeg + sweepDeg)
@@ -142,52 +169,55 @@ function onKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <div
-    ref="knobRef"
-    class="knob-input select-none"
-    :class="{ 'cursor-grab': !disabled, 'cursor-not-allowed opacity-50': disabled }"
-    role="slider"
-    :tabindex="disabled ? -1 : 0"
-    :aria-valuemin="min"
-    :aria-valuemax="max"
-    :aria-valuenow="modelValue"
-    :aria-disabled="disabled"
-    @pointerdown="onPointerDown"
-    @pointermove="onPointerMove"
-    @pointerup="onPointerUp"
-    @keydown="onKeydown"
+  <UTooltip
+    :text="label"
+    arrow
+    :delay-duration="0"
+    :disable-closing-trigger="true"
+    :content="{ side: 'top', sideOffset: 0 }"
   >
-    <svg
-      :width="size"
-      :height="size"
-      viewBox="0 0 100 100"
+    <div
+      ref="knobRef"
+      class="knob-input select-none flex flex-col items-center"
+      :class="{ 'cursor-grab': !disabled, 'cursor-not-allowed opacity-50': disabled }"
+      role="slider"
+      :tabindex="disabled ? -1 : 0"
+      :aria-valuemin="min"
+      :aria-valuemax="max"
+      :aria-valuenow="modelValue"
+      :aria-disabled="disabled"
+      @pointerdown="onPointerDown"
+      @pointermove="onPointerMove"
+      @pointerup="onPointerUp"
+      @keydown="onKeydown"
     >
-      <path
-        :d="backgroundArc"
-        fill="none"
-        stroke="var(--theme-accent-track)"
-        :stroke-width="strokeWidth"
-        stroke-linecap="round"
-      />
-      <path
-        v-if="valueArc"
-        :d="valueArc"
-        fill="none"
-        stroke="var(--theme-accent)"
-        :stroke-width="strokeWidth"
-        stroke-linecap="round"
-      />
-      <text
-        x="50"
-        :y="50 + strokeWidth * 0.6"
-        text-anchor="middle"
-        dominant-baseline="middle"
-        fill="#a1a1aa"
-        :font-size="size * 0.13"
-        class="pointer-events-none"
+      <svg
+        :width="svgSize"
+        :height="svgSize"
+        :viewBox="svgViewBox"
+      >
+        <path
+          :d="backgroundArc"
+          fill="none"
+          stroke="var(--theme-accent-track)"
+          :stroke-width="strokeWidth"
+          stroke-linecap="round"
+        />
+        <path
+          v-if="valueArc"
+          :d="valueArc"
+          fill="none"
+          stroke="var(--theme-accent)"
+          :stroke-width="strokeWidth"
+          stroke-linecap="round"
+        />
+      </svg>
+      <span
+        class="text-xs text-center font-mono w-12"
+        :class="{ '-mt-1 pb-0.5': !centerLabel, '-mt-6 pb-3': centerLabel }"
       >
         {{ displayValue }}
-      </text>
-    </svg>
-  </div>
+      </span>
+    </div>
+  </UTooltip>
 </template>

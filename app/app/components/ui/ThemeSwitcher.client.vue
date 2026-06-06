@@ -3,12 +3,10 @@ import type { DropdownMenuItem } from '@nuxt/ui'
 
 const themeStore = useThemeStore()
 
-const items = computed<DropdownMenuItem[][]>(() => [
-  themeStore.themes.map(t => ({
-    label: t.label,
-    onSelect: () => themeStore.setTheme(t.value),
-  })),
-])
+const items: DropdownMenuItem[] = themeStore.themes.map(t => ({
+  label: t.label,
+  onSelect: () => themeStore.setTheme(t.value),
+}))
 </script>
 
 <template>

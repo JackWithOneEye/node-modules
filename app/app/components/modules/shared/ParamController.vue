@@ -8,11 +8,13 @@ export type ParamControllerProps = {
   min: number
   max: number
 
+  centerLabel?: boolean
   scalingFactor?: number
   step?: number
   unit?: string
 }
 const props = withDefaults(defineProps<ParamControllerProps>(), {
+  centerLabel: false,
   scalingFactor: 1,
   step: 1,
   unit: '',
@@ -26,12 +28,13 @@ const [paramRef] = useAudioParam(props.name, props.defaultValue, value => emit('
   <div class="flex flex-col items-center">
     <KnobInput
       v-model="paramRef"
+      :label="label"
+      :center-label="centerLabel"
       :size="60"
       :min="min"
       :max="max"
       :step="step"
       :format-fn="(v) => v.toFixed() + unit"
     />
-    <span class="text-handle">{{ label }}</span>
   </div>
 </template>

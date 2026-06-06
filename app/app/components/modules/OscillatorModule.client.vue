@@ -27,8 +27,8 @@ const {
   controlRange: freqControlRange,
 } = useFrequencyParam('frequency', props.frequency, 110, 4, value => updateFrequency(value))
 const [detune] = useAudioParam('detune', props.detune, value => store.setParamValue(oscillatorNode.detune, value, 'lin'))
-const waveform = ref(props.waveform)
-const waveforms: typeof props.waveform[] = ['sine', 'triangle', 'sawtooth', 'square']
+const waveforms = ['sine', 'triangle', 'sawtooth', 'square'] as const
+const waveformIndex = ref(waveforms.indexOf(props.waveform) as 0 | 1 | 2 | 3)
 
 const frequencyEnabled = ref(props.frequencyEnabled)
 
@@ -46,11 +46,11 @@ if (store.state === 'running') {
 
 const { updateNodeData } = useVueFlow()
 
-watch(waveform, (waveform, oldWaveform) => {
+watch(waveformIndex, (waveform, oldWaveform) => {
   if (waveform !== oldWaveform) {
-    oscillatorNode.type = waveform
+    oscillatorNode.type = waveforms[waveform]
   }
-  updateNodeData<OscillatorModuleProps>(props.id, { waveform })
+  updateNodeData<OscillatorModuleProps>(props.id, { waveform: waveforms[waveform] })
 })
 
 watch(frequencyEnabled, (curr, prev) => {
@@ -111,7 +111,7 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <div class="flex gap-2">
+    <div class="flex">
       <ModulePortRail
         position="left"
         :ports="[
@@ -119,39 +119,34 @@ onUnmounted(() => {
           { id: 'detune', label: 'detune', signal: 'cv' },
         ]"
       />
-      <div class="nodrag flex flex-col gap-3 border border-slate-500 rounded-md p-2">
-        <div class="flex gap-1">
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="frequencyScaled"
-              :disabled="!frequencyEnabled"
-              :size="60"
-              :min="0"
-              :max="freqControlRange"
-              :format-fn="(v) => frequencyHz.toFixed() + 'Hz'"
-            />
-            <span class="text-handle">Frequency</span>
-            <USwitch
-              v-model="frequencyEnabled"
-              size="sm"
-            />
-          </div>
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="detune"
-              :size="60"
-              :min="0"
-              :max="100"
-              :format-fn="(v) => v + 'ct'"
-            />
-            <span class="text-handle">Detune</span>
-          </div>
+      <div class="flex">
+        <div class="flex flex-col items-center">
+          <KnobInput
+            v-model="frequencyScaled"
+            label="frequency"
+            :disabled="!frequencyEnabled"
+            :min="0"
+            :max="freqControlRange"
+            :format-fn="() => frequencyHz.toFixed() + 'Hz'"
+          />
+          <USwitch
+            v-model="frequencyEnabled"
+            size="sm"
+          />
         </div>
-        <USelect
-          v-model="waveform"
-          :items="waveforms"
-          class="w-full text-xs"
-          size="sm"
+        <KnobInput
+          v-model="detune"
+          label="detune"
+          :min="0"
+          :max="100"
+          :format-fn="(v) => v + 'ct'"
+        />
+        <KnobInput
+          v-model="waveformIndex"
+          label="waveform"
+          :min="0"
+          :max="waveforms.length - 1"
+          :format-fn="(v) => waveforms[v]!"
         />
       </div>
       <ModulePortRail

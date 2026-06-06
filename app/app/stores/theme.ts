@@ -91,15 +91,15 @@ function getInitialTheme(): ThemeName {
 }
 
 export const useThemeStore = defineStore('themeStore', () => {
-  const currentTheme = ref<ThemeName>(getInitialTheme())
+  const currentTheme = ref<ThemeName>('neutral')
 
   const theme = computed(() => THEMES[currentTheme.value])
   const accent = computed(() => theme.value.accent)
-  const themes = computed(() => Object.entries(THEMES).map(([key, def]) => ({
+  const themes = Object.entries(THEMES).map(([key, def]) => ({
     value: key as ThemeName,
     label: def.label,
     accent: def.accent,
-  })))
+  }))
 
   function setTheme(name: ThemeName) {
     currentTheme.value = name
@@ -120,6 +120,7 @@ export const useThemeStore = defineStore('themeStore', () => {
   }
 
   function init() {
+    currentTheme.value = getInitialTheme()
     applyTheme(currentTheme.value)
   }
 

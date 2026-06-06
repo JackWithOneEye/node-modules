@@ -64,25 +64,21 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <div class="flex gap-2">
+    <div class="flex">
       <ModulePortRail
         :ports="targetPorts"
         position="left"
       />
-      <div class="nodrag flex flex-col gap-3 border border-white rounded-md p-2">
-        <div class="flex gap-1">
-          <ParamController
-            name="harmonicThreshold"
-            :default-value="harmonicThreshold"
-            label="HTHRESH"
-            :min="0.01"
-            :max="1.0"
-            :step="0.01"
-            unit=""
-            @on-change="value => setParamValue(pitchTrackerNode.harmonicThreshold, value)"
-          />
-        </div>
-      </div>
+      <ParamController
+        name="harmonicThreshold"
+        :default-value="harmonicThreshold"
+        label="harm. threshold"
+        :min="0.01"
+        :max="1.0"
+        :step="0.01"
+        unit=""
+        @on-change="value => setParamValue(pitchTrackerNode.harmonicThreshold, value)"
+      />
       <ModulePortRail
         :ports="sourcePorts"
         position="right"

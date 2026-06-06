@@ -1,3 +1,5 @@
+export const MIN_GAIN = 1.4013e-10
+
 export const useGainParam = (name: string, defaultLinearValue: number, setParam: (value: number) => void) => {
   const [gain] = useAudioParam(name, defaultLinearValue, setParam, {
     toActual: dB2Gain,

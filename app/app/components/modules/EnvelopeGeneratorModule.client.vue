@@ -94,13 +94,13 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <div class="flex gap-2">
+    <div class="flex">
       <ModulePortRail
         :ports="targetPorts"
         position="left"
       />
-      <div class="nodrag flex flex-col gap-3 border border-white rounded-md p-2">
-        <div class="flex gap-1">
+      <div class="nodrag flex flex-col gap-2">
+        <div class="flex gap-2">
           <ParamController
             name="attack"
             :default-value="attack"
@@ -119,9 +119,6 @@ onUnmounted(() => {
             unit="ms"
             @on-change="value => setParamValue(envelopeGeneratorNode.decay, value)"
           />
-        </div>
-
-        <div class="flex gap-1">
           <ParamController
             name="sustain"
             :default-value="sustain"

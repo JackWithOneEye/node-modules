@@ -62,7 +62,7 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <div class="flex gap-2">
+    <div class="flex">
       <ModulePortRail
         position="left"
         :ports="[
@@ -70,17 +70,14 @@ onUnmounted(() => {
           { id: 'delayTime', label: 'time', signal: 'cv' },
         ]"
       />
-      <div class="nodrag">
-        <UInput
-          v-model="delayTime"
-          type="number"
-          :min="0"
-          :max="2"
-          :step="0.01"
-          variant="none"
-          :ui="{ base: 'w-24 border border-white/50 focus:border-white text-sm p-2 outline-none bg-transparent text-white rounded' }"
-        />
-      </div>
+      <KnobInput
+        v-model="delayTime"
+        label="delay"
+        :min="0"
+        :max="2"
+        :step="0.01"
+        :format-fn="(v) => `${(v * 1000).toFixed()}ms`"
+      />
       <ModulePortRail
         position="right"
         :ports="[{ id: 'output', label: 'out', signal: 'audio' }]"

@@ -46,10 +46,20 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <ModulePortRow
-      :input="{ id: 'input1', label: 'in1', signal: 'audio' }"
-      :output="{ id: 'output', label: 'out', signal: 'audio' }"
-    />
-    <ModulePortRow :input="{ id: 'input2', label: 'in2', signal: 'audio' }" />
+    <div class="flex">
+      <ModulePortRail
+        position="left"
+        :ports="[
+          { id: 'input1', label: 'in1', signal: 'audio' },
+          { id: 'input2', label: 'in2', signal: 'audio' },
+        ]"
+      />
+      <ModulePortRail
+        position="right"
+        :ports="[
+          { id: 'output', label: 'out', signal: 'audio' },
+        ]"
+      />
+    </div>
   </BaseModuleShell>
 </template>

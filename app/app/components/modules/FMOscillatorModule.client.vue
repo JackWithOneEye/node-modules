@@ -59,7 +59,7 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <div class="flex gap-2">
+    <div class="flex">
       <ModulePortRail
         position="left"
         :ports="[
@@ -67,30 +67,24 @@ onUnmounted(() => {
           { id: 'phaseShift', label: 'phse', signal: 'cv' },
         ]"
       />
-      <div class="nodrag flex flex-col gap-2 border border-white/80 rounded-md p-2">
-        <div class="flex gap-1">
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="frequency"
-              :size="60"
-              :min="0.0"
-              :max="4186.009"
-              :step="0.1"
-              :format-fn="(v) => v.toFixed(1) + 'Hz'"
-            />
-            <span class="text-handle">Frequency</span>
-          </div>
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="pitchShift"
-              :size="60"
-              :min="-24"
-              :max="24"
-              :step="1"
-            />
-            <span class="text-handle">Pitch Shift</span>
-          </div>
-        </div>
+      <div class="nodrag flex gap-1">
+        <KnobInput
+          v-model="frequency"
+          label="frequency"
+          :size="60"
+          :min="0.0"
+          :max="4186.009"
+          :step="0.1"
+          :format-fn="(v) => v.toFixed(1) + 'Hz'"
+        />
+        <KnobInput
+          v-model="pitchShift"
+          label="pitch shift"
+          :size="60"
+          :min="-24"
+          :max="24"
+          :step="1"
+        />
       </div>
       <ModulePortRail
         position="right"

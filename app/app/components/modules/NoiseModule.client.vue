@@ -13,10 +13,10 @@ const props = withDefaults(defineProps<NoiseModuleProps>(), {
 const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
 const noiseGeneratorNode = new NoiseGeneratorWorkletNode(getAudioContext(), { noiseType: props.noiseType })
 const noiseType = useOptionParam('noiseType', props.noiseType, value => setParamValue(noiseGeneratorNode.noiseType, value))
-const noiseTypeOptions = [
-  { label: 'White', value: NoiseType.White },
-  { label: 'Brownian', value: NoiseType.Brownian },
-]
+const noiseTypeOptLabels = {
+  [NoiseType.White]: 'white',
+  [NoiseType.Brownian]: 'brownian',
+} as const
 
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },
@@ -54,17 +54,13 @@ onUnmounted(() => {
     :title="props.title"
   >
     <ModulePortRow :output="{ id: 'output', label: 'out', signal: 'audio' }">
-      <div class="nodrag flex flex-col gap-2 border border-white/80 rounded-md p-2">
-        <USelect
-          v-model="noiseType"
-          :items="noiseTypeOptions"
-          label-key="label"
-          value-key="value"
-          placeholder="Type"
-          class="w-full text-xs"
-          size="sm"
-        />
-      </div>
+      <KnobInput
+        v-model="noiseType"
+        label="type"
+        :min="NoiseType.White"
+        :max="NoiseType.Brownian"
+        :format-fn="(v) => noiseTypeOptLabels[v as NoiseType]"
+      />
     </ModulePortRow>
   </BaseModuleShell>
 </template>

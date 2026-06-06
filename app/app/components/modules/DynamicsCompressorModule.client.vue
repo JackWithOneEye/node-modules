@@ -88,7 +88,7 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <div class="flex gap-2">
+    <div class="flex">
       <ModulePortRail
         position="left"
         :ports="[
@@ -100,69 +100,59 @@ onUnmounted(() => {
           { id: 'release', label: 'rel', signal: 'cv' },
         ]"
       />
-      <div class="nodrag flex gap-1 border border-neutral-600 rounded-md p-3">
-        <div class="flex flex-col gap-1">
+      <div class="nodrag flex gap-2">
+        <KnobInput
+          v-model="threshold"
+          label="Threshold"
+          :min="-100"
+          :max="0"
+          :format-fn="(v) => v + 'dB'"
+        />
+        <KnobInput
+          v-model="knee"
+          label="Knee"
+          :min="0"
+          :max="40"
+          :format-fn="(v) => v + 'dB'"
+        />
+        <KnobInput
+          v-model="ratio"
+          label="Ratio"
+          :min="1"
+          :max="20"
+          :format-fn="(v) => v + ':1'"
+        />
+        <KnobInput
+          v-model="attack"
+          label="Attack"
+          :min="0"
+          :max="1"
+          :step="0.001"
+          :format-fn="(v) => (v * 1000).toFixed(1) + 'ms'"
+        />
+        <KnobInput
+          v-model="release"
+          label="Release"
+          :min="0"
+          :max="1"
+          :step="0.01"
+          :format-fn="(v) => (v * 1000).toFixed(0) + 'ms'"
+        />
+        <UTooltip
+          text="Reduction (dB)"
+          arrow
+          :delay-duration="0"
+          :disable-closing-trigger="true"
+          :content="{ side: 'top', sideOffset: 0 }"
+        >
           <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="threshold"
-              :size="40"
-              :min="-100"
-              :max="0"
-              :format-fn="(v) => v + 'dB'"
-            />
-            <span class="text-xs">Threshold</span>
-          </div>
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="knee"
-              :size="40"
-              :min="0"
-              :max="40"
-              :format-fn="(v) => v + 'dB'"
-            />
-            <span class="text-xs">Knee</span>
-          </div>
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="ratio"
-              :size="40"
-              :min="1"
-              :max="20"
-              :format-fn="(v) => v + ':1'"
-            />
-            <span class="text-xs">Ratio</span>
-          </div>
-        </div>
-        <div class="flex flex-col gap-1">
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="attack"
-              :size="40"
-              :min="0"
-              :max="1"
-              :step="0.001"
-              :format-fn="(v) => (v * 1000).toFixed(1) + 'ms'"
-            />
-            <span class="text-xs">Attack</span>
-          </div>
-          <div class="flex flex-col items-center">
-            <KnobInput
-              v-model="release"
-              :size="40"
-              :min="0"
-              :max="1"
-              :step="0.01"
-              :format-fn="(v) => (v * 1000).toFixed(0) + 'ms'"
-            />
-            <span class="text-xs">Release</span>
-          </div>
-          <div class="flex flex-col items-center">
-            <div class="w-10 h-10 border border-neutral-600 rounded-full flex items-center justify-center bg-neutral-900">
+            <div
+              class="w-10 h-10 border border-neutral-600 rounded-full flex items-center justify-center bg-neutral-900"
+            >
               <span class="text-xs text-white font-mono">{{ reduction.toFixed(1) }}</span>
             </div>
-            <span class="text-xs">Reduction (dB)</span>
           </div>
-        </div>
+        </UTooltip>
       </div>
       <ModulePortRail
         position="right"

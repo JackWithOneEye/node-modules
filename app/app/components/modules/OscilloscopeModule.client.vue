@@ -67,7 +67,7 @@ onUnmounted(() => {
     <ModulePortRow :input="{ id: 'input', label: 'in', signal: 'audio' }">
       <div
         ref="wrapper"
-        class="flex items-center justify-center border border-white/50 p-1 [&>canvas]:max-h-[150px] [&>canvas]:max-w-[250px]"
+        class="flex items-center justify-center border border-white/50 pr-1 [&>canvas]:max-h-37.5 [&>canvas]:max-w-62.5"
       />
     </ModulePortRow>
   </BaseModuleShell>

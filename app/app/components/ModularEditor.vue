@@ -131,6 +131,8 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
       :nodes="nodes as Node[]"
       :edges="edges"
       :default-viewport="viewport"
+      :min-zoom="1"
+      :max-zoom="2"
       class="flex-1 bg-black text-white"
     >
       <template #[`node-${AudioModuleType.ADSR}`]="{ id, type, data }">
@@ -193,6 +195,7 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :type="type"
           :title="data.title"
           :gain="data.gain"
+          :muted="data.muted"
         />
       </template>
       <template #[`node-${AudioModuleType.DynamicsCompressor}`]="{ id, type, data }">

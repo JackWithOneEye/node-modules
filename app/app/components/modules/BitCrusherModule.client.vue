@@ -65,7 +65,7 @@ onUnmounted(() => {
     :type="type"
     :title="props.title"
   >
-    <div class="flex gap-2">
+    <div class="flex">
       <ModulePortRail
         position="left"
         :ports="[
@@ -73,17 +73,13 @@ onUnmounted(() => {
           { id: 'bits', label: 'bits', signal: 'cv' },
         ]"
       />
-      <div class="nodrag flex gap-1 border border-white/80 rounded-md p-2">
-        <div class="flex flex-col items-center">
-          <KnobInput
-            v-model="scaledBits"
-            :size="40"
-            :min="0"
-            :max="maxBitSliderVal"
-            :format-fn="(v) => `${actualBits.toFixed()} bits`"
-          />
-        </div>
-      </div>
+      <KnobInput
+        v-model="scaledBits"
+        label="bits"
+        :min="0"
+        :max="maxBitSliderVal"
+        :format-fn="() => `${actualBits.toFixed()}b`"
+      />
       <ModulePortRail
         position="right"
         :ports="[{ id: 'output', label: 'out', signal: 'audio' }]"
