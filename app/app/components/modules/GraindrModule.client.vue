@@ -35,10 +35,7 @@ const { id, title, type, ...paramProps } = props
 const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
 const graindrNode = new GraindrWorkletNode(getAudioContext(), { ...paramProps })
 
-const pctConv = {
-  toActual: (scaled: number) => scaled * 0.01,
-  toScaled: (actual: number) => actual * 100,
-}
+const pctConv = linearConverter(100)
 const [dryWetMix] = useAudioParam('dryWetMix', props.dryWetMix, value => setParamValue(graindrNode.dryWetMix, value), pctConv)
 const [grainSizeMs] = useAudioParam('grainSizeMs', props.grainSizeMs, value => setParamValue(graindrNode.grainSizeMs, value, 'exp', 0.5))
 const [pitchShift] = useAudioParam('pitchShift', props.pitchShift, value => setParamValue(graindrNode.pitchShift, value))

@@ -1,9 +1,12 @@
 import { Destroyable, Resettable } from './mixins'
 
 class PhaserWorkletNodeBase extends AudioWorkletNode {
-  readonly rate: AudioParam
+  readonly modulation: AudioParam
+  readonly depth: AudioParam
+  readonly intensity: AudioParam
+  readonly stages: AudioParam
 
-  constructor(context: AudioContext, options?: Partial<{ rate: number }>) {
+  constructor(context: AudioContext, options?: Partial<{ depth: number, intensity: number, stages: number }>) {
     super(context, 'phaser', {
       numberOfInputs: 1,
       numberOfOutputs: 1,
@@ -11,7 +14,10 @@ class PhaserWorkletNodeBase extends AudioWorkletNode {
       parameterData: options,
     })
 
-    this.rate = this.parameters.get('rate')!
+    this.modulation = this.parameters.get('modulation')!
+    this.depth = this.parameters.get('depth')!
+    this.intensity = this.parameters.get('intensity')!
+    this.stages = this.parameters.get('stages')!
   }
 }
 export const PhaserWorkletNode = Destroyable(Resettable(PhaserWorkletNodeBase))

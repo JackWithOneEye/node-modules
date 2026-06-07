@@ -283,7 +283,9 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :id="id"
           :type="type"
           :title="data.title"
-          :rate="data.rate"
+          :depth="data.depth"
+          :intensity="data.intensity"
+          :stages="data.stages"
         />
       </template>
       <template #[`node-${AudioModuleType.Multiplier}`]="{ id, type, data }">

@@ -36,6 +36,7 @@ onUnmounted(() => {
 
 <template>
   <Handle
+    v-bind="$attrs"
     :id="id"
     :type="type"
     :position="position"

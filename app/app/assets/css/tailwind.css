@@ -68,6 +68,14 @@
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
 }
 
+.vue-flow__edges {
+  z-index: 1 !important;
+}
+
+.vue-flow__nodes {
+  z-index: 0;
+}
+
 .vue-flow__controls {
   @apply flex flex-wrap justify-center border-white
 }

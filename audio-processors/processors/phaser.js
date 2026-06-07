@@ -12,7 +12,9 @@ class PhaserProcessor extends AudioWorkletProcessor {
   #inputBuffer = new HeapAudioBuffer(this.#phaser.input_buffer_ptr(), CHANNELS);
   #outputBuffer = new HeapAudioBuffer(this.#phaser.output_buffer_ptr(), CHANNELS);
 
-  #rateBuffer = new HeapParameterBuffer(this.#phaser.rate_buffer_ptr());
+  #modulationBuffer = new HeapParameterBuffer(this.#phaser.modulation_buffer_ptr());
+  #depthBuffer = new HeapParameterBuffer(this.#phaser.depth_buffer_ptr());
+  #intensityBuffer = new HeapParameterBuffer(this.#phaser.intensity_buffer_ptr());
 
   #destroyed = false;
 
@@ -33,11 +35,32 @@ class PhaserProcessor extends AudioWorkletProcessor {
   static get parameterDescriptors() {
     return /** @type {const} */ ([
       {
-        name: 'rate',
-        defaultValue: 0.5,
-        minValue: 0.1,
-        maxValue: 20.0,
+        name: 'modulation',
+        defaultValue: 0.0,
+        minValue: -1.0,
+        maxValue: 1.0,
         automationRate: 'a-rate'
+      },
+      {
+        name: 'depth',
+        defaultValue: 0.5,
+        minValue: 0.0,
+        maxValue: 1.0,
+        automationRate: 'a-rate'
+      },
+      {
+        name: 'intensity',
+        defaultValue: 0.0,
+        minValue: 0.0,
+        maxValue: 1.0,
+        automationRate: 'a-rate'
+      },
+      {
+        name: 'stages',
+        defaultValue: 4,
+        minValue: 1,
+        maxValue: 6,
+        automationRate: 'k-rate'
       },
     ]);
   }
@@ -49,7 +72,9 @@ class PhaserProcessor extends AudioWorkletProcessor {
     if (e.type === MEMORY_DETACHED_EVENT) {
       this.#inputBuffer.recoverMemory(this.#phaser.input_buffer_ptr());
       this.#outputBuffer.recoverMemory(this.#phaser.output_buffer_ptr());
-      this.#rateBuffer.recoverMemory(this.#phaser.rate_buffer_ptr());
+      this.#modulationBuffer.recoverMemory(this.#phaser.modulation_buffer_ptr());
+      this.#depthBuffer.recoverMemory(this.#phaser.depth_buffer_ptr());
+      this.#intensityBuffer.recoverMemory(this.#phaser.intensity_buffer_ptr());
     }
   }
 
@@ -69,9 +94,11 @@ class PhaserProcessor extends AudioWorkletProcessor {
     for (let channel = 0; channel < CHANNELS; channel++) {
       this.#inputBuffer.setChannelData(input[Math.min(channel, inputChannels)], channel);
     }
-    this.#rateBuffer.setData(parameters.rate);
+    this.#modulationBuffer.setData(parameters.modulation);
+    this.#depthBuffer.setData(parameters.depth);
+    this.#intensityBuffer.setData(parameters.intensity);
 
-    this.#phaser.process();
+    this.#phaser.process(parameters.stages[0]);
 
     for (let channel = 0; channel < CHANNELS; channel++) {
       outputList[0][channel].set(this.#outputBuffer.getChannelData(channel));
