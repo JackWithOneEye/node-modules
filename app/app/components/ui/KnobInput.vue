@@ -71,16 +71,29 @@ const arcBoundingBox = computed(() => {
   return { x: minX, y: minY, width: maxX - minX, height: maxY - minY }
 })
 
+const arcBaseSize = computed(() => {
+  const bounds = arcBoundingBox.value
+  return Math.max(bounds.width, bounds.height)
+})
+
+const viewBoxMargin = computed(() => {
+  return Math.max(strokeWidth.value * 0.05, 1)
+})
+
+const viewBoxSize = computed(() => {
+  return arcBaseSize.value + viewBoxMargin.value * 2
+})
+
 const svgViewBox = computed(() => {
-  const b = arcBoundingBox.value
-  const maxDim = Math.max(b.width, b.height)
-  const centerX = b.x + b.width / 2
-  const centerY = b.y + b.height / 2
-  return `${centerX - maxDim / 2} ${centerY - maxDim / 2} ${maxDim} ${maxDim}`
+  const bounds = arcBoundingBox.value
+  const size = viewBoxSize.value
+  const centerX = bounds.x + bounds.width / 2
+  const centerY = bounds.y + bounds.height / 2
+  return `${centerX - size / 2} ${centerY - size / 2} ${size} ${size}`
 })
 
 const svgSize = computed(() => {
-  return Math.max(arcBoundingBox.value.width, arcBoundingBox.value.height) * (props.size / 100)
+  return arcBaseSize.value * (props.size / 100)
 })
 
 const backgroundArc = computed(() => {

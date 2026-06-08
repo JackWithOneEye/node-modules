@@ -8,21 +8,28 @@ export type PhaserModuleProps = {
   depth?: number
   intensity?: number
   stages?: number
+  modulationMapping?: ModulationMapping
 }
 const props = withDefaults(defineProps<PhaserModuleProps>(), {
   title: 'Phaser',
   depth: 0.5,
   intensity: 0.0,
   stages: 4,
+  modulationMapping: ModulationMapping.Linear,
 })
 
 const { getAudioContext, registerModule, setParamValue, unregisterModule } = useAudioContextStore()
-const phaserNode = new PhaserWorkletNode(getAudioContext(), { depth: props.depth, intensity: props.intensity, stages: props.stages })
+const phaserNode = new PhaserWorkletNode(getAudioContext(), { depth: props.depth, intensity: props.intensity, stages: props.stages, modulationMapping: props.modulationMapping })
 
 const pctConv = linearConverter(100)
 const [depth] = useAudioParam('depth', props.depth, value => setParamValue(phaserNode.depth, value), pctConv)
 const [intensity] = useAudioParam('intensity', props.intensity, value => setParamValue(phaserNode.intensity, value), pctConv)
 const [stages] = useAudioParam('stages', props.stages, value => setParamValue(phaserNode.stages, value))
+const modulationMapping = useOptionParam('modulationMapping', props.modulationMapping, value => setParamValue(phaserNode.modulationMapping, value))
+const modulationMappingOptLabels = {
+  [ModulationMapping.Linear]: 'lin',
+  [ModulationMapping.Exponential]: 'exp',
+} as const
 
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },
@@ -68,11 +75,7 @@ onUnmounted(() => {
     <div class="flex">
       <ModulePortRail
         position="left"
-        :ports="[
-          { id: 'input', label: 'in', signal: 'audio' },
-          { id: 'depth', label: 'depth', signal: 'cv' },
-          { id: 'intensity', label: 'int', signal: 'cv' },
-        ]"
+        :ports="[{ id: 'input', label: 'in', signal: 'audio' }]"
       />
       <div class="relative flex flex-col items-center select-none w-13">
         <span class="text-xs text-center font-mono w-12 text-white/50">mod</span>
@@ -94,22 +97,32 @@ onUnmounted(() => {
           </UTooltip>
         </div>
       </div>
-      <KnobInput
-        v-model="depth"
-        label="depth"
-        :min="0"
-        :max="100"
-        :step="1"
-        :format-fn="(v) => v.toFixed(0) + '%'"
-      />
-      <KnobInput
-        v-model="intensity"
-        label="intensity"
-        :min="0"
-        :max="100"
-        :step="1"
-        :format-fn="(v) => v.toFixed(0) + '%'"
-      />
+      <WithHandle
+        handle-id="depth"
+        handle-signal="cv"
+      >
+        <KnobInput
+          v-model="depth"
+          label="depth"
+          :min="0"
+          :max="100"
+          :step="1"
+          :format-fn="(v) => v.toFixed(0) + '%'"
+        />
+      </WithHandle>
+      <WithHandle
+        handle-id="intensity"
+        handle-signal="cv"
+      >
+        <KnobInput
+          v-model="intensity"
+          label="intensity"
+          :min="0"
+          :max="100"
+          :step="1"
+          :format-fn="(v) => v.toFixed(0) + '%'"
+        />
+      </WithHandle>
       <KnobInput
         v-model="stages"
         label="stages"
@@ -117,6 +130,13 @@ onUnmounted(() => {
         :max="6"
         :step="1"
         :format-fn="(v) => v.toFixed(0)"
+      />
+      <KnobInput
+        v-model="modulationMapping"
+        label="mod mapping"
+        :min="ModulationMapping.Linear"
+        :max="ModulationMapping.Exponential"
+        :format-fn="(v) => modulationMappingOptLabels[v as ModulationMapping]"
       />
       <ModulePortRail
         position="right"

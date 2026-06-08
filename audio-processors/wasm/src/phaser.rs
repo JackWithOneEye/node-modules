@@ -29,13 +29,13 @@ pub struct Phaser {
 
 const MAX_STAGES: usize = 6;
 
-const FREQS_STD: [[f32; 2]; MAX_STAGES] = [
-    [32.0, 1500.0],
-    [68.0, 3400.0],
-    [96.0, 4800.0],
-    [212.0, 10000.0],
-    [320.0, 16000.0],
-    [636.0, 20480.0],
+const FREQS_STD: [[f32; 3]; MAX_STAGES] = [
+    [32.0, 1500.0, 1500.0 / 32.0],
+    [68.0, 3400.0, 3400.0 / 68.0],
+    [96.0, 4800.0, 4800.0 / 96.0],
+    [212.0, 10000.0, 10000.0 / 212.0],
+    [320.0, 16000.0, 16000.0 / 320.0],
+    [636.0, 20480.0, 20480.0 / 636.0],
 ];
 
 // const FREQS_IDEAL: [[f32; 2]; MAX_STAGES] = [
@@ -76,7 +76,15 @@ impl Phaser {
         }
     }
 
-    pub fn process(&mut self, stages: usize) {
+    pub fn process(&mut self, stages: usize, modulation_mapping: u8) {
+        let map_fc = match modulation_mapping.into() {
+            ModulationMapping::Linear => |i: usize, mod_val: f32| {
+                Self::calc_fc_lin(mod_val, FREQS_STD[i][0], FREQS_STD[i][1])
+            },
+            ModulationMapping::Exponential => |i: usize, mod_val: f32| {
+                Self::calc_fc_exp(mod_val, FREQS_STD[i][0], FREQS_STD[i][2])
+            },
+        };
         let mut channel_offset = 0;
         for channel in 0..self.channel_count {
             for n in 0..self.buffer_frame_length {
@@ -88,8 +96,7 @@ impl Phaser {
                 let mut alphas: [f32; MAX_STAGES] = [0.0; MAX_STAGES];
                 let mut states: [f32; MAX_STAGES] = [0.0; MAX_STAGES];
                 for i in 0..stages {
-                    let fc = Self::calc_fc(mod_val, FREQS_STD[i][0], FREQS_STD[i][1]);
-                    self.apfs[i][channel].set_params(fc);
+                    self.apfs[i][channel].set_params(map_fc(i, mod_val));
                     let (alpha, s) = self.apfs[i][channel].get_state();
                     alphas[i] = alpha;
                     states[i] = s;
@@ -128,7 +135,29 @@ impl Phaser {
     }
 
     #[inline(always)]
-    fn calc_fc(mod_val: f32, min: f32, max: f32) -> f32 {
+    fn calc_fc_lin(mod_val: f32, min: f32, max: f32) -> f32 {
         min + (1.0 + mod_val) * 0.5 * (max - min)
+    }
+
+    #[inline(always)]
+    fn calc_fc_exp(mod_val: f32, min: f32, ratio: f32) -> f32 {
+        let t = (1.0 + mod_val) * 0.5;
+        min * ratio.powf(t)
+    }
+}
+
+#[derive(Copy, Clone)]
+pub enum ModulationMapping {
+    Linear,
+    Exponential,
+}
+
+impl From<u8> for ModulationMapping {
+    fn from(val: u8) -> Self {
+        match val {
+            0 => ModulationMapping::Linear,
+            1 => ModulationMapping::Exponential,
+            _ => panic!("Value {} cannot be transformed to ModulationMapping!", val),
+        }
     }
 }

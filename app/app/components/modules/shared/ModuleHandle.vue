@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { Handle, type Position } from '@vue-flow/core'
+import { Handle, type HandleType, type Position } from '@vue-flow/core'
 import type { SignalType } from '~/utils/module'
 
 export type ModuleHandleProps = {
   id: string
-  type: 'source' | 'target'
+  type: HandleType
   position: Position
   signal: SignalType
 }

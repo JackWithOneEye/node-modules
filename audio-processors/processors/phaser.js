@@ -62,6 +62,13 @@ class PhaserProcessor extends AudioWorkletProcessor {
         maxValue: 6,
         automationRate: 'k-rate'
       },
+      {
+        name: 'modulationMapping',
+        defaultValue: 0,
+        minValue: 0,
+        maxValue: 1,
+        automationRate: 'k-rate'
+      },
     ]);
   }
 
@@ -98,7 +105,7 @@ class PhaserProcessor extends AudioWorkletProcessor {
     this.#depthBuffer.setData(parameters.depth);
     this.#intensityBuffer.setData(parameters.intensity);
 
-    this.#phaser.process(parameters.stages[0]);
+    this.#phaser.process(parameters.stages[0], parameters.modulationMapping[0]);
 
     for (let channel = 0; channel < CHANNELS; channel++) {
       outputList[0][channel].set(this.#outputBuffer.getChannelData(channel));
