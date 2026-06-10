@@ -46,7 +46,7 @@ impl LFO {
             phase_increment: linear_smoothed_value!(0.0, sample_rate, 0.05),
 
             rsh_counter: 0,
-            rsh_state: linear_smoothed_value!(0.0, sample_rate, 0.0001),
+            rsh_state: linear_smoothed_value!(0.0, sample_rate, 0.01),
 
             phase_shift_buffer: vec![0.0; buffer_frame_length],
             output_buffer: vec![0.0; buffer_frame_length],

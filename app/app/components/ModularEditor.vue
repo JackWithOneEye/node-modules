@@ -422,6 +422,14 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :title="data.title"
         />
       </template>
+      <template #[`node-${AudioModuleType.Keyboard}`]="{ id, type, data }">
+        <KeyboardModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :octave-shift="data.octaveShift"
+        />
+      </template>
       <template #[`node-${AudioModuleType.Waveshaper}`]="{ id, type, data }">
         <WaveshaperModule
           :id="id"
