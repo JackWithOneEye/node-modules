@@ -241,7 +241,7 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :stretch="data.stretch"
           :shimmer="data.shimmer"
           :feedback="data.feedback"
-          :hicut="data.hicut"
+          :hi-cut="data.hiCut"
           :playback-direction="data.playbackDirection"
           :tone-type="data.toneType"
         />

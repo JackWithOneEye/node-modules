@@ -3,6 +3,7 @@ use wasm_utils::IOBufferPtrs;
 
 use crate::{
     dsp::{
+        dc_blocker::DCBlocker,
         delay::Delay,
         envelope_filter::{EnvelopeFilter, LevelCalcType},
         envelope_follower::EnvelopeFollower,
@@ -32,6 +33,10 @@ pub struct Graindr {
     wet_gain: SmoothedValue,
 
     pitch_factor: SmoothedValue,
+
+    // smooths abrupt grain size changes (e.g. stepped CV modulation), which
+    // would otherwise cause clicks in the feedback delay read position
+    grain_size_samples: SmoothedValue,
 
     ms_to_samples_factor: f32,
 
@@ -76,6 +81,9 @@ impl Graindr {
             wet_gain: linear_smoothed_value!(0.0, sample_rate, 0.05),
             pitch_factor: multiplicative_smoothed_value!(1.0, sample_rate, 0.05),
 
+            // initial value matches the 50 ms default of the grainSizeMs param
+            grain_size_samples: linear_smoothed_value!(0.05 * sample_rate, sample_rate, 0.05),
+
             ms_to_samples_factor: 0.001 * sample_rate,
 
             input_buffer: vec![0.0; buffer_frame_length * channel_count],
@@ -118,7 +126,9 @@ impl Graindr {
         for n in 0..self.buffer_frame_length {
             let next_dry_gain = self.dry_gain.get_next_value();
             let next_wet_gain = self.wet_gain.get_next_value();
-            let next_grain_size = self.grain_size_ms_buffer[n] * self.ms_to_samples_factor;
+            self.grain_size_samples
+                .set_target_value(self.grain_size_ms_buffer[n] * self.ms_to_samples_factor);
+            let next_grain_size = self.grain_size_samples.get_next_value();
             let next_pitch_factor = self.pitch_factor.get_next_value();
             let next_texture = self.texture_buffer[n];
             let next_shimmer = self.shimmer_buffer[n];
@@ -158,6 +168,7 @@ impl Graindr {
         self.dry_gain.reset();
         self.wet_gain.reset();
         self.pitch_factor.reset();
+        self.grain_size_samples.reset();
     }
 }
 
@@ -186,6 +197,7 @@ struct GraindrProcessor {
 
     granular_processor: GranularProcessor,
     delay: Delay,
+    dc_blocker: DCBlocker,
 }
 
 const MAX_GRAIN_SIZE_SEC: usize = 1;
@@ -220,6 +232,7 @@ impl GraindrProcessor {
                 MAX_PITCH_SHIFT_FACTOR,
             ),
             delay: Delay::new(sample_rate, MAX_GRAIN_SIZE_SEC * sample_rate as usize),
+            dc_blocker: DCBlocker::new(sample_rate),
         }
     }
 
@@ -283,12 +296,14 @@ impl GraindrProcessor {
             trigger_stretch,
         );
 
-        self.delay.process(
+        let delay_out = self.delay.process(
             granular_proc_out,
             self.granular_processor.input_size(),
             feedback,
             tape_sim,
-        )
+        );
+        // self.dc_blocker.process(delay_out)
+        delay_out
     }
 
     pub fn reset(&mut self) {
@@ -298,5 +313,6 @@ impl GraindrProcessor {
         self.note_on = false;
         self.pre_envelope_filter.reset();
         self.delay.reset();
+        self.dc_blocker.reset();
     }
 }

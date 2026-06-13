@@ -11,7 +11,7 @@ export type GraindrModuleProps = {
   stretch?: number
   shimmer?: number
   feedback?: number
-  hicut?: number
+  hiCut?: number
   playbackDirection?: Direction
   toneType?: ToneType
 }
@@ -26,7 +26,7 @@ const props = withDefaults(defineProps<GraindrModuleProps>(), {
   stretch: 1,
   shimmer: 0,
   feedback: 0,
-  hicut: 22000.0,
+  hiCut: 22000.0,
   playbackDirection: Direction.Forward,
   toneType: ToneType.Digital,
 })
@@ -44,7 +44,7 @@ const [texture] = useAudioParam('texture', props.texture, value => setParamValue
 const [stretch] = useAudioParam('stretch', props.stretch, value => setParamValue(graindrNode.stretch, value))
 const [shimmer] = useAudioParam('shimmer', props.shimmer, value => setParamValue(graindrNode.shimmer, value, 'lin'), pctConv)
 const [feedback] = useAudioParam('feedback', props.feedback, value => setParamValue(graindrNode.feedback, value, 'lin'), pctConv)
-const { scaled: hicutScaled, hz: hicutHz, controlRange: hicutControlRange } = useFrequencyParam('hicut', props.hicut, 20, 10, value => setParamValue(graindrNode.hiCut, value))
+const { scaled: hiCutScaled, hz: hiCutHz, controlRange: hiCutControlRange } = useFrequencyParam('hiCut', props.hiCut, 20, 10, value => setParamValue(graindrNode.hiCut, value))
 const playbackDirection = useOptionParam('playbackDirection', props.playbackDirection, value => setParamValue(graindrNode.playbackDirection, value))
 const playbackOptLabels = {
   [Direction.Forward]: 'fwd',
@@ -85,7 +85,7 @@ registerModule(id, {
     stretch: { type: 'param', param: graindrNode.stretch },
     shimmer: { type: 'param', param: graindrNode.shimmer },
     feedback: { type: 'param', param: graindrNode.feedback },
-    hicut: { type: 'param', param: graindrNode.hiCut },
+    hiCut: { type: 'param', param: graindrNode.hiCut },
   },
   onSuspend: () => {
     graindrNode.reset()
@@ -171,11 +171,11 @@ onUnmounted(() => {
           :format-fn="(v) => v + '%'"
         />
         <KnobInput
-          v-model="hicutScaled"
+          v-model="hiCutScaled"
           label="hi cut"
           :min="0"
-          :max="hicutControlRange"
-          :format-fn="() => (hicutHz * 0.001).toFixed(1) + 'kHz'"
+          :max="hiCutControlRange"
+          :format-fn="() => (hiCutHz * 0.001).toFixed(1) + 'kHz'"
         />
         <KnobInput
           v-model="playbackDirection"

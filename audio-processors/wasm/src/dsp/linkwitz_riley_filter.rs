@@ -1,6 +1,6 @@
- use std::f32::consts::{PI, SQRT_2};
+use std::f32::consts::{PI, SQRT_2};
 
- #[derive(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub enum LinkwitzRileyFilterType {
     Lowpass,
     Highpass,
@@ -8,12 +8,15 @@ pub enum LinkwitzRileyFilterType {
 }
 
 impl From<u8> for LinkwitzRileyFilterType {
-     fn from(val: u8) -> Self {
+    fn from(val: u8) -> Self {
         match val {
             0 => LinkwitzRileyFilterType::Lowpass,
             1 => LinkwitzRileyFilterType::Highpass,
             2 => LinkwitzRileyFilterType::Allpass,
-            _ => panic!("Value {} cannot be transformed to LinkwitzRileyFilterType!", val),
+            _ => panic!(
+                "Value {} cannot be transformed to LinkwitzRileyFilterType!",
+                val
+            ),
         }
     }
 }
