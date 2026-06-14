@@ -34,10 +34,6 @@ impl CircularBuffer {
         }
     }
 
-    pub fn write_index(&self) -> usize {
-        self.write_index
-    }
-
     pub fn write(&mut self, input: f32) {
         self.buffer[self.write_index] = input;
         self.write_index += 1;
@@ -71,13 +67,12 @@ impl CircularBuffer {
         interpolation_type: InterpolationType,
     ) -> f32 {
         let fraction = delay_in_fractional_samples.fract();
-        let delay_samples = delay_in_fractional_samples.trunc() as usize;
+        let delay_samples = delay_in_fractional_samples as usize;
         let y1 = self.read(delay_samples);
-        // if fraction == 0.0 {
-        //     return y1;
-        // }
+        if fraction == 0.0 {
+            return y1;
+        }
         let y2 = self.read(delay_samples + 1);
-
         match interpolation_type {
             InterpolationType::Cubic => {
                 let y0 = self.read(delay_samples - 1);

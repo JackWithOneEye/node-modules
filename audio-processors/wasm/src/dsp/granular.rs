@@ -1,49 +1,61 @@
-use crate::dsp::{
-    circular_buffer::cubic_interpolation, linkwitz_riley_filter::LinkwitzRileyFilter,
-};
+use web_sys::console;
+
+use crate::dsp::{circular_buffer::InterpolationType, linkwitz_riley_filter::LinkwitzRileyFilter};
 
 use super::{
-    circular_buffer::{CircularBuffer, InterpolationType},
+    circular_buffer::CircularBuffer,
     tape_sim::TapeSimFilter,
     vasv_filter::{pre_feedback_loop_hipass, VASVFilter},
 };
 
+// const MIN_READ_DELAY: f32 = 0.0;
+
+#[derive(Copy, Clone, PartialEq)]
+enum GrainDirection {
+    Forward,
+    Reverse,
+}
+
 struct GrainOutputProcessParams {
     read_index: f32,
 
-    // the still active grain must compensate for the new chunk of
-    // samples written into the output buffer after the stride
-    read_offset: f32,
+    // delay in samples behind the input_buffer write head
+    delay: f32,
 
     output_size: f32,
     overlap_width: f32,
 
+    active: bool,
+    direction: GrainDirection,
+}
+
+struct StretchState {
+    stretching: bool,
     trigger_stretch: bool,
-    stretch_multiplier: f32,
+    grain_index: usize,
+    repeat_index: usize,
 }
 
 pub struct GranularProcessor {
     sample_rate: f32,
 
     input_buffer: CircularBuffer,
+    input_buffer_size: usize,
     current_input_size: f32,
 
-    output_buffer: CircularBuffer,
-    current_output_size: f32,
-    current_overlap_width: f32,
     written_samples_ctr: f32,
 
     output_1_process_params: GrainOutputProcessParams,
     output_2_process_params: GrainOutputProcessParams,
 
-    output_lowpass: VASVFilter, // controllable
+    output_lowpass: VASVFilter,
     output_tape_sim_bandpass: TapeSimFilter,
     output_pre_feedback_hipass: VASVFilter,
     anti_aliasing_lowpass: LinkwitzRileyFilter,
 
-    stretch_ctr: u8,
     stretch_factor: u8,
     next_stretch_factor: u8,
+    stretch_state: StretchState,
 }
 
 impl GranularProcessor {
@@ -52,35 +64,33 @@ impl GranularProcessor {
         max_grain_size_sec: usize,
         max_pitch_shift_octaves: usize,
     ) -> GranularProcessor {
-        let max_output_buffer_size = max_grain_size_sec * sample_rate as usize;
-        let max_input_buffer_size = max_output_buffer_size * max_pitch_shift_octaves;
+        let input_buffer_size =
+            2 * (max_grain_size_sec * sample_rate as usize) * max_pitch_shift_octaves;
 
         GranularProcessor {
             sample_rate,
 
-            input_buffer: CircularBuffer::new(2 * max_input_buffer_size),
+            input_buffer: CircularBuffer::new(input_buffer_size),
+            input_buffer_size,
             current_input_size: 0.0,
 
-            output_buffer: CircularBuffer::new(4 * max_output_buffer_size),
-            current_output_size: 0.0,
-            current_overlap_width: 0.0,
             written_samples_ctr: 0.0,
 
             output_1_process_params: GrainOutputProcessParams {
                 read_index: 0.0,
-                read_offset: 0.0,
+                delay: 0.0,
                 output_size: 0.0,
                 overlap_width: 0.0,
-                trigger_stretch: false,
-                stretch_multiplier: 1.0,
+                active: false,
+                direction: GrainDirection::Forward,
             },
             output_2_process_params: GrainOutputProcessParams {
                 read_index: 0.0,
-                read_offset: 0.0,
+                delay: 0.0,
                 output_size: 0.0,
                 overlap_width: 0.0,
-                trigger_stretch: false,
-                stretch_multiplier: 1.0,
+                active: false,
+                direction: GrainDirection::Forward,
             },
 
             output_lowpass: VASVFilter::new(sample_rate),
@@ -88,9 +98,14 @@ impl GranularProcessor {
             output_pre_feedback_hipass: pre_feedback_loop_hipass(sample_rate),
             anti_aliasing_lowpass: LinkwitzRileyFilter::new(sample_rate),
 
-            stretch_ctr: 0,
             stretch_factor: 1,
             next_stretch_factor: 1,
+            stretch_state: StretchState {
+                stretching: false,
+                trigger_stretch: false,
+                grain_index: 0,
+                repeat_index: 0,
+            },
         }
     }
 
@@ -104,25 +119,21 @@ impl GranularProcessor {
 
     pub fn reset(&mut self) {
         self.input_buffer.reset();
-        self.output_buffer.reset();
         self.written_samples_ctr = 0.0;
 
-        self.current_output_size = 0.0;
-        self.current_overlap_width = 0.0;
-
         self.output_1_process_params.read_index = 0.0;
-        self.output_1_process_params.read_offset = 0.0;
+        self.output_1_process_params.delay = 0.0;
         self.output_1_process_params.output_size = 0.0;
         self.output_1_process_params.overlap_width = 0.0;
-        self.output_1_process_params.trigger_stretch = false;
-        self.output_1_process_params.stretch_multiplier = 1.0;
+        self.output_1_process_params.active = false;
+        self.output_1_process_params.direction = GrainDirection::Forward;
 
         self.output_2_process_params.read_index = 0.0;
-        self.output_2_process_params.read_offset = 0.0;
+        self.output_2_process_params.delay = 0.0;
         self.output_2_process_params.output_size = 0.0;
         self.output_2_process_params.overlap_width = 0.0;
-        self.output_2_process_params.trigger_stretch = false;
-        self.output_2_process_params.stretch_multiplier = 1.0;
+        self.output_2_process_params.active = false;
+        self.output_2_process_params.direction = GrainDirection::Forward;
 
         self.output_lowpass.reset();
         self.output_tape_sim_bandpass.reset();
@@ -130,6 +141,8 @@ impl GranularProcessor {
         self.anti_aliasing_lowpass.reset();
 
         self.next_stretch_factor = self.stretch_factor;
+        self.stretch_state.stretching = false;
+        self.stretch_state.trigger_stretch = false;
     }
 
     pub fn process(
@@ -146,99 +159,96 @@ impl GranularProcessor {
         trigger_stretch: bool,
     ) -> f32 {
         self.current_input_size = grain_size_samples * pitch_shift_factor;
-
         self.next_stretch_factor = stretch_factor;
+
+        // on note-on: deactivate both grains so they respawn cleanly
+        // if trigger_stretch {
+        //     self.output_1_process_params.active = false;
+        //     self.output_2_process_params.active = false;
+        // }
         if trigger_stretch {
-            self.output_1_process_params.trigger_stretch = true;
-            self.output_2_process_params.trigger_stretch = true;
+            self.stretch_state.trigger_stretch = true;
+            // console::log_2(&stretch_factor.into(), &trigger_stretch.into());
         }
 
-        let stride = self.current_output_size - self.current_overlap_width - 1.0;
-        if self.written_samples_ctr > stride {
+        let overlap_width = grain_size_samples * overlap;
+        let stride = grain_size_samples - overlap_width;
+
+        if self.written_samples_ctr >= stride {
             self.written_samples_ctr = 0.0;
 
-            let mut stretch_multiplier_incr: f32 = 0.0;
-
-            self.stretch_ctr += 1;
-            if self.stretch_ctr >= self.stretch_factor {
-                self.stretch_ctr = 0;
-            } else {
-                stretch_multiplier_incr = 1.0;
-            }
             self.stretch_factor = self.next_stretch_factor;
 
-            self.current_output_size = grain_size_samples;
-            self.current_overlap_width = grain_size_samples * overlap;
+            if self.stretch_state.trigger_stretch && self.stretch_factor > 1 {
+                self.stretch_state.stretching = true;
+                self.stretch_state.grain_index = 0;
+                self.stretch_state.repeat_index = 0;
+                self.stretch_state.trigger_stretch = false;
+            } else if self.stretch_factor <= 1 {
+                self.stretch_state.stretching = false;
+            }
 
-            self.resample_input(
-                self.current_input_size,
-                self.current_output_size,
-                pitch_shift_factor,
-            );
+            let mut stretch_lookback_samples: f32 = 0.0;
+            if self.stretch_state.stretching {
+                stretch_lookback_samples = stride
+                    * ((self.stretch_state.grain_index * (self.stretch_factor as usize - 1)
+                        + self.stretch_state.repeat_index) as f32);
 
-            if self.output_1_process_params.read_index >= self.output_1_process_params.output_size {
-                Self::reset_grain_output(
+                if stretch_lookback_samples
+                    > self.input_buffer_size as f32
+                        - (grain_size_samples * pitch_shift_factor).ceil()
+                {
+                    stretch_lookback_samples = 0.0;
+                    self.stretch_state.grain_index = 0;
+                    self.stretch_state.repeat_index = 0;
+                }
+
+                self.stretch_state.repeat_index += 1;
+                if self.stretch_state.repeat_index >= self.stretch_factor as usize {
+                    self.stretch_state.grain_index += 1;
+                    self.stretch_state.repeat_index = 0;
+                }
+            }
+
+            if !self.output_1_process_params.active {
+                Self::spawn_grain(
                     &mut self.output_1_process_params,
-                    &mut self.output_2_process_params,
-                    stretch_multiplier_incr,
-                    self.current_output_size,
-                    self.current_overlap_width,
-                    self.output_buffer.write_index(),
+                    grain_size_samples,
+                    overlap_width,
+                    pitch_shift_factor,
+                    match playback_direction {
+                        PlaybackDirection::Alternate => GrainDirection::Forward,
+                        PlaybackDirection::Reverse => GrainDirection::Reverse,
+                        _ => GrainDirection::Forward,
+                    },
+                    stretch_lookback_samples,
                 );
-            } else if self.output_2_process_params.read_index
-                >= self.output_2_process_params.output_size
-            {
-                Self::reset_grain_output(
+            } else if !self.output_2_process_params.active {
+                Self::spawn_grain(
                     &mut self.output_2_process_params,
-                    &mut self.output_1_process_params,
-                    stretch_multiplier_incr,
-                    self.current_output_size,
-                    self.current_overlap_width,
-                    self.output_buffer.write_index(),
+                    grain_size_samples,
+                    overlap_width,
+                    pitch_shift_factor,
+                    match playback_direction {
+                        PlaybackDirection::Alternate => GrainDirection::Reverse,
+                        PlaybackDirection::Reverse => GrainDirection::Reverse,
+                        _ => GrainDirection::Forward,
+                    },
+                    stretch_lookback_samples,
                 );
-            } else {
-                self.output_1_process_params.read_offset += self.current_output_size;
-                self.output_2_process_params.read_offset += self.current_output_size;
             }
         }
 
-        let mut o1_out = 0.0;
-        if self.output_1_process_params.read_index < self.output_1_process_params.output_size {
-            let params = &self.output_1_process_params;
-            let window = window_func(params.read_index, params.output_size, params.overlap_width);
-            let grain_start = params.stretch_multiplier * params.output_size + params.read_offset;
-
-            let buffer_out = match playback_direction {
-                PlaybackDirection::Reverse => self.output_buffer.read_fractional(
-                    grain_start - params.output_size + params.read_index + 1.0,
-                    InterpolationType::Cubic,
-                ),
-                _ => self
-                    .output_buffer
-                    .read_fractional(grain_start - params.read_index, InterpolationType::Cubic),
-            };
-            self.output_1_process_params.read_index += 1.0;
-            o1_out = buffer_out * window;
-        }
-
-        let mut o2_out = 0.0;
-        if self.output_2_process_params.read_index < self.output_2_process_params.output_size {
-            let params = &self.output_2_process_params;
-            let window = window_func(params.read_index, params.output_size, params.overlap_width);
-            let grain_start = params.stretch_multiplier * params.output_size + params.read_offset;
-
-            let buffer_out = match playback_direction {
-                PlaybackDirection::Forward => self
-                    .output_buffer
-                    .read_fractional(grain_start - params.read_index, InterpolationType::Cubic),
-                _ => self.output_buffer.read_fractional(
-                    grain_start - params.output_size + params.read_index + 1.0,
-                    InterpolationType::Cubic,
-                ),
-            };
-            self.output_2_process_params.read_index += 1.0;
-            o2_out = buffer_out * window;
-        }
+        let o1_out = Self::process_grain(
+            &self.input_buffer,
+            &mut self.output_1_process_params,
+            pitch_shift_factor,
+        );
+        let o2_out = Self::process_grain(
+            &self.input_buffer,
+            &mut self.output_2_process_params,
+            pitch_shift_factor,
+        );
 
         let mut out_sum = o1_out + o2_out;
 
@@ -268,54 +278,53 @@ impl GranularProcessor {
     }
 
     #[inline]
-    fn resample_input(&mut self, input_size: f32, output_size: f32, factor: f32) {
-        let mut current_pos: f32 = 0.0;
-
-        let mut os = output_size;
-        let os_fract = output_size.fract();
-        let offset = if os_fract > 0.0 {
-            factor * (1.0 - os_fract)
-        } else {
-            0.0
-        };
-
-        while os > 0.0 {
-            let delay = input_size + offset - current_pos;
-
-            let y = self
-                .input_buffer
-                .read_fractional(delay, InterpolationType::Cubic);
-
-            self.output_buffer.write(y);
-            current_pos += factor;
-            os -= 1.0;
+    fn process_grain(
+        input_buffer: &CircularBuffer,
+        grain: &mut GrainOutputProcessParams,
+        pitch_shift_factor: f32,
+    ) -> f32 {
+        if !grain.active || grain.read_index >= grain.output_size {
+            grain.active = false;
+            return 0.0;
         }
+
+        let window = window_func(grain.read_index, grain.output_size, grain.overlap_width);
+        let sample = input_buffer.read_fractional(grain.delay, InterpolationType::Cubic);
+        grain.delay += match grain.direction {
+            GrainDirection::Forward => 1.0 - pitch_shift_factor,
+            GrainDirection::Reverse => 1.0 + pitch_shift_factor,
+        };
+        grain.read_index += 1.0;
+
+        sample * window
     }
 
     #[inline]
-    fn reset_grain_output(
-        params: &mut GrainOutputProcessParams,
-        other_params: &mut GrainOutputProcessParams,
-        stretch_multiplier_incr: f32,
+    fn spawn_grain(
+        grain: &mut GrainOutputProcessParams,
         output_size: f32,
         overlap_width: f32,
-        write_index: usize,
+        pitch_shift_factor: f32,
+        direction: GrainDirection,
+        stretch_lookback_samples: f32,
     ) {
-        params.read_index = 0.0;
-        params.read_offset = 0.0;
-        params.output_size = output_size;
-        params.overlap_width = overlap_width;
+        grain.delay = stretch_lookback_samples
+            + match direction {
+                GrainDirection::Forward => {
+                    if pitch_shift_factor > 1.0 {
+                        pitch_shift_factor * output_size
+                    } else {
+                        output_size
+                    }
+                }
+                GrainDirection::Reverse => 0.0,
+            };
 
-        other_params.read_offset += output_size;
-
-        if params.trigger_stretch
-            || (write_index > 0 && write_index < (output_size.ceil() as usize))
-        {
-            params.stretch_multiplier = 1.0;
-        } else {
-            params.stretch_multiplier = other_params.stretch_multiplier + stretch_multiplier_incr;
-        }
-        params.trigger_stretch = false;
+        grain.read_index = 0.0;
+        grain.output_size = output_size;
+        grain.overlap_width = overlap_width;
+        grain.active = true;
+        grain.direction = direction;
     }
 }
 
