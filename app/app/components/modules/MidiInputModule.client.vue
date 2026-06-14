@@ -128,6 +128,7 @@ store.registerModule(props.id, {
 })
 
 const selectedMidiInput = useParam('deviceId', props.deviceId)
+const midiInputOptions = computed(() => midiStore.midiInputs.map(({ id, name }) => ({ id, name })))
 
 const selectedPriority = useParam('priority', props.priority)
 const priorities: { label: string, value: NotePriority }[] = [
@@ -302,7 +303,7 @@ onUnmounted(() => {
       <div class="flex flex-col gap-2">
         <USelect
           v-model="selectedMidiInput"
-          :items="midiStore.midiInputs"
+          :items="midiInputOptions"
           label-key="name"
           value-key="id"
           placeholder="Input Device"

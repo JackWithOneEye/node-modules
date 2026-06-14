@@ -5,13 +5,18 @@
   "scripts": {
     "build": "./builder --env=../.env --js=index.js --wasmDir=wasm",
     "build:watch": "bun run build -- --watch",
-    "postinstall": "cd build && go build -o ../builder cmd/main.go"
+    "postinstall": "cd build && go build -o ../builder cmd/main.go",
+    "test": "bun run typecheck && bun run test:rust",
+    "test:rust": "cargo test --workspace",
+    "typecheck": "tsc --noEmit"
   },
+  "_comment": "test:rust is the current test baseline. The placeholder wasm/tests/web.rs browser test was removed.",
   "devDependencies": {
     "@types/audioworklet": "^0.0.77",
     "@types/bun": "latest",
     "esbuild": "^0.25.5",
-    "fastestsmallesttextencoderdecoder": "^1.0.22"
+    "fastestsmallesttextencoderdecoder": "^1.0.22",
+    "typescript": "^5.8.3"
   },
   "peerDependencies": {
     "typescript": "^5.8.3"
