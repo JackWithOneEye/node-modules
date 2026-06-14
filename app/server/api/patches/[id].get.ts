@@ -1,12 +1,8 @@
 import { readFile } from 'fs/promises'
-import { join } from 'path'
+import { getPatchFilePath } from '../../utils/patch-storage'
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')
-  if (!id) {
-    throw createError({ statusCode: 400, statusMessage: 'Missing id' })
-  }
-  const filePath = join(process.env.DATA_STORE_DIRECTORY!, 'patches', `${id}.json`)
+  const filePath = getPatchFilePath(getRouterParam(event, 'id'))
   try {
     const raw = await readFile(filePath, 'utf8')
     return JSON.parse(raw)

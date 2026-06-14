@@ -1,5 +1,5 @@
 import { readFile, writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
+import { assertPatchId, getPatchDirectory, getPatchFilePath } from '../../utils/patch-storage'
 
 interface PatchBody {
   name: string
@@ -9,13 +9,10 @@ interface PatchBody {
 }
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')
-  if (!id) {
-    throw createError({ statusCode: 400, statusMessage: 'Missing id' })
-  }
+  const id = assertPatchId(getRouterParam(event, 'id'))
   const body = await readBody<PatchBody>(event)
-  const dir = join(process.env.DATA_STORE_DIRECTORY!, 'patches')
-  const filePath = join(dir, `${id}.json`)
+  const dir = getPatchDirectory()
+  const filePath = getPatchFilePath(id)
   let existing: Record<string, unknown> = {}
   try {
     const raw = await readFile(filePath, 'utf8')
