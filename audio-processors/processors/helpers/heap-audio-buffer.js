@@ -61,12 +61,21 @@ export class HeapAudioBuffer {
     }
 
     /**
-     * @param {Float32Array} buffer 
+     * @param {Float32Array | undefined} buffer 
      * @param {number} channelIndex 
      * @returns 
      */
     setChannelData(buffer, channelIndex) {
+        if (channelIndex < 0 || channelIndex >= this.#data.length) {
+            return;
+        }
         if (!buffer) {
+            this.#data[channelIndex].fill(0);
+            return;
+        }
+        if (buffer.length < this.#bufferFrameLength) {
+            this.#data[channelIndex].set(buffer);
+            this.#data[channelIndex].fill(0, buffer.length);
             return;
         }
         this.#data[channelIndex].set(buffer);

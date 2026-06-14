@@ -379,15 +379,9 @@ class FMVoiceProcessor extends AudioWorkletProcessor {
     }
 
     for (let voice = 0; voice < 8; voice++) {
-      if (inputList[0]?.[voice]) {
-        this.#frequencyInputBuffer.setChannelData(inputList[0][voice], voice);
-      }
-      if (inputList[1]?.[voice]) {
-        this.#triggerInputBuffer.setChannelData(inputList[1][voice], voice);
-      }
-      if (inputList[2]?.[voice]) {
-        this.#retriggerInputBuffer.setChannelData(inputList[2][voice], voice);
-      }
+      this.#frequencyInputBuffer.setChannelData(inputList[0]?.[voice], voice);
+      this.#triggerInputBuffer.setChannelData(inputList[1]?.[voice], voice);
+      this.#retriggerInputBuffer.setChannelData(inputList[2]?.[voice], voice);
     }
 
     this.#fmSynth.process(

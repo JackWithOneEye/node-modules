@@ -76,8 +76,8 @@ class ADSRProcessor extends AudioWorkletProcessor {
       return false;
     }
 
-    this.#triggerInputBuffer.setChannelData(inputList[0][0], 0);
-    this.#retriggerInputBuffer.setChannelData(inputList[1][0], 0);
+    this.#triggerInputBuffer.setChannelData(inputList[0]?.[0], 0);
+    this.#retriggerInputBuffer.setChannelData(inputList[1]?.[0], 0);
 
     this.#adsr.process(
       parameters['attack'][0],

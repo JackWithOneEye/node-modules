@@ -84,9 +84,9 @@ class EnvelopeGeneratorProcessor extends AudioWorkletProcessor {
       return false;
     }
 
-    this.#triggerInputBuffer.setChannelData(inputList[0][0], 0);
-    this.#retriggerInputBuffer.setChannelData(inputList[1][0], 0);
-    this.#velocityInputBuffer.setChannelData(inputList[2][0], 0);
+    this.#triggerInputBuffer.setChannelData(inputList[0]?.[0], 0);
+    this.#retriggerInputBuffer.setChannelData(inputList[1]?.[0], 0);
+    this.#velocityInputBuffer.setChannelData(inputList[2]?.[0], 0);
 
     this.#envelopeGenerator.process(
       parameters['attack'][0],

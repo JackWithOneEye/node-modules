@@ -133,9 +133,14 @@ class GraindrProcessor extends AudioWorkletProcessor {
         }
 
         const input = inputList[0];
-        const inputChannels = input.length - 1;
-        for (let channel = 0; channel < CHANNELS; channel++) {
-            this.#inputBuffer.setChannelData(input[Math.min(channel, inputChannels)], channel);
+        if (input.length === 0) {
+            this.#inputBuffer.setChannelData(undefined, 0);
+            this.#inputBuffer.setChannelData(undefined, 1);
+        } else {
+            const inputChannels = input.length - 1;
+            for (let channel = 0; channel < CHANNELS; channel++) {
+                this.#inputBuffer.setChannelData(input[Math.min(channel, inputChannels)], channel);
+            }
         }
 
         this.#feedbackBuffer.setData(parameters.feedback);
