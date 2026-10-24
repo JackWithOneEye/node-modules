@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Orb setup: toolchains for the Rust/WASM audio processors (Rust + wasm32 target, wasm-pack, Go for the
+# custom builder), dependencies for both sub-projects, a local .env, and an initial audio-processors build
+# so `cd app && bun run dev` works right away. Idempotent; a warm run only re-checks and rebuilds incrementally.
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+GO_VERSION=1.23.4
+
+step() { printf '\n==> %s\n' "$*"; }
+timed() { local start=$SECONDS; "$@"; echo "    (${1}: $((SECONDS - start))s)"; }
+
+step "Rust toolchain with wasm32 target"
+if [ ! -x "$HOME/.cargo/bin/rustup" ]; then
+  curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --component rustfmt --target wasm32-unknown-unknown
+fi
+# The installer cannot update this running script's environment.
+# shellcheck disable=SC1091
+source "$HOME/.cargo/env"
+rustup target add wasm32-unknown-unknown >/dev/null
+
+step "wasm-pack"
+if ! command -v wasm-pack >/dev/null; then
+  curl -sSfL https://rustwasm.github.io/wasm-pack/installer/init.sh | sh
+fi
+
+step "Go ${GO_VERSION} (builds audio-processors/builder)"
+if [ ! -x /usr/local/go/bin/go ]; then
+  curl -sSfL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" | sudo tar -C /usr/local -xz
+fi
+sudo ln -sf /usr/local/go/bin/go /usr/local/bin/go
+
+step ".env"
+if [ ! -f "$repo_root/.env" ]; then
+  cat > "$repo_root/.env" <<ENV
+DATA_STORE_DIRECTORY=$HOME/.node-modules
+AUDIO_PROCESSORS_OUTPUT_FILE=$HOME/.cache/node-modules/audio-processors.js
+ENV
+fi
+mkdir -p "$HOME/.node-modules" "$HOME/.cache/node-modules"
+
+step "audio-processors: dependencies, Go builder, WASM + bundle build"
+cd "$repo_root/audio-processors"
+timed bun install --frozen-lockfile
+timed bun run build
+
+step "app: dependencies (runs nuxt prepare)"
+cd "$repo_root/app"
+timed bun install --frozen-lockfile
+
+step "done"
