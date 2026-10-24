@@ -19,7 +19,7 @@ await audioCtxStore.init()
 
 const dataStore = useDataStore()
 
-const { onConnect, onEdgesChange, addEdges, fitView, getNodes } = useVueFlow()
+const { onConnect, onEdgesChange, addEdges, fitView, getNodes } = useEditorFlow()
 const nodes = ref(initialData.nodes)
 const edges = ref(initialData.edges)
 const viewport = ref(initialData.viewport)

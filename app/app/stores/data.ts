@@ -20,7 +20,7 @@ interface PatchApiResponse {
 export type ImportData = { nodes: Node[], edges: Edge[], viewport?: ViewportTransform }
 
 export const useDataStore = defineStore('data', () => {
-  const flow = useVueFlow()
+  const flow = useEditorFlow()
   const nodes = flow.nodes // as Ref<Node[]>
   const edges = flow.edges as Ref<Edge[]>
   const toObject = flow.toObject

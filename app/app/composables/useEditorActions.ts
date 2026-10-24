@@ -7,7 +7,7 @@
  */
 
 export function useEditorActions() {
-  const { getNodes, getEdges, removeNodes, removeEdges } = useVueFlow()
+  const { getNodes, getEdges, removeNodes, removeEdges } = useEditorFlow()
   const { duplicate } = useEditorClipboard()
 
   function duplicateNode(nodeId: string) {

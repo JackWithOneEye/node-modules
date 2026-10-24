@@ -229,7 +229,7 @@ function detach() {
 export function useEditorClipboard() {
   function attach(opts: { audioConnect: AudioWire }) {
     detach()
-    const flow = useVueFlow()
+    const flow = useEditorFlow()
     attached = {
       getNodes: () => flow.getNodes.value,
       getEdges: () => flow.getEdges.value,

@@ -248,7 +248,7 @@ export function useEditorHistory() {
   function attach(opts: { audioConnect: AudioWire, audioDisconnect: AudioWire }) {
     detach()
 
-    const flow = useVueFlow()
+    const flow = useEditorFlow()
 
     attached = {
       setNodes: nodes => flow.setNodes(nodes),

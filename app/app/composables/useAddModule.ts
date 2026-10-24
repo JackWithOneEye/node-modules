@@ -12,7 +12,7 @@ export function useAddModule() {
     onNodesInitialized,
     updateNode,
     vueFlowRef,
-  } = useVueFlow()
+  } = useEditorFlow()
 
   const { commit } = useEditorHistory()
 
