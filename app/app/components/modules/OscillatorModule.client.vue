@@ -11,7 +11,7 @@ export type OscillatorModuleProps = {
 }
 const props = withDefaults(defineProps<OscillatorModuleProps>(), {
   title: 'Oscillator',
-  frequency: 0, // 440,
+  frequency: 110, // lowest value of the frequency knob
   detune: 0,
   waveform: 'sine',
   frequencyEnabled: true,
