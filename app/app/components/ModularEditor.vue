@@ -189,6 +189,21 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :delay-time="data.delayTime"
         />
       </template>
+      <template #[`node-${AudioModuleType.Distortion}`]="{ id, type, data }">
+        <DistortionModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :input-gain="data.inputGain"
+          :wf="data.wf"
+          :wh="data.wh"
+          :uf="data.uf"
+          :uh="data.uh"
+          :bf="data.bf"
+          :output-gain="data.outputGain"
+          :dc-filter="data.dcFilter"
+        />
+      </template>
       <template #[`node-${AudioModuleType.Destination}`]="{ id, type, data }">
         <DestinationModule
           :id="id"

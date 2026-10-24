@@ -8,10 +8,14 @@ pub struct DCBlocker {
 
 impl DCBlocker {
     pub fn new(sample_rate: f32) -> Self {
+        Self::with_coefficient((-TAU * 5.0 / sample_rate).exp())
+    }
+
+    pub fn with_coefficient(r: f32) -> Self {
         Self {
             x1: 0.0,
             y1: 0.0,
-            r: (-TAU * 5.0 / sample_rate).exp(),
+            r,
         }
     }
 

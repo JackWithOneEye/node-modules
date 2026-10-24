@@ -34,6 +34,7 @@ export const AudioModuleType = {
   Decimator: 'decimator',
   DelayLine: 'delay-line',
   Destination: 'destination',
+  Distortion: 'distortion',
   DynamicsCompressor: 'dynamics-compressor',
   EnvelopeGenerator: 'envelope-generator',
   EnvelopeTracker: 'envelope-tracker',
@@ -75,6 +76,7 @@ const MODULE_DESCRIPTIONS: Record<typeof AudioModuleType[keyof typeof AudioModul
   [AudioModuleType.Decimator]: { description: 'Sample-rate reduction', keywords: ['lo-fi', 'aliasing'] },
   [AudioModuleType.DelayLine]: { description: 'Time-based delay effect', keywords: ['echo', 'time', 'feedback'] },
   [AudioModuleType.Destination]: { description: 'Audio output to speakers', keywords: ['output', 'speaker'] },
+  [AudioModuleType.Distortion]: { description: 'GRU-based distortion (yaGRUd)', keywords: ['overdrive', 'saturation', 'drive', 'gru'] },
   [AudioModuleType.DynamicsCompressor]: { description: 'Dynamics compression', keywords: ['comp', 'dynamics', 'compression'] },
   [AudioModuleType.EnvelopeGenerator]: { description: 'Velocity-aware ADSR envelope', keywords: ['envelope', 'adsr', 'generator'] },
   [AudioModuleType.EnvelopeTracker]: { description: 'Follows the envelope of an audio signal', keywords: ['follower', 'envelope', 'track'] },
@@ -185,6 +187,11 @@ export const moduleOptions = [
           type: AudioModuleType.DelayLine,
           icon: 'ph:clock-counter-clockwise',
           label: 'Delay Line',
+        },
+        {
+          type: AudioModuleType.Distortion,
+          icon: 'ph:fire',
+          label: 'Distortion',
         },
         {
           type: AudioModuleType.DynamicsCompressor,
