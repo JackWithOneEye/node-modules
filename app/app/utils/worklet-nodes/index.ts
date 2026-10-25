@@ -1,4 +1,5 @@
 export * from './adsr-worklet-node'
+export * from './amp-worklet-node'
 export * from './bit-crusher-worklet-node'
 export * from './decimator-worklet-node'
 export * from './distortion-worklet-node'

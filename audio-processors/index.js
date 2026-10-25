@@ -1,6 +1,7 @@
 import './polyfills';
 
 import './processors/adsr';
+import './processors/amp';
 import './processors/bit-crusher';
 import './processors/decimator';
 import './processors/distortion';

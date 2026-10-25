@@ -29,6 +29,7 @@ export type ModulePort = {
 
 export const AudioModuleType = {
   ADSR: 'adsr',
+  Amp: 'amp',
   AudioSource: 'audio-source',
   BitCrusher: 'bit-crusher',
   Decimator: 'decimator',
@@ -71,6 +72,7 @@ export type ModuleCatalogEntry = {
 
 const MODULE_DESCRIPTIONS: Record<typeof AudioModuleType[keyof typeof AudioModuleType], { description: string, keywords: string[] }> = {
   [AudioModuleType.ADSR]: { description: 'Attack/Decay/Sustain/Release envelope', keywords: ['envelope'] },
+  [AudioModuleType.Amp]: { description: 'Neutral solid-state amp (pedal platform)', keywords: ['amplifier', 'guitar', 'clean', 'eq', 'tone', 'preamp'] },
   [AudioModuleType.AudioSource]: { description: 'Microphone or line input', keywords: ['mic', 'input'] },
   [AudioModuleType.BitCrusher]: { description: 'Reduce sample bit depth', keywords: ['lo-fi', 'distortion'] },
   [AudioModuleType.Decimator]: { description: 'Sample-rate reduction', keywords: ['lo-fi', 'aliasing'] },
@@ -173,6 +175,11 @@ export const moduleOptions = [
     {
       label: 'Effect',
       items: [
+        {
+          type: AudioModuleType.Amp,
+          icon: 'ph:speaker-hifi',
+          label: 'Amp',
+        },
         {
           type: AudioModuleType.BitCrusher,
           icon: 'ph:eraser',

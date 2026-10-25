@@ -164,6 +164,19 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :type="type"
         />
       </template>
+      <template #[`node-${AudioModuleType.Amp}`]="{ id, type, data }">
+        <AmpModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :gain="data.gain"
+          :bass="data.bass"
+          :mid="data.mid"
+          :treble="data.treble"
+          :bright="data.bright"
+          :master="data.master"
+        />
+      </template>
       <template #[`node-${AudioModuleType.BitCrusher}`]="{ id, type, data }">
         <BitCrusherModule
           :id="id"

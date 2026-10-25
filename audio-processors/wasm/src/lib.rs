@@ -5,6 +5,7 @@
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 pub mod adsr;
+pub mod amp;
 pub mod bit_crusher;
 pub mod bypasser;
 pub mod decimator;
