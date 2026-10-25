@@ -32,6 +32,7 @@ export const AudioModuleType = {
   Amp: 'amp',
   AudioSource: 'audio-source',
   BitCrusher: 'bit-crusher',
+  Cabinet: 'cabinet',
   Decimator: 'decimator',
   DelayLine: 'delay-line',
   Destination: 'destination',
@@ -75,6 +76,7 @@ const MODULE_DESCRIPTIONS: Record<typeof AudioModuleType[keyof typeof AudioModul
   [AudioModuleType.Amp]: { description: 'Neutral solid-state amp (pedal platform)', keywords: ['amplifier', 'guitar', 'clean', 'eq', 'tone', 'preamp'] },
   [AudioModuleType.AudioSource]: { description: 'Microphone or line input', keywords: ['mic', 'input'] },
   [AudioModuleType.BitCrusher]: { description: 'Reduce sample bit depth', keywords: ['lo-fi', 'distortion'] },
+  [AudioModuleType.Cabinet]: { description: 'Guitar speaker cabinet (impulse response)', keywords: ['cab', 'speaker', 'ir', 'convolution', 'guitar'] },
   [AudioModuleType.Decimator]: { description: 'Sample-rate reduction', keywords: ['lo-fi', 'aliasing'] },
   [AudioModuleType.DelayLine]: { description: 'Time-based delay effect', keywords: ['echo', 'time', 'feedback'] },
   [AudioModuleType.Destination]: { description: 'Audio output to speakers', keywords: ['output', 'speaker'] },
@@ -184,6 +186,11 @@ export const moduleOptions = [
           type: AudioModuleType.BitCrusher,
           icon: 'ph:eraser',
           label: 'Bit Crusher',
+        },
+        {
+          type: AudioModuleType.Cabinet,
+          icon: 'ph:speaker-simple-high',
+          label: 'Cabinet',
         },
         {
           type: AudioModuleType.Decimator,

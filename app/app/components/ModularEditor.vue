@@ -185,6 +185,15 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :bits="data.bits"
         />
       </template>
+      <template #[`node-${AudioModuleType.Cabinet}`]="{ id, type, data }">
+        <CabinetModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :impulse-response="data.impulseResponse"
+          :level="data.level"
+        />
+      </template>
       <template #[`node-${AudioModuleType.Decimator}`]="{ id, type, data }">
         <DecimatorModule
           :id="id"
