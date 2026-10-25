@@ -158,10 +158,11 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :apply-velocity="data.applyVelocity"
         />
       </template>
-      <template #[`node-${AudioModuleType.AudioSource}`]="{ id, type }">
+      <template #[`node-${AudioModuleType.AudioSource}`]="{ id, type, data }">
         <AudioSourceModule
           :id="id"
           :type="type"
+          :channel="data.channel"
         />
       </template>
       <template #[`node-${AudioModuleType.Amp}`]="{ id, type, data }">
