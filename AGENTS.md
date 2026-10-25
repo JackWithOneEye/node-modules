@@ -8,6 +8,7 @@
 - **Lint**: `cd app && bun eslint .` (ESLint via @nuxt/eslint with stylistic rules)
 - **Lint fix**: `cd app && bun eslint . --fix` — **USE THIS instead of manually fixing lint errors/warnings.** ESLint auto-fixes most stylistic issues.
 - **No test framework** configured anywhere
+- **Processor benchmarks (dev only)**: with `bun run dev` running, open `/dev/perf` (offline-render CPU cost per processor; scenarios live in `app/app/pages/dev/perf.vue`). `app/pages/dev/**` is excluded from production builds via `$production.ignore` in `nuxt.config.ts`
 
 ## Architecture
 - **app/**: Nuxt 4 Vue frontend — node-based modular audio editor using @vue-flow

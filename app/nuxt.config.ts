@@ -6,6 +6,11 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxt/ui',
   ],
+  // dev-only tooling (e.g. /dev/perf) is not part of the product
+  $production: {
+    // relative to rootDir, not srcDir
+    ignore: ['app/pages/dev/**'],
+  },
 
   components: [
     {
