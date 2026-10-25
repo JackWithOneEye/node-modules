@@ -41,7 +41,7 @@ pub struct VASVFilter {
 
 impl VASVFilter {
     pub fn new(sample_rate: f32) -> VASVFilter {
-        VASVFilter {
+        let mut filter = VASVFilter {
             sample_rate,
             sample_rate_inv: 1.0 / sample_rate,
             coeffs: FilterCoeffs {
@@ -61,7 +61,10 @@ impl VASVFilter {
                 lpf_mix: 0.0,
             },
             state: (0.0, 0.0),
-        }
+        };
+        // set_params only recalculates on change, so the initial params need coefficients up front
+        filter.calc_coeffs(true, true);
+        filter
     }
 
     pub fn reset(&mut self) {
@@ -148,4 +151,21 @@ pub fn pre_feedback_loop_hipass(sample_rate: f32) -> VASVFilter {
     let mut hipass = VASVFilter::new(sample_rate);
     hipass.set_params(100.0, 0.707, 0.0, 0.0, 1.0, 0.0);
     hipass
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn passes_signal_at_initial_cutoff() {
+        // 1000 Hz / 0.707 are the constructor's initial params, so set_params sees no change
+        let mut filter = VASVFilter::new(48000.0);
+        filter.set_params(1000.0, 0.707, 0.0, 0.0, 0.0, 1.0);
+        let y = (0..4800).map(|_| filter.process(1.0)).last().unwrap();
+        assert!(
+            (y - 1.0).abs() < 1e-3,
+            "lowpass DC gain should be 1, got {y}"
+        );
+    }
 }
