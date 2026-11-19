@@ -73,11 +73,13 @@ onUnmounted(() => {
         position="left"
         :ports="[
           { id: 'input', label: 'in', signal: 'audio' },
-          { id: 'gain', label: 'gain', signal: 'cv' },
         ]"
       />
       <div class="nodrag flex gap-1">
-        <div class="flex flex-col items-center">
+        <WithHandle
+          handle-id="gain"
+          handle-signal="cv"
+        >
           <KnobInput
             v-model="gain"
             label="gain"
@@ -86,9 +88,13 @@ onUnmounted(() => {
             :max="maxGain"
             :format-fn="(v) => v + 'dB'"
           />
+        </WithHandle>
+        <!-- vertical on/off switch (on = up), centred on the knob dial -->
+        <div class="flex h-9 w-4.5 items-center justify-center">
           <USwitch
             v-model="gainEnabled"
             size="sm"
+            class="-rotate-90"
           />
         </div>
       </div>

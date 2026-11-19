@@ -109,67 +109,91 @@ onUnmounted(() => {
         position="left"
         :ports="[
           { id: 'input', label: 'in', signal: 'audio' },
-          { id: 'dryWetMix', label: 'mix', signal: 'cv' },
-          { id: 'grainSizeMs', label: 'size', signal: 'cv' },
-          { id: 'fineTune', label: 'fine', signal: 'cv' },
-          { id: 'texture', label: 'txt', signal: 'cv' },
-          { id: 'shimmer', label: 'shim', signal: 'cv' },
-          { id: 'feedback', label: 'fdbk', signal: 'cv' },
         ]"
       />
       <div class="flex">
-        <KnobInput
-          v-model="dryWetMix"
-          label="wet mix"
-          :min="0"
-          :max="100"
-          :format-fn="(v) => v + '%'"
-        />
-        <KnobInput
-          v-model="grainSizeMs"
-          label="grain size"
-          :min="1"
-          :max="1000"
-          :format-fn="(v) => v + 'ms'"
-        />
+        <WithHandle
+          handle-id="dryWetMix"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="dryWetMix"
+            label="wet mix"
+            :min="0"
+            :max="100"
+            :format-fn="(v) => v + '%'"
+          />
+        </WithHandle>
+        <WithHandle
+          handle-id="grainSizeMs"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="grainSizeMs"
+            label="grain size"
+            :min="1"
+            :max="1000"
+            :format-fn="(v) => v + 'ms'"
+          />
+        </WithHandle>
         <KnobInput
           v-model="pitchShift"
           label="pitch uhift"
           :min="-12"
           :max="12"
         />
-        <KnobInput
-          v-model="fineTune"
-          label="fine tune"
-          :min="-100"
-          :max="100"
-        />
-        <KnobInput
-          v-model="texture"
-          label="texture"
-          :min="0"
-          :max="100"
-        />
+        <WithHandle
+          handle-id="fineTune"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="fineTune"
+            label="fine tune"
+            :min="-100"
+            :max="100"
+          />
+        </WithHandle>
+        <WithHandle
+          handle-id="texture"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="texture"
+            label="texture"
+            :min="0"
+            :max="100"
+          />
+        </WithHandle>
         <KnobInput
           v-model="stretch"
           label="stretch"
           :min="1"
           :max="4"
         />
-        <KnobInput
-          v-model="shimmer"
-          label="shimmer"
-          :min="0"
-          :max="100"
-          :format-fn="(v) => v + '%'"
-        />
-        <KnobInput
-          v-model="feedback"
-          label="feedback"
-          :min="0"
-          :max="100"
-          :format-fn="(v) => v + '%'"
-        />
+        <WithHandle
+          handle-id="shimmer"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="shimmer"
+            label="shimmer"
+            :min="0"
+            :max="100"
+            :format-fn="(v) => v + '%'"
+          />
+        </WithHandle>
+        <WithHandle
+          handle-id="feedback"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="feedback"
+            label="feedback"
+            :min="0"
+            :max="100"
+            :format-fn="(v) => v + '%'"
+          />
+        </WithHandle>
         <KnobInput
           v-model="hiCutScaled"
           label="hi cut"

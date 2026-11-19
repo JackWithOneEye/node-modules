@@ -92,7 +92,6 @@ onUnmounted(() => {
         position="left"
         :ports="[
           { id: 'input', label: 'in', signal: 'audio' },
-          { id: 'level', label: 'level', signal: 'cv' },
         ]"
       />
       <div class="nodrag flex items-center gap-2">
@@ -105,13 +104,18 @@ onUnmounted(() => {
           class="w-44 text-xs"
           size="sm"
         />
-        <KnobInput
-          v-model="level"
-          label="Level"
-          :min="-24"
-          :max="24"
-          :format-fn="(v) => v + 'dB'"
-        />
+        <WithHandle
+          handle-id="level"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="level"
+            label="Level"
+            :min="-24"
+            :max="24"
+            :format-fn="(v) => v + 'dB'"
+          />
+        </WithHandle>
       </div>
       <ModulePortRail
         position="right"

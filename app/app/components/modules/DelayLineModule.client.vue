@@ -67,17 +67,21 @@ onUnmounted(() => {
         position="left"
         :ports="[
           { id: 'input', label: 'in', signal: 'audio' },
-          { id: 'delayTime', label: 'time', signal: 'cv' },
         ]"
       />
-      <KnobInput
-        v-model="delayTime"
-        label="delay"
-        :min="0"
-        :max="2"
-        :step="0.01"
-        :format-fn="(v) => `${(v * 1000).toFixed()}ms`"
-      />
+      <WithHandle
+        handle-id="delayTime"
+        handle-signal="cv"
+      >
+        <KnobInput
+          v-model="delayTime"
+          label="delay"
+          :min="0"
+          :max="2"
+          :step="0.01"
+          :format-fn="(v) => `${(v * 1000).toFixed()}ms`"
+        />
+      </WithHandle>
       <ModulePortRail
         position="right"
         :ports="[{ id: 'output', label: 'out', signal: 'audio' }]"

@@ -43,11 +43,6 @@ const targetPorts = [
   { id: 'trigger', label: 'trig', signal: 'gate' },
   { id: 'retrigger', label: 'retrig', signal: 'gate' },
   { id: 'velocity', label: 'vel', signal: 'cv' },
-  { id: 'attack', label: 'atk', signal: 'cv' },
-  { id: 'decay', label: 'dec', signal: 'cv' },
-  { id: 'sustain', label: 'sus', signal: 'cv' },
-  { id: 'release', label: 'rel', signal: 'cv' },
-  { id: 'applyVelocity', label: 'vel en', signal: 'cv' },
 ] satisfies ModulePort[]
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },
@@ -101,51 +96,76 @@ onUnmounted(() => {
       />
       <div class="nodrag flex flex-col gap-2">
         <div class="flex gap-2">
-          <ParamController
-            name="attack"
-            :default-value="attack"
-            label="ATK"
-            :min="0"
-            :max="5000"
-            unit="ms"
-            @on-change="value => setParamValue(envelopeGeneratorNode.attack, value)"
-          />
-          <ParamController
-            name="decay"
-            :default-value="decay"
-            label="DEC"
-            :min="0"
-            :max="5000"
-            unit="ms"
-            @on-change="value => setParamValue(envelopeGeneratorNode.decay, value)"
-          />
-          <ParamController
-            name="sustain"
-            :default-value="sustain"
-            label="SUS"
-            :min="0"
-            :max="100"
-            :scaling-factor="100"
-            unit="%"
-            @on-change="value => setParamValue(envelopeGeneratorNode.sustain, value)"
-          />
-          <ParamController
-            name="release"
-            :default-value="release"
-            label="REL"
-            :min="0"
-            :max="5000"
-            unit="ms"
-            @on-change="value => setParamValue(envelopeGeneratorNode.release, value)"
-          />
+          <WithHandle
+            handle-id="attack"
+            handle-signal="cv"
+          >
+            <ParamController
+              name="attack"
+              :default-value="attack"
+              label="ATK"
+              :min="0"
+              :max="5000"
+              unit="ms"
+              @on-change="value => setParamValue(envelopeGeneratorNode.attack, value)"
+            />
+          </WithHandle>
+          <WithHandle
+            handle-id="decay"
+            handle-signal="cv"
+          >
+            <ParamController
+              name="decay"
+              :default-value="decay"
+              label="DEC"
+              :min="0"
+              :max="5000"
+              unit="ms"
+              @on-change="value => setParamValue(envelopeGeneratorNode.decay, value)"
+            />
+          </WithHandle>
+          <WithHandle
+            handle-id="sustain"
+            handle-signal="cv"
+          >
+            <ParamController
+              name="sustain"
+              :default-value="sustain"
+              label="SUS"
+              :min="0"
+              :max="100"
+              :scaling-factor="100"
+              unit="%"
+              @on-change="value => setParamValue(envelopeGeneratorNode.sustain, value)"
+            />
+          </WithHandle>
+          <WithHandle
+            handle-id="release"
+            handle-signal="cv"
+          >
+            <ParamController
+              name="release"
+              :default-value="release"
+              label="REL"
+              :min="0"
+              :max="5000"
+              unit="ms"
+              @on-change="value => setParamValue(envelopeGeneratorNode.release, value)"
+            />
+          </WithHandle>
         </div>
 
         <div class="flex gap-1 items-center">
           <label class="text-xs">VEL EN</label>
-          <USwitch
-            v-model="applyVelocity"
-            size="sm"
-          />
+          <WithHandle
+            handle-id="applyVelocity"
+            handle-signal="cv"
+          >
+            <USwitch
+              v-model="applyVelocity"
+              size="sm"
+            />
+          </WithHandle>
         </div>
       </div>
       <ModulePortRail

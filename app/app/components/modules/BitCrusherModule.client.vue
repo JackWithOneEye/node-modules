@@ -70,16 +70,20 @@ onUnmounted(() => {
         position="left"
         :ports="[
           { id: 'input', label: 'in', signal: 'audio' },
-          { id: 'bits', label: 'bits', signal: 'cv' },
         ]"
       />
-      <KnobInput
-        v-model="scaledBits"
-        label="bits"
-        :min="0"
-        :max="maxBitSliderVal"
-        :format-fn="() => `${actualBits.toFixed()}b`"
-      />
+      <WithHandle
+        handle-id="bits"
+        handle-signal="cv"
+      >
+        <KnobInput
+          v-model="scaledBits"
+          label="bits"
+          :min="0"
+          :max="maxBitSliderVal"
+          :format-fn="() => `${actualBits.toFixed()}b`"
+        />
+      </WithHandle>
       <ModulePortRail
         position="right"
         :ports="[{ id: 'output', label: 'out', signal: 'audio' }]"

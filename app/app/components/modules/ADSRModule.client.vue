@@ -26,10 +26,6 @@ const sourcePorts = [
 const targetPorts = [
   { id: 'trigger', label: 'trig', signal: 'gate' },
   { id: 'retrigger', label: 'retrig', signal: 'gate' },
-  { id: 'attack', label: 'atk', signal: 'cv' },
-  { id: 'decay', label: 'dec', signal: 'cv' },
-  { id: 'sustain', label: 'sus', signal: 'cv' },
-  { id: 'release', label: 'rel', signal: 'cv' },
 ] satisfies ModulePort[]
 registerModule(props.id, {
   meta: { id: props.id, type: props.type },
@@ -80,46 +76,66 @@ onUnmounted(() => {
         position="left"
       />
       <div class="nodrag flex gap-1">
-        <ParamController
-          name="attack"
-          :default-value="attack"
-          label="attack"
-          :min="0"
-          :max="2000"
-          :scaling-factor="1000"
-          unit="ms"
-          @on-change="value => setParamValue(adsrNode.attack, value)"
-        />
-        <ParamController
-          name="decay"
-          :default-value="decay"
-          label="dacay"
-          :min="0"
-          :max="2000"
-          :scaling-factor="1000"
-          unit="ms"
-          @on-change="value => setParamValue(adsrNode.decay, value)"
-        />
-        <ParamController
-          name="sustain"
-          :default-value="sustain"
-          label="sustain"
-          :min="0"
-          :max="100"
-          :scaling-factor="100"
-          unit="%"
-          @on-change="value => setParamValue(adsrNode.sustain, value)"
-        />
-        <ParamController
-          name="release"
-          :default-value="release"
-          label="release"
-          :min="0"
-          :max="2000"
-          :scaling-factor="1000"
-          unit="ms"
-          @on-change="value => setParamValue(adsrNode.release, value)"
-        />
+        <WithHandle
+          handle-id="attack"
+          handle-signal="cv"
+        >
+          <ParamController
+            name="attack"
+            :default-value="attack"
+            label="attack"
+            :min="0"
+            :max="2000"
+            :scaling-factor="1000"
+            unit="ms"
+            @on-change="value => setParamValue(adsrNode.attack, value)"
+          />
+        </WithHandle>
+        <WithHandle
+          handle-id="decay"
+          handle-signal="cv"
+        >
+          <ParamController
+            name="decay"
+            :default-value="decay"
+            label="dacay"
+            :min="0"
+            :max="2000"
+            :scaling-factor="1000"
+            unit="ms"
+            @on-change="value => setParamValue(adsrNode.decay, value)"
+          />
+        </WithHandle>
+        <WithHandle
+          handle-id="sustain"
+          handle-signal="cv"
+        >
+          <ParamController
+            name="sustain"
+            :default-value="sustain"
+            label="sustain"
+            :min="0"
+            :max="100"
+            :scaling-factor="100"
+            unit="%"
+            @on-change="value => setParamValue(adsrNode.sustain, value)"
+          />
+        </WithHandle>
+        <WithHandle
+          handle-id="release"
+          handle-signal="cv"
+        >
+          <ParamController
+            name="release"
+            :default-value="release"
+            label="release"
+            :min="0"
+            :max="2000"
+            :scaling-factor="1000"
+            unit="ms"
+            @on-change="value => setParamValue(adsrNode.release, value)"
+          />
+        </WithHandle>
       </div>
       <ModulePortRail
         :ports="sourcePorts"

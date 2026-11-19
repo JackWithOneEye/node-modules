@@ -112,15 +112,11 @@ onUnmounted(() => {
     :title="props.title"
   >
     <div class="flex">
-      <ModulePortRail
-        position="left"
-        :ports="[
-          { id: 'frequency', label: 'freq', signal: 'cv' },
-          { id: 'detune', label: 'detune', signal: 'cv' },
-        ]"
-      />
       <div class="flex">
-        <div class="flex flex-col items-center">
+        <WithHandle
+          handle-id="frequency"
+          handle-signal="cv"
+        >
           <KnobInput
             v-model="frequencyScaled"
             label="frequency"
@@ -129,18 +125,27 @@ onUnmounted(() => {
             :max="freqControlRange"
             :format-fn="() => frequencyHz.toFixed() + 'Hz'"
           />
+        </WithHandle>
+        <!-- vertical on/off switch (on = up), centred on the knob dial -->
+        <div class="flex h-9 w-4.5 items-center justify-center">
           <USwitch
             v-model="frequencyEnabled"
             size="sm"
+            class="-rotate-90"
           />
         </div>
-        <KnobInput
-          v-model="detune"
-          label="detune"
-          :min="0"
-          :max="100"
-          :format-fn="(v) => v + 'ct'"
-        />
+        <WithHandle
+          handle-id="detune"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="detune"
+            label="detune"
+            :min="0"
+            :max="100"
+            :format-fn="(v) => v + 'ct'"
+          />
+        </WithHandle>
         <KnobInput
           v-model="waveformIndex"
           label="waveform"

@@ -22,7 +22,6 @@ const sourcePorts = [
 ] satisfies ModulePort[]
 const targetPorts = [
   { id: 'input', label: 'in', signal: 'audio' },
-  { id: 'harmonicThreshold', label: 'thresh', signal: 'cv' },
 ] satisfies ModulePort[]
 
 registerModule(props.id, {
@@ -69,16 +68,21 @@ onUnmounted(() => {
         :ports="targetPorts"
         position="left"
       />
-      <ParamController
-        name="harmonicThreshold"
-        :default-value="harmonicThreshold"
-        label="harm. threshold"
-        :min="0.01"
-        :max="1.0"
-        :step="0.01"
-        unit=""
-        @on-change="value => setParamValue(pitchTrackerNode.harmonicThreshold, value)"
-      />
+      <WithHandle
+        handle-id="harmonicThreshold"
+        handle-signal="cv"
+      >
+        <ParamController
+          name="harmonicThreshold"
+          :default-value="harmonicThreshold"
+          label="harm. threshold"
+          :min="0.01"
+          :max="1.0"
+          :step="0.01"
+          unit=""
+          @on-change="value => setParamValue(pitchTrackerNode.harmonicThreshold, value)"
+        />
+      </WithHandle>
       <ModulePortRail
         :ports="sourcePorts"
         position="right"

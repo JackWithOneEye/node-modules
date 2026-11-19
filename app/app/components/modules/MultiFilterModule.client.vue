@@ -74,26 +74,34 @@ onUnmounted(() => {
         position="left"
         :ports="[
           { id: 'input', label: 'in', signal: 'audio' },
-          { id: 'cutoff', label: 'cutoff', signal: 'cv' },
-          { id: 'q', label: 'q', signal: 'cv' },
         ]"
       />
       <div class="flex gap-1">
-        <KnobInput
-          v-model="cutoffScaled"
-          label="Cutoff"
-          :min="0"
-          :max="cutoffControlRange"
-          :format-fn="() => cutoffHz.toFixed() + 'Hz'"
-        />
-        <KnobInput
-          v-model="q"
-          label="Q"
-          :min="0.707"
-          :max="20"
-          :step="0.001"
-          :format-fn="(v) => v.toFixed()"
-        />
+        <WithHandle
+          handle-id="cutoff"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="cutoffScaled"
+            label="Cutoff"
+            :min="0"
+            :max="cutoffControlRange"
+            :format-fn="() => cutoffHz.toFixed() + 'Hz'"
+          />
+        </WithHandle>
+        <WithHandle
+          handle-id="q"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="q"
+            label="Q"
+            :min="0.707"
+            :max="20"
+            :step="0.001"
+            :format-fn="(v) => v.toFixed()"
+          />
+        </WithHandle>
       </div>
       <ModulePortRail
         position="right"

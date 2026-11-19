@@ -93,51 +93,71 @@ onUnmounted(() => {
         position="left"
         :ports="[
           { id: 'input', label: 'in', signal: 'audio' },
-          { id: 'threshold', label: 'thresh', signal: 'cv' },
-          { id: 'knee', label: 'knee', signal: 'cv' },
-          { id: 'ratio', label: 'ratio', signal: 'cv' },
-          { id: 'attack', label: 'atk', signal: 'cv' },
-          { id: 'release', label: 'rel', signal: 'cv' },
         ]"
       />
       <div class="nodrag flex gap-2">
-        <KnobInput
-          v-model="threshold"
-          label="Threshold"
-          :min="-100"
-          :max="0"
-          :format-fn="(v) => v + 'dB'"
-        />
-        <KnobInput
-          v-model="knee"
-          label="Knee"
-          :min="0"
-          :max="40"
-          :format-fn="(v) => v + 'dB'"
-        />
-        <KnobInput
-          v-model="ratio"
-          label="Ratio"
-          :min="1"
-          :max="20"
-          :format-fn="(v) => v + ':1'"
-        />
-        <KnobInput
-          v-model="attack"
-          label="Attack"
-          :min="0"
-          :max="1"
-          :step="0.001"
-          :format-fn="(v) => (v * 1000).toFixed(1) + 'ms'"
-        />
-        <KnobInput
-          v-model="release"
-          label="Release"
-          :min="0"
-          :max="1"
-          :step="0.01"
-          :format-fn="(v) => (v * 1000).toFixed(0) + 'ms'"
-        />
+        <WithHandle
+          handle-id="threshold"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="threshold"
+            label="Threshold"
+            :min="-100"
+            :max="0"
+            :format-fn="(v) => v + 'dB'"
+          />
+        </WithHandle>
+        <WithHandle
+          handle-id="knee"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="knee"
+            label="Knee"
+            :min="0"
+            :max="40"
+            :format-fn="(v) => v + 'dB'"
+          />
+        </WithHandle>
+        <WithHandle
+          handle-id="ratio"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="ratio"
+            label="Ratio"
+            :min="1"
+            :max="20"
+            :format-fn="(v) => v + ':1'"
+          />
+        </WithHandle>
+        <WithHandle
+          handle-id="attack"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="attack"
+            label="Attack"
+            :min="0"
+            :max="1"
+            :step="0.001"
+            :format-fn="(v) => (v * 1000).toFixed(1) + 'ms'"
+          />
+        </WithHandle>
+        <WithHandle
+          handle-id="release"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="release"
+            label="Release"
+            :min="0"
+            :max="1"
+            :step="0.01"
+            :format-fn="(v) => (v * 1000).toFixed(0) + 'ms'"
+          />
+        </WithHandle>
         <UTooltip
           text="Reduction (dB)"
           arrow

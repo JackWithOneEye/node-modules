@@ -63,20 +63,24 @@ onUnmounted(() => {
       <ModulePortRail
         position="left"
         :ports="[
-          { id: 'frequency', label: 'freq', signal: 'cv' },
           { id: 'phaseShift', label: 'phse', signal: 'cv' },
         ]"
       />
       <div class="nodrag flex gap-1">
-        <KnobInput
-          v-model="frequency"
-          label="frequency"
-          :size="60"
-          :min="0.0"
-          :max="4186.009"
-          :step="0.1"
-          :format-fn="(v) => v.toFixed(1) + 'Hz'"
-        />
+        <WithHandle
+          handle-id="frequency"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="frequency"
+            label="frequency"
+            :size="60"
+            :min="0.0"
+            :max="4186.009"
+            :step="0.1"
+            :format-fn="(v) => v.toFixed(1) + 'Hz'"
+          />
+        </WithHandle>
         <KnobInput
           v-model="pitchShift"
           label="pitch shift"

@@ -82,17 +82,21 @@ onUnmounted(() => {
         position="left"
         :ports="[
           { id: 'input', label: 'in', signal: 'audio' },
-          { id: 'reduction', label: 'rdctn', signal: 'cv' },
         ]"
       />
       <div class="nodrag flex gap-2">
-        <KnobInput
-          v-model="scaledReduction"
-          label="Reduction"
-          :min="0"
-          :max="maxReductionSliderVal"
-          :format-fn="() => reductionLabel"
-        />
+        <WithHandle
+          handle-id="reduction"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="scaledReduction"
+            label="Reduction"
+            :min="0"
+            :max="maxReductionSliderVal"
+            :format-fn="() => reductionLabel"
+          />
+        </WithHandle>
         <KnobInput
           v-model="stereoShift"
           label="Shift"

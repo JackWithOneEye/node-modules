@@ -75,10 +75,6 @@ onUnmounted(() => {
     :title="props.title"
   >
     <div class="flex">
-      <ModulePortRail
-        position="left"
-        :ports="[{ id: 'phase', label: 'phse', signal: 'cv' }]"
-      />
       <div class="flex">
         <KnobInput
           v-model="frequency"
@@ -88,14 +84,19 @@ onUnmounted(() => {
           :step="0.1"
           :format-fn="(v) => v.toFixed(1) + 'Hz'"
         />
-        <KnobInput
-          v-model="phase"
-          label="phase"
-          :min="0"
-          :max="1"
-          :step="1 / 180"
-          :format-fn="(v) => (v * 180).toFixed() + '°'"
-        />
+        <WithHandle
+          handle-id="phase"
+          handle-signal="cv"
+        >
+          <KnobInput
+            v-model="phase"
+            label="phase"
+            :min="0"
+            :max="1"
+            :step="1 / 180"
+            :format-fn="(v) => (v * 180).toFixed() + '°'"
+          />
+        </WithHandle>
         <KnobInput
           v-model="polarity"
           label="polarity"

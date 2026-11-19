@@ -24,8 +24,6 @@ const sourcePorts = [
 ] satisfies ModulePort[]
 const targetPorts = [
   { id: 'input', label: 'in', signal: 'audio' },
-  { id: 'sensitivity', label: 'sens', signal: 'cv' },
-  { id: 'threshold', label: 'thresh', signal: 'cv' },
 ] satisfies ModulePort[]
 
 registerModule(props.id, {
@@ -76,26 +74,36 @@ onUnmounted(() => {
         position="left"
       />
       <div class="nodrag flex">
-        <ParamController
-          name="sensitivity"
-          :default-value="sensitivity"
-          label="sensitivity"
-          :min="0.25"
-          :max="5.0"
-          :step="0.01"
-          unit=""
-          @on-change="value => setParamValue(envelopeTrackerNode.sensitivity, value)"
-        />
-        <ParamController
-          name="threshold"
-          :default-value="threshold"
-          label="threshold"
-          :min="-60.0"
-          :max="0.0"
-          :step="1"
-          unit="dB"
-          @on-change="value => setParamValue(envelopeTrackerNode.threshold, value)"
-        />
+        <WithHandle
+          handle-id="sensitivity"
+          handle-signal="cv"
+        >
+          <ParamController
+            name="sensitivity"
+            :default-value="sensitivity"
+            label="sensitivity"
+            :min="0.25"
+            :max="5.0"
+            :step="0.01"
+            unit=""
+            @on-change="value => setParamValue(envelopeTrackerNode.sensitivity, value)"
+          />
+        </WithHandle>
+        <WithHandle
+          handle-id="threshold"
+          handle-signal="cv"
+        >
+          <ParamController
+            name="threshold"
+            :default-value="threshold"
+            label="threshold"
+            :min="-60.0"
+            :max="0.0"
+            :step="1"
+            unit="dB"
+            @on-change="value => setParamValue(envelopeTrackerNode.threshold, value)"
+          />
+        </WithHandle>
       </div>
       <ModulePortRail
         :ports="sourcePorts"
