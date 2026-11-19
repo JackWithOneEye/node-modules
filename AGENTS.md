@@ -13,6 +13,7 @@
 ## Architecture
 - **app/**: Nuxt 4 Vue frontend — node-based modular audio editor using @vue-flow
 - **audio-processors/**: Rust WASM audio DSP (`wasm/src/`) + JS AudioWorklet wrappers (`processors/`), custom Go builder (`build/cmd/main.go`)
+- **desktop/**: Electron shell (`main.cjs` forks the Nitro server from `web/output` on a free localhost port; data goes to `userData/data`). `web/` is filled by CI (`.github/workflows/desktop.yml`) or by hand: `audio-processors.js` + a copy of `app/.output` as `output`. Package with `bunx electron-builder`
 - **app/server/api/**: Nuxt server routes — patch persistence (`patches/index.get/post.ts`, `patches/[id].get/post.ts`) and AudioWorklet script serving (`audio-processors-script.get.ts`)
 - **app/app/stores/**: Pinia stores (audio-context, data, midi, waveshapers, modulePreferences)
 - **app/app/composables/**: 13 composables (add-module, editor-history, editor-clipboard, editor-actions, DnD, handle-signals, params, etc.)

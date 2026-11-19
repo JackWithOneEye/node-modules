@@ -1,0 +1,18 @@
+appId: com.jackwithoneeye.nodemodules
+productName: Node Modules
+artifactName: node-modules-${version}-${os}-${arch}.${ext}
+directories:
+  output: release
+files:
+  - main.cjs
+  - package.json
+# Filled by CI (or locally): web/output is the Nuxt .output, web/audio-processors.js the worklet bundle
+extraResources:
+  - from: web
+    to: web
+mac:
+  category: public.app-category.music
+  extendInfo:
+    NSMicrophoneUsageDescription: Node Modules uses audio inputs in Audio Source modules.
+linux:
+  category: Audio

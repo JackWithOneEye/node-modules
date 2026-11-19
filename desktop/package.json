@@ -1,0 +1,17 @@
+{
+  "name": "node-modules-desktop",
+  "productName": "Node Modules",
+  "version": "0.1.0",
+  "description": "Node Modules modular audio editor",
+  "author": "JackWithOneEye",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --publish never"
+  },
+  "devDependencies": {
+    "electron": "^45.4.1",
+    "electron-builder": "^26.18.0"
+  }
+}
