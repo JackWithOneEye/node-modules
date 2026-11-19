@@ -50,7 +50,7 @@ function onEditingDone() {
 
 <template>
   <section
-    class="flex flex-col rounded-md border border-neutral-400 bg-mist-900 px-1 pb-1 gap-1 shadow-sm transition-[box-shadow,border-color] duration-150"
+    class="module-shell flex flex-col rounded-md border border-neutral-400 bg-mist-900 px-1 pb-1 gap-1 shadow-sm transition-[box-shadow,border-color] duration-150"
     :data-node-id="id"
     :data-module-type="type"
   >

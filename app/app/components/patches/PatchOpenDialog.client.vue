@@ -5,6 +5,7 @@ const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
 const store = useDataStore()
 const { confirm: showConfirm } = useConfirmModal()
 const toast = useToast()
+const confirmDiscard = useConfirmDiscard()
 
 const visible = computed({
   get: () => props.visible,
@@ -19,9 +20,11 @@ watch(() => props.visible, (v) => {
   if (v) open()
 })
 
-function openPatch(id: string) {
+async function openPatch(id: string) {
   visible.value = false
-  navigateTo(`/patches/${id}`)
+  if (await confirmDiscard()) {
+    await navigateTo(`/patches/${id}`)
+  }
 }
 
 const sortedPatches = computed(() => {

@@ -10,6 +10,8 @@ export const useMidiStore = defineStore('midiStore', () => {
   const midiNote2FreqLUT = readonly(lut)
 
   const midiInputs = ref([...WebMidi.inputs])
+  /** Why Web MIDI could not be enabled (unsupported browser, permission denied), if it failed. */
+  const error = ref<string | null>(null)
 
   const onMidiInputConnected = (e: PortEvent) => {
     if (e.port instanceof Input) {
@@ -18,16 +20,26 @@ export const useMidiStore = defineStore('midiStore', () => {
   }
 
   async function enable() {
-    if (!WebMidi.enabled) {
-      await WebMidi.enable()
-      WebMidi.addListener('connected', onMidiInputConnected)
-      midiInputs.value = [...WebMidi.inputs]
+    if (WebMidi.enabled) {
+      return
     }
+    try {
+      await WebMidi.enable()
+    }
+    catch (e) {
+      console.warn(e)
+      error.value = e instanceof Error ? e.message : String(e)
+      return
+    }
+    error.value = null
+    WebMidi.addListener('connected', onMidiInputConnected)
+    midiInputs.value = [...WebMidi.inputs]
   }
 
   return {
     midiInputs,
     midiNote2FreqLUT,
+    error,
     enable,
   }
 })

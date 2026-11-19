@@ -2,6 +2,7 @@
 const store = useDataStore()
 const toast = useToast()
 const { confirm: showConfirm } = useConfirmModal()
+const confirmDiscard = useConfirmDiscard()
 const route = useRoute()
 
 watch(() => route.path, (path) => {
@@ -13,6 +14,7 @@ const themeStore = useThemeStore()
 const { canUndo, canRedo, undo, redo } = useEditorHistory()
 const { copy, paste, duplicate, deleteSelection } = useEditorClipboard()
 const { open: openQuickAdd } = useQuickAdd()
+const { getNodes, getEdges } = useEditorFlow()
 
 const showOpenDialog = ref(false)
 const showSaveAsDialog = ref(false)
@@ -20,9 +22,13 @@ const importInput = ref<HTMLInputElement>()
 const infoModalRef = ref<{ open: () => void } | null>(null)
 
 const statusLabel = computed(() => {
+  // a patch that was never saved must not claim to be "Saved"
+  if (store.currentPatchId === 'new' && store.saveState === 'saved') {
+    return 'Not saved'
+  }
   switch (store.saveState) {
     case 'saved': return 'Saved'
-    case 'dirty': return 'Dirty'
+    case 'dirty': return 'Unsaved changes'
     case 'saving': return 'Saving…'
     case 'error': return 'Error'
     default: return ''
@@ -36,6 +42,24 @@ async function saveData() {
   }
   else if (store.saveState === 'error') {
     toast.add({ color: 'error', title: 'Save failed', description: `Could not save "${store.currentPatchName}"`, duration: 5000 })
+  }
+}
+
+async function newPatch() {
+  if (await confirmDiscard()) {
+    await store.newPatch()
+  }
+}
+
+async function chooseImportFile() {
+  if (await confirmDiscard()) {
+    importInput.value?.click()
+  }
+}
+
+function onBeforeUnload(e: BeforeUnloadEvent) {
+  if (store.dirty) {
+    e.preventDefault()
   }
 }
 
@@ -79,7 +103,25 @@ function confirmDeleteCurrentPatch() {
   })
 }
 
+function selectAllModules() {
+  for (const n of getNodes.value) {
+    n.selected = true
+  }
+  for (const edge of getEdges.value) {
+    edge.selected = false
+  }
+}
+
 function onShortcut(e: KeyboardEvent) {
+  // save also works while typing, e.g. right after renaming the patch
+  if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === 's') {
+    e.preventDefault()
+    if (store.currentPatchId) {
+      void saveData()
+    }
+    return
+  }
+
   if (isTypingTarget(e.target)) {
     return
   }
@@ -120,13 +162,21 @@ function onShortcut(e: KeyboardEvent) {
     e.preventDefault()
     duplicate()
   }
+  else if (k === 'a') {
+    e.preventDefault()
+    selectAllModules()
+  }
 }
 
 onMounted(() => {
   themeStore.init()
   window.addEventListener('keydown', onShortcut)
+  window.addEventListener('beforeunload', onBeforeUnload)
 })
-onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onShortcut)
+  window.removeEventListener('beforeunload', onBeforeUnload)
+})
 </script>
 
 <template>
@@ -134,17 +184,20 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
     <header class="h-12 z-10 bg-neutral-950 border-b-2 border-neutral-700 flex items-center px-3 gap-2 shrink-0">
       <!-- Left zone -->
       <div class="flex items-center gap-2 flex-1 min-w-0">
-        <ModuleDropdown />
-        <UButton
-          icon="ph:plus"
-          variant="ghost"
-          color="neutral"
-          size="md"
-          @click="openQuickAdd()"
-        >
-          <span class="hidden [@media(min-width:1200px)]:inline">Add</span>
-        </UButton>
-        <div class="h-5 w-px bg-neutral-800" />
+        <!-- editing controls only make sense while a patch is open -->
+        <template v-if="store.currentPatchId">
+          <ModuleDropdown />
+          <UButton
+            icon="ph:plus"
+            variant="ghost"
+            color="neutral"
+            size="md"
+            @click="openQuickAdd()"
+          >
+            <span class="hidden [@media(min-width:1200px)]:inline">Add</span>
+          </UButton>
+          <div class="h-5 w-px bg-neutral-800" />
+        </template>
         <UInput
           v-if="store.currentPatchId"
           v-model="store.currentPatchName"
@@ -165,26 +218,28 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
 
       <!-- Right zone -->
       <div class="flex items-center gap-1">
-        <ToolbarButton
-          icon="ph:arrow-bend-up-left"
-          label="Undo"
-          :disabled="!canUndo"
-          @click="undo"
-        />
-        <ToolbarButton
-          icon="ph:arrow-bend-up-right"
-          label="Redo"
-          :disabled="!canRedo"
-          @click="redo"
-        />
-        <div class="h-5 w-px bg-neutral-800 mx-1" />
+        <template v-if="store.currentPatchId">
+          <ToolbarButton
+            icon="ph:arrow-bend-up-left"
+            label="Undo"
+            :disabled="!canUndo"
+            @click="undo"
+          />
+          <ToolbarButton
+            icon="ph:arrow-bend-up-right"
+            label="Redo"
+            :disabled="!canRedo"
+            @click="redo"
+          />
+          <div class="h-5 w-px bg-neutral-800 mx-1" />
+        </template>
 
         <!-- Desktop file buttons -->
         <div class="hidden md:flex items-center gap-1">
           <ToolbarButton
             icon="ph:file"
             label="New"
-            @click="store.newPatch()"
+            @click="newPatch"
           />
           <ToolbarButton
             icon="ph:folder-open"
@@ -192,13 +247,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
             @click="showOpenDialog = true"
           />
           <SaveDropdown
+            v-if="store.currentPatchId"
             @save="saveData"
             @save-as="showSaveAsDialog = true"
           />
           <ActionsDropdown
             :can-delete="!!store.currentPatchId && store.currentPatchId !== 'new'"
             @copy="store.copyCurrentPatch()"
-            @import="importInput?.click()"
+            @import="chooseImportFile"
             @export="store.exportPatch()"
             @delete="confirmDeleteCurrentPatch"
           />
@@ -207,18 +263,20 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
         <!-- Mobile file dropdown -->
         <FileDropdown
           class="md:hidden"
-          @new-patch="store.newPatch()"
+          @new-patch="newPatch"
           @open-patch="showOpenDialog = true"
           @save-patch="saveData"
           @save-as-patch="showSaveAsDialog = true"
           @copy-patch="store.copyCurrentPatch()"
-          @import-patch="importInput?.click()"
+          @import-patch="chooseImportFile"
           @export-patch="store.exportPatch()"
           @delete-patch="confirmDeleteCurrentPatch"
         />
 
-        <div class="h-5 w-px bg-neutral-800 mx-1" />
-        <PlayButton />
+        <template v-if="store.currentPatchId">
+          <div class="h-5 w-px bg-neutral-800 mx-1" />
+          <PlayButton />
+        </template>
         <div class="h-5 w-px bg-neutral-800 mx-1" />
         <ThemeSwitcher />
         <UButton
@@ -251,7 +309,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onShortcut))
     />
 
     <slot />
-    <QuickAddPalette />
+    <QuickAddPalette v-if="store.currentPatchId" />
     <InfoModal ref="infoModalRef" />
   </div>
 </template>

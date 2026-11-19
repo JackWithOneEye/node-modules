@@ -8,7 +8,8 @@ export type DestinationModuleProps = {
 }
 const props = withDefaults(defineProps<DestinationModuleProps>(), {
   title: 'Destination',
-  gain: MIN_GAIN,
+  // -20 dB: audible out of the box, but not at full scale
+  gain: 0.1,
   muted: false,
 })
 

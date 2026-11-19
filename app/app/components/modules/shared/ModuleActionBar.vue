@@ -5,41 +5,33 @@ const emit = defineEmits<{
   delete: []
   disconnectAll: []
 }>()
+
+const actions = [
+  { icon: 'ph:pencil', label: 'Rename', run: () => emit('rename') },
+  { icon: 'ph:copy', label: 'Duplicate', run: () => emit('duplicate') },
+  { icon: 'ph:trash', label: 'Delete', run: () => emit('delete') },
+  { icon: 'ph:minus-circle', label: 'Disconnect all cables', run: () => emit('disconnectAll') },
+]
 </script>
 
 <template>
   <div class="nodrag flex items-center gap-0.5">
-    <UButton
-      icon="ph:pencil"
-      color="neutral"
-      variant="ghost"
-      size="sm"
-      @mousedown.stop
-      @click.stop="emit('rename')"
-    />
-    <UButton
-      icon="ph:copy"
-      color="neutral"
-      variant="ghost"
-      size="sm"
-      @mousedown.stop
-      @click.stop="emit('duplicate')"
-    />
-    <UButton
-      icon="ph:trash"
-      color="neutral"
-      variant="ghost"
-      size="sm"
-      @mousedown.stop
-      @click.stop="emit('delete')"
-    />
-    <UButton
-      icon="ph:minus-circle"
-      color="neutral"
-      variant="ghost"
-      size="sm"
-      @mousedown.stop
-      @click.stop="emit('disconnectAll')"
-    />
+    <UTooltip
+      v-for="action in actions"
+      :key="action.label"
+      :text="action.label"
+      :delay-duration="300"
+      :content="{ side: 'top', sideOffset: 6 }"
+    >
+      <UButton
+        :icon="action.icon"
+        :aria-label="action.label"
+        color="neutral"
+        variant="ghost"
+        size="sm"
+        @mousedown.stop
+        @click.stop="action.run"
+      />
+    </UTooltip>
   </div>
 </template>

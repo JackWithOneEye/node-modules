@@ -14,23 +14,34 @@ const props = withDefaults(defineProps<AudioSourceModuleProps>(), {
 
 const store = useAudioContextStore()
 
-const mediaStream = await window.navigator.mediaDevices.getUserMedia({
-  audio: {
-    echoCancellation: false,
-    autoGainControl: false,
-    noiseSuppression: false,
-    // @ts-expect-error [no idea why]
-    latency: 0,
-  },
-})
+// Without microphone access the module still registers (silent output), so a
+// patch's other cables keep working and the user sees why there is no input.
+const micError = ref<string | null>(null)
+let mediaStream: MediaStream | null = null
+try {
+  mediaStream = await window.navigator.mediaDevices.getUserMedia({
+    audio: {
+      echoCancellation: false,
+      autoGainControl: false,
+      noiseSuppression: false,
+      // @ts-expect-error [no idea why]
+      latency: 0,
+    },
+  })
+}
+catch (e) {
+  console.warn(e)
+  micError.value = e instanceof Error ? e.message : String(e)
+}
 
 const ctx = store.getAudioContext()
-const audioSourceNode = new MediaStreamAudioSourceNode(ctx, { mediaStream })
+const audioSourceNode = mediaStream && new MediaStreamAudioSourceNode(ctx, { mediaStream })
 // up-mixes a mono device to L = R, so every option below works for mono and stereo devices
 const stereoNode = new GainNode(ctx, { channelCount: 2, channelCountMode: 'explicit', channelInterpretation: 'speakers' })
 const splitter = new ChannelSplitterNode(ctx, { numberOfOutputs: 2 })
 const outputNode = new ChannelMergerNode(ctx, { numberOfInputs: 2 })
-audioSourceNode.connect(stereoNode).connect(splitter)
+audioSourceNode?.connect(stereoNode)
+stereoNode.connect(splitter)
 
 // interfaces deliver input 1 on the left and input 2 on the right; a single input is sent to both sides
 function routeChannel(channel: AudioSourceChannel) {
@@ -68,7 +79,9 @@ store.registerModule(props.id, {
 })
 
 onUnmounted(() => {
-  audioSourceNode.disconnect()
+  // release the device so the browser's recording indicator turns off
+  mediaStream?.getTracks().forEach(track => track.stop())
+  audioSourceNode?.disconnect()
   stereoNode.disconnect()
   splitter.disconnect()
   outputNode.disconnect()
@@ -83,7 +96,15 @@ onUnmounted(() => {
     :title="props.title"
   >
     <ModulePortRow :output="{ id: 'output', label: 'out', signal: 'audio' }">
+      <p
+        v-if="micError"
+        class="w-32 text-xs text-red-400"
+        :title="micError"
+      >
+        Microphone unavailable
+      </p>
       <USelect
+        v-else
         v-model="channel"
         :items="channelOptions"
         label-key="label"

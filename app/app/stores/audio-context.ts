@@ -146,13 +146,20 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
       return
     }
     const [sourceModule, target] = found
-    if (target.type === 'audioNode') {
-      console.log(`disconnect source module ${sourceId}[${sourceOutputId}] from target ${targetId}[${targetInputId}] (index ${target.inputIndex})`)
-      sourceModule.sourceInterfaces!.disconnect(sourceOutputId, target.node, target.inputIndex)
+    // Web Audio throws when the connection does not exist; that must not abort
+    // the editor change (e.g. a node removal) that triggered this disconnect.
+    try {
+      if (target.type === 'audioNode') {
+        console.log(`disconnect source module ${sourceId}[${sourceOutputId}] from target ${targetId}[${targetInputId}] (index ${target.inputIndex})`)
+        sourceModule.sourceInterfaces!.disconnect(sourceOutputId, target.node, target.inputIndex)
+      }
+      else {
+        console.log(`disconnect source module ${sourceId}[${sourceOutputId}] from target param ${targetId}[${targetInputId}]`)
+        sourceModule.sourceInterfaces!.disconnect(sourceOutputId, target.param, 0)
+      }
     }
-    else {
-      console.log(`disconnect source module ${sourceId}[${sourceOutputId}] from target param ${targetId}[${targetInputId}]`)
-      sourceModule.sourceInterfaces!.disconnect(sourceOutputId, target.param, 0)
+    catch (e) {
+      console.warn(e)
     }
   }
 

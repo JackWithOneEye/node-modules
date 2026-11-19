@@ -50,6 +50,17 @@ function close() {
           </section>
           <section>
             <h3 class="text-[10px] font-medium text-neutral-500 uppercase tracking-wide mb-2">
+              Patch
+            </h3>
+            <div class="space-y-1.5 text-sm text-neutral-300">
+              <div class="flex justify-between items-center">
+                <span>Save</span>
+                <kbd class="px-1.5 py-0.5 bg-neutral-800 rounded text-xs font-mono">⌘S</kbd>
+              </div>
+            </div>
+          </section>
+          <section>
+            <h3 class="text-[10px] font-medium text-neutral-500 uppercase tracking-wide mb-2">
               History
             </h3>
             <div class="space-y-1.5 text-sm text-neutral-300">
@@ -71,6 +82,10 @@ function close() {
               Editing
             </h3>
             <div class="space-y-1.5 text-sm text-neutral-300">
+              <div class="flex justify-between items-center">
+                <span>Select all modules</span>
+                <kbd class="px-1.5 py-0.5 bg-neutral-800 rounded text-xs font-mono">⌘A</kbd>
+              </div>
               <div class="flex justify-between items-center">
                 <span>Copy selection</span>
                 <kbd class="px-1.5 py-0.5 bg-neutral-800 rounded text-xs font-mono">⌘C</kbd>

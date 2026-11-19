@@ -17,6 +17,8 @@ interface PatchApiResponse {
   updatedAt: string
 }
 
+const EDGE_COORDINATE_KEYS = new Set(['sourceX', 'sourceY', 'targetX', 'targetY'])
+
 export type ImportData = { nodes: Node[], edges: Edge[], viewport?: ViewportTransform }
 
 export const useDataStore = defineStore('data', () => {
@@ -35,7 +37,12 @@ export const useDataStore = defineStore('data', () => {
 
   function computeHash(): string {
     const obj = toObject()
-    return JSON.stringify({ name: currentPatchName.value, nodes: obj.nodes, edges: obj.edges, viewport: obj.viewport })
+    // Edge endpoint coordinates are derived from rendered handle positions and
+    // get re-measured after load; they are not part of the patch state.
+    return JSON.stringify(
+      { name: currentPatchName.value, nodes: obj.nodes, edges: obj.edges, viewport: obj.viewport },
+      (key, value) => EDGE_COORDINATE_KEYS.has(key) ? undefined : value,
+    )
   }
 
   function patchLoadStarted() {

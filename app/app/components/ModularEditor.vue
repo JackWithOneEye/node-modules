@@ -26,6 +26,12 @@ const viewport = ref(initialData.viewport)
 
 const isCanvasEmpty = computed(() => getNodes.value.length === 0)
 const { addModuleAtViewportCenter } = useAddModule()
+const modulePreferences = useModulePreferencesStore()
+
+function addStarterModule(type: string) {
+  addModuleAtViewportCenter(type)
+  modulePreferences.recordModuleUsed(type)
+}
 
 function fitToSelection() {
   const selectedIds: string[] = []
@@ -68,8 +74,12 @@ onEdgesChange((changes) => {
   if (history.isApplying.value) {
     return
   }
+  // removeNodes() emits one remove change per removed endpoint, so an edge
+  // between two removed nodes shows up twice.
+  const removedIds = new Set<string>()
   for (const change of changes) {
-    if (change.type === 'remove') {
+    if (change.type === 'remove' && !removedIds.has(change.id)) {
+      removedIds.add(change.id)
       audioCtxStore.disconnectModules(
         change.source,
         change.sourceHandle!,
@@ -104,6 +114,7 @@ const { stop } = watch(() => audioCtxStore.registeredCount, () => {
 history.attach({
   audioConnect: (s, sh, t, th) => audioCtxStore.connectModules(s, sh, t, th),
   audioDisconnect: (s, sh, t, th) => audioCtxStore.disconnectModules(s, sh, t, th),
+  startsEmpty: initialData.nodes.length === 0,
 })
 
 const clipboard = useEditorClipboard()
@@ -131,7 +142,7 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
       :nodes="nodes as Node[]"
       :edges="edges"
       :default-viewport="viewport"
-      :min-zoom="1"
+      :min-zoom="0.25"
       :max-zoom="2"
       class="flex-1 bg-black text-white"
     >
@@ -162,6 +173,7 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
         <AudioSourceModule
           :id="id"
           :type="type"
+          :title="data.title"
           :channel="data.channel"
         />
       </template>
@@ -518,21 +530,21 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
             size="sm"
             variant="outline"
             color="neutral"
-            @click="addModuleAtViewportCenter(AudioModuleType.Oscillator)"
+            @click="addStarterModule(AudioModuleType.Oscillator)"
           />
           <UButton
             label="Add Gain"
             size="sm"
             variant="outline"
             color="neutral"
-            @click="addModuleAtViewportCenter(AudioModuleType.Gain)"
+            @click="addStarterModule(AudioModuleType.Gain)"
           />
           <UButton
             label="Add Destination"
             size="sm"
             variant="outline"
             color="neutral"
-            @click="addModuleAtViewportCenter(AudioModuleType.Destination)"
+            @click="addStarterModule(AudioModuleType.Destination)"
           />
         </div>
       </div>

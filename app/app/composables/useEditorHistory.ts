@@ -245,7 +245,7 @@ function detach() {
 }
 
 export function useEditorHistory() {
-  function attach(opts: { audioConnect: AudioWire, audioDisconnect: AudioWire }) {
+  function attach(opts: { audioConnect: AudioWire, audioDisconnect: AudioWire, startsEmpty: boolean }) {
     detach()
 
     const flow = useEditorFlow()
@@ -277,11 +277,14 @@ export function useEditorHistory() {
 
     // Empty-graph fallback: if the editor starts with no nodes, the
     // `onNodesInitialized` event will never fire, so seed after a tick.
+    // Only when it truly starts empty: Vue Flow may not have received the
+    // initial nodes yet at this tick, and seeding then would record an empty
+    // canvas as the first undo step.
     void nextTick(() => {
       if (!attached) {
         return
       }
-      if (attached.getNodes().length === 0) {
+      if (opts.startsEmpty && attached.getNodes().length === 0) {
         seedInitial()
       }
     })

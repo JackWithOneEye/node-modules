@@ -350,18 +350,18 @@ for (const group of moduleOptions.flat()) {
  * then alphabetically. Unmatched entries are excluded.
  *
  * If `category` is provided only entries in that category are returned.
- * If `query` is empty every matching-category entry is returned (score 0).
+ * If `query` is empty every matching-category entry is returned in catalog
+ * order (grouped by category).
  */
 export function searchModuleCatalog(query: string, category?: string): ModuleCatalogEntry[] {
   const q = query.trim().toLowerCase()
+  if (!q) {
+    return moduleCatalog.filter(entry => !category || entry.category === category)
+  }
   const hits: { entry: ModuleCatalogEntry, score: number }[] = []
 
   for (const entry of moduleCatalog) {
     if (category && entry.category !== category) {
-      continue
-    }
-    if (!q) {
-      hits.push({ entry, score: 0 })
       continue
     }
 

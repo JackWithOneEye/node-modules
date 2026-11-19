@@ -300,6 +300,13 @@ onUnmounted(() => {
   >
     <div class="flex">
       <div class="flex flex-col gap-2">
+        <p
+          v-if="midiStore.error"
+          class="w-40 text-xs text-red-400"
+          :title="midiStore.error"
+        >
+          MIDI unavailable
+        </p>
         <USelect
           v-model="selectedMidiInput"
           :items="midiStore.midiInputs"
@@ -315,7 +322,7 @@ onUnmounted(() => {
           label-key="label"
           value-key="value"
           placeholder="Priority"
-          class="w-full text-xs"
+          class="nodrag w-full text-xs"
           size="sm"
         />
         <USelect
@@ -324,7 +331,7 @@ onUnmounted(() => {
           label-key="label"
           value-key="value"
           placeholder="Outputs"
-          class="w-full text-xs"
+          class="nodrag w-full text-xs"
           size="sm"
         />
         <USelect
@@ -333,7 +340,7 @@ onUnmounted(() => {
           label-key="label"
           value-key="value"
           placeholder="Pitch Bend Range"
-          class="w-full text-xs"
+          class="nodrag w-full text-xs"
           size="sm"
         />
       </div>

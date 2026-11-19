@@ -78,7 +78,8 @@ const marginBottom = 20
 watch(wrapper, () => {
   space = new CanvasSpace(wrapper.value!).setup({
     bgcolor: '#000000',
-    pixelDensity: 10,
+    // enough for crisp lines at the editor's 2x max zoom; more only costs fill rate
+    pixelDensity: window.devicePixelRatio * 2,
     offscreen: true,
   })
   form = space.getForm()
