@@ -12,6 +12,10 @@ extraResources:
     to: web
 mac:
   category: public.app-category.music
+  # Ad-hoc signature until there is a Developer ID certificate: unsigned arm64 downloads are reported as "damaged".
+  # Hardened runtime needs a real identity (library validation would block Electron's frameworks).
+  identity: '-'
+  hardenedRuntime: false
   extendInfo:
     NSMicrophoneUsageDescription: Node Modules uses audio inputs in Audio Source modules.
 linux:
