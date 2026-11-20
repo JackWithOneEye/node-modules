@@ -1,0 +1,75 @@
+name: Standalone build
+
+on:
+  # Every branch push builds (this also covers PRs from this repo); tags are for future releases.
+  push:
+    branches: ['**']
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  # The web part (worklet bundle + Nuxt server for Bun) is plain JS/WASM, so it is built once.
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: audio-processors/build/go.mod
+          cache-dependency-path: audio-processors/build/go.sum
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: audio-processors
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+      - name: Write .env
+        run: |
+          mkdir -p dist-web
+          echo "DATA_STORE_DIRECTORY=$RUNNER_TEMP/data" > .env
+          echo "AUDIO_PROCESSORS_OUTPUT_FILE=$GITHUB_WORKSPACE/dist-web/audio-processors.js" >> .env
+      - name: Build audio processors
+        working-directory: audio-processors
+        run: |
+          bun install --frozen-lockfile
+          bun run build
+      - name: Build Nuxt
+        working-directory: app
+        run: |
+          bun install --frozen-lockfile
+          bunx nuxt build --envName standalone
+          cp -r .output ../dist-web/output # upload-artifact skips dot-directories
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: dist-web
+          if-no-files-found: error
+
+  # Bun cross-compiles every target from Linux.
+  binary:
+    needs: web
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [linux-x64, linux-arm64, darwin-arm64, darwin-x64, windows-x64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/download-artifact@v4
+        with:
+          name: web
+          path: standalone/web
+      - name: Compile
+        working-directory: standalone
+        run: |
+          ext=${{ startsWith(matrix.target, 'windows') && '.exe' || '' }}
+          bun build main.ts --compile --production --target=bun-${{ matrix.target }} --outfile dist/node-modules-${{ matrix.target }}$ext
+      - uses: actions/upload-artifact@v4
+        with:
+          name: node-modules-${{ matrix.target }}
+          path: standalone/dist/
+          if-no-files-found: error

@@ -13,6 +13,7 @@
 ## Architecture
 - **app/**: Nuxt 4 Vue frontend — node-based modular audio editor using @vue-flow
 - **audio-processors/**: Rust WASM audio DSP (`wasm/src/`) + JS AudioWorklet wrappers (`processors/`), custom Go builder (`build/cmd/main.go`)
+- **standalone/**: one-binary distribution. `main.ts` sets defaults (port 4848 on 127.0.0.1, data in `~/.node-modules`), starts the Nuxt server and opens the browser; `bun build main.ts --compile --production` embeds everything. `web/` is filled by CI (`.github/workflows/standalone.yml`) or by hand: `audio-processors.js` + `app/.output` from `bunx nuxt build --envName standalone` (Bun preset, inlined public assets) as `output`
 - **app/server/api/**: Nuxt server routes — patch persistence (`patches/index.get/post.ts`, `patches/[id].get/post.ts`) and AudioWorklet script serving (`audio-processors-script.get.ts`)
 - **app/app/stores/**: Pinia stores (audio-context, data, midi, waveshapers, modulePreferences)
 - **app/app/composables/**: 13 composables (add-module, editor-history, editor-clipboard, editor-actions, DnD, handle-signals, params, etc.)

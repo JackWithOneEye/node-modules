@@ -6,6 +6,15 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxt/ui',
   ],
+  // `nuxt build --envName standalone`: Bun server with the public assets inlined, compiled into one binary by standalone/
+  $env: {
+    standalone: {
+      nitro: {
+        preset: 'bun',
+        serveStatic: 'inline',
+      },
+    },
+  },
   // dev-only tooling (e.g. /dev/perf) is not part of the product
   $production: {
     // relative to rootDir, not srcDir
