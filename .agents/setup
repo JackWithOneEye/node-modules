@@ -48,4 +48,8 @@ step "app: dependencies (runs nuxt prepare)"
 cd "$repo_root/app"
 timed bun install --frozen-lockfile
 
+step "lab: Python environment for the marimo notebooks"
+cd "$repo_root/lab"
+timed uv sync --frozen
+
 step "done"
