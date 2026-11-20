@@ -2,6 +2,7 @@ pub mod adsr_unit;
 pub mod allpass_filter;
 pub mod analog_eg;
 pub mod circular_buffer;
+pub mod deep_fryer;
 pub mod dc_blocker;
 pub mod delay;
 pub mod envelope_filter;

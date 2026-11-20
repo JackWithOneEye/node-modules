@@ -34,6 +34,7 @@ export const AudioModuleType = {
   BitCrusher: 'bit-crusher',
   Cabinet: 'cabinet',
   Decimator: 'decimator',
+  DeepFryer: 'deep-fryer',
   DelayLine: 'delay-line',
   Destination: 'destination',
   Distortion: 'distortion',
@@ -78,6 +79,7 @@ const MODULE_DESCRIPTIONS: Record<typeof AudioModuleType[keyof typeof AudioModul
   [AudioModuleType.BitCrusher]: { description: 'Reduce sample bit depth', keywords: ['lo-fi', 'distortion'] },
   [AudioModuleType.Cabinet]: { description: 'Guitar speaker cabinet (impulse response)', keywords: ['cab', 'speaker', 'ir', 'convolution', 'guitar'] },
   [AudioModuleType.Decimator]: { description: 'Sample-rate reduction', keywords: ['lo-fi', 'aliasing'] },
+  [AudioModuleType.DeepFryer]: { description: 'Spectral bit-crushing (FFT magnitude, phase, and signal)', keywords: ['fft', 'spectral', 'lo-fi', 'bit', 'crush'] },
   [AudioModuleType.DelayLine]: { description: 'Time-based delay effect', keywords: ['echo', 'time', 'feedback'] },
   [AudioModuleType.Destination]: { description: 'Audio output to speakers', keywords: ['output', 'speaker'] },
   [AudioModuleType.Distortion]: { description: 'GRU-based distortion (yaGRUd)', keywords: ['overdrive', 'saturation', 'drive', 'gru'] },
@@ -293,6 +295,16 @@ export const moduleOptions = [
           type: AudioModuleType.SpectrumAnalyzer,
           icon: 'ph:chart-bar',
           label: 'Spectrum Analyzer',
+        },
+      ],
+    },
+    {
+      label: 'Experimental',
+      items: [
+        {
+          type: AudioModuleType.DeepFryer,
+          icon: 'ph:flask',
+          label: 'Deep Fryer',
         },
       ],
     },

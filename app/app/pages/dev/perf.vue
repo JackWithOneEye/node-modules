@@ -55,6 +55,7 @@ const scenarios: Scenario[] = [
   { id: 'multi-filter', label: 'Multi Filter', create: worklet('multi-filter', {}, 4) },
   { id: 'phaser', label: 'Phaser', create: worklet('phaser') },
   { id: 'graindr', label: 'Graindr', create: worklet('graindr') },
+  { id: 'deep-fryer', label: 'Deep Fryer (8 bit amp)', create: worklet('deep-fryer', { ampBits: 8 }) },
   { id: 'native-waveshaper', label: 'Native WaveShaper (4x)', create: ctx => new WaveShaperNode(ctx, { curve: tanhCurve, oversample: '4x' }) },
   { id: 'native-compressor', label: 'Native DynamicsCompressor', create: ctx => new DynamicsCompressorNode(ctx) },
 ]

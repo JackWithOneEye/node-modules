@@ -9,6 +9,7 @@ pub mod amp;
 pub mod bit_crusher;
 pub mod bypasser;
 pub mod decimator;
+pub mod deep_fryer;
 pub mod distortion;
 pub mod envelope_generator;
 pub mod envelope_tracker;

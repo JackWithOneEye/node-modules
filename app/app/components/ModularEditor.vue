@@ -278,6 +278,20 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :gain-enabled="data.gainEnabled"
         />
       </template>
+      <template #[`node-${AudioModuleType.DeepFryer}`]="{ id, type, data }">
+        <DeepFryerModule
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :dry-wet-mix="data.dryWetMix"
+          :magnitude="data.magnitude"
+          :overlap="data.overlap"
+          :generations="data.generations"
+          :amp-bits="data.ampBits"
+          :phase-bits="data.phaseBits"
+          :sig-bits="data.sigBits"
+        />
+      </template>
       <template #[`node-${AudioModuleType.Graindr}`]="{ id, type, data }">
         <GraindrModule
           :id="id"
