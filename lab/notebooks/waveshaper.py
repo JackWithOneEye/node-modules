@@ -22,6 +22,7 @@ def _():
     from numba import njit
 
     import dsplab as lab
+
     return lab, mo, njit, np
 
 
@@ -92,6 +93,7 @@ def _(lab, njit, np):
         """tanh drive; bias makes the curve asymmetric (even harmonics) and is removed again afterwards."""
         y = np.tanh(lab.db(drive) * x + bias) - np.tanh(bias)
         return one_pole_lowpass(y.astype(np.float32), tone, sr)
+
     return (shaper,)
 
 
