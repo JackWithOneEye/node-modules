@@ -116,8 +116,8 @@ function createInput(ctx: OfflineAudioContext, signal: InputSignal): AudioSchedu
   return new AudioBufferSourceNode(ctx, { buffer, loop: true })
 }
 
-async function render(scenario: Scenario) {
-  const ctx = new OfflineAudioContext(2, Math.round(seconds.value * sampleRate.value), sampleRate.value)
+async function render(scenario: Scenario, realm: typeof globalThis) {
+  const ctx = new realm.OfflineAudioContext(2, Math.round(seconds.value * sampleRate.value), sampleRate.value)
   await ctx.audioWorklet.addModule('/api/audio-processors-script')
   const source = createInput(ctx, input.value)
   const level = new GainNode(ctx, { gain: 0.3 })
@@ -142,18 +142,31 @@ async function render(scenario: Scenario) {
 }
 
 async function measure(scenario: Scenario) {
-  // first render is a warm-up (script fetch, wasm compilation)
-  await render(scenario)
-  const times: number[] = []
-  let rms = 0
-  for (let i = 0; i < runs.value && !stopRequested.value; i++) {
-    progress.value = `${scenario.label}: run ${i + 1}/${runs.value}`
-    const result = await render(scenario)
-    times.push(result.ms)
-    rms = result.rms
+  // Chromium keeps the worklet scope of every OfflineAudioContext, and with it one WASM memory,
+  // alive until the document that created it goes away. After ~125 renders in one document the
+  // processor script fails to instantiate and every node is "not defined". Rendering inside a
+  // throwaway iframe releases them when the iframe is removed.
+  const frame = document.createElement('iframe')
+  frame.hidden = true
+  document.body.append(frame)
+  const realm = frame.contentWindow as Window & typeof globalThis
+  try {
+    // first render is a warm-up (script fetch, wasm compilation)
+    await render(scenario, realm)
+    const times: number[] = []
+    let rms = 0
+    for (let i = 0; i < runs.value && !stopRequested.value; i++) {
+      progress.value = `${scenario.label}: run ${i + 1}/${runs.value}`
+      const result = await render(scenario, realm)
+      times.push(result.ms)
+      rms = result.rms
+    }
+    times.sort((a, b) => a - b)
+    return { median: times[times.length >> 1] ?? NaN, min: times[0] ?? NaN, max: times.at(-1) ?? NaN, rms }
   }
-  times.sort((a, b) => a - b)
-  return { median: times[times.length >> 1] ?? NaN, min: times[0] ?? NaN, max: times.at(-1) ?? NaN, rms }
+  finally {
+    frame.remove()
+  }
 }
 
 async function run() {
