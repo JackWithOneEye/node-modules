@@ -292,6 +292,16 @@ const { onDragOver, onDrop, onDragLeave, isDragOver } = useDnDModule()
           :sig-bits="data.sigBits"
         />
       </template>
+      <template #[`node-${AudioModuleType.DeepFryer2}`]="{ id, type, data }">
+        <DeepFryer2Module
+          :id="id"
+          :type="type"
+          :title="data.title"
+          :dry-wet-mix="data.dryWetMix"
+          :kbps="data.kbps"
+          :hop-size="data.hopSize"
+        />
+      </template>
       <template #[`node-${AudioModuleType.Graindr}`]="{ id, type, data }">
         <GraindrModule
           :id="id"

@@ -56,6 +56,8 @@ const scenarios: Scenario[] = [
   { id: 'phaser', label: 'Phaser', create: worklet('phaser') },
   { id: 'graindr', label: 'Graindr', create: worklet('graindr') },
   { id: 'deep-fryer', label: 'Deep Fryer (8 bit amp)', create: worklet('deep-fryer', { ampBits: 8 }) },
+  { id: 'deep-fryer-2', label: 'Deep Fryer 2 (32 kbps, N=576)', create: worklet('deep-fryer-2', { kbps: 32, hopSize: 5 }) },
+  { id: 'deep-fryer-2-2048', label: 'Deep Fryer 2 (32 kbps, N=2048)', create: worklet('deep-fryer-2', { kbps: 32, hopSize: 9 }) },
   { id: 'native-waveshaper', label: 'Native WaveShaper (4x)', create: ctx => new WaveShaperNode(ctx, { curve: tanhCurve, oversample: '4x' }) },
   { id: 'native-compressor', label: 'Native DynamicsCompressor', create: ctx => new DynamicsCompressorNode(ctx) },
 ]

@@ -14,6 +14,7 @@ pub mod granular;
 pub mod gru;
 pub mod linkwitz_riley_filter;
 pub mod lofi;
+pub mod mdct_codec;
 pub mod noise;
 pub mod phase_counter;
 pub mod pinking_filter;

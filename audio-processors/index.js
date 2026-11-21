@@ -5,6 +5,7 @@ import './processors/amp';
 import './processors/bit-crusher';
 import './processors/decimator';
 import './processors/deep-fryer';
+import './processors/deep-fryer-2';
 import './processors/distortion';
 import './processors/envelope-generator.js';
 import './processors/envelope-tracker';
