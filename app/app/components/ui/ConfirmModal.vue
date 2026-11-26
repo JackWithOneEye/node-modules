@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const { open, config, handleConfirm, handleCancel } = useConfirmModal()
+const { open, config, confirming, handleConfirm, handleCancel } = useConfirmModal()
 
 function onOpenChange(value: boolean) {
   if (!value) {
@@ -36,6 +36,7 @@ function onOpenChange(value: boolean) {
         <UButton
           :label="config?.confirmLabel ?? 'Confirm'"
           :color="config?.confirmVariant ?? 'primary'"
+          :loading="confirming"
           @click="handleConfirm"
         />
       </div>

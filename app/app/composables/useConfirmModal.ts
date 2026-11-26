@@ -22,6 +22,10 @@ const config = computed(() => phase.value.kind === 'closed' ? null : phase.value
 
 export function useConfirmModal() {
   function confirm(options: ConfirmOptions) {
+    // a replaced request must still settle (e.g. a pending confirmDiscard)
+    if (phase.value.kind === 'open') {
+      phase.value.config.onCancel?.()
+    }
     phase.value = { kind: 'open', config: options }
   }
 
@@ -31,21 +35,31 @@ export function useConfirmModal() {
 
   async function handleConfirm() {
     const p = phase.value
-    if (p.kind === 'closed') {
+    if (p.kind !== 'open') {
       return
     }
     phase.value = { kind: 'confirming', config: p.config }
-    await p.config.onConfirm()
-    close()
+    try {
+      await p.config.onConfirm()
+    }
+    finally {
+      if (phase.value.kind === 'confirming' && phase.value.config === p.config) {
+        close()
+      }
+    }
   }
 
   function handleCancel() {
     const p = phase.value
-    if (p.kind !== 'closed') {
-      p.config.onCancel?.()
+    // a running confirm action cannot be cancelled
+    if (p.kind !== 'open') {
+      return
     }
+    p.config.onCancel?.()
     close()
   }
 
-  return { open, config, confirm, close, handleConfirm, handleCancel }
+  const confirming = computed(() => phase.value.kind === 'confirming')
+
+  return { open, config, confirming, confirm, close, handleConfirm, handleCancel }
 }

@@ -5,7 +5,6 @@ const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
 const store = useDataStore()
 const { confirm: showConfirm } = useConfirmModal()
 const toast = useToast()
-const confirmDiscard = useConfirmDiscard()
 
 const visible = computed({
   get: () => props.visible,
@@ -22,9 +21,8 @@ watch(() => props.visible, (v) => {
 
 async function openPatch(id: string) {
   visible.value = false
-  if (await confirmDiscard()) {
-    await navigateTo(`/patches/${id}`)
-  }
+  // the patch page's route guard asks before discarding unsaved changes
+  await navigateTo(`/patches/${id}`)
 }
 
 const sortedPatches = computed(() => {
@@ -46,7 +44,13 @@ function confirmDelete(patch: { id: string, name: string }) {
     confirmLabel: 'Delete',
     confirmVariant: 'error',
     onConfirm: async () => {
-      await store.deletePatch(patch.id)
+      try {
+        await store.deletePatch(patch.id)
+      }
+      catch {
+        toast.add({ color: 'error', title: 'Delete failed', description: `Could not delete "${patch.name}"`, duration: 5000 })
+        return
+      }
       toast.add({
         title: 'Deleted',
         description: `Deleted "${patch.name}"`,

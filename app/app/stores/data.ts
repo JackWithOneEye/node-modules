@@ -31,7 +31,8 @@ export type ImportData = { nodes: Node[], edges: Edge[], viewport?: ViewportTran
  * - error: the last save failed; `dirty` tracks unsaved edits
  *
  * Transitions: `patchLoadStarted` → untracked, `markClean` → saved, an edit
- * → `onEdit`, `save`/`saveAs` → saving → saved | error.
+ * → `onEdit` (saved ⇄ dirty), `save`/`saveAs` → saving → saved | dirty (edits
+ * made during the request) | error. A save is refused while one is in flight.
  */
 export type SaveStatus
   = | { kind: 'untracked' }
@@ -59,14 +60,23 @@ export const useDataStore = defineStore('data', () => {
   })
   const pendingImportData = ref<ImportData | null>(null)
 
-  function computeHash(): string {
-    const obj = toObject()
+  function hashOf(name: string, obj: ImportData): string {
     // Edge endpoint coordinates are derived from rendered handle positions and
     // get re-measured after load; they are not part of the patch state.
     return JSON.stringify(
-      { name: currentPatchName.value, nodes: obj.nodes, edges: obj.edges, viewport: obj.viewport },
-      (key, value) => EDGE_COORDINATE_KEYS.has(key) ? undefined : value,
+      { name, nodes: obj.nodes, edges: obj.edges, viewport: obj.viewport },
+      (key, value) => {
+        if (EDGE_COORDINATE_KEYS.has(key)) {
+          return undefined
+        }
+        // drags leave transient fields such as `distance` on node positions
+        return key === 'position' ? { x: value.x, y: value.y } : value
+      },
     )
+  }
+
+  function computeHash(): string {
+    return hashOf(currentPatchName.value, toObject())
   }
 
   function baselineOf(s: SaveStatus): string | null {
@@ -82,14 +92,33 @@ export const useDataStore = defineStore('data', () => {
   }
 
   function onEdit() {
-    const baseline = baselineOf(saveStatus.value)
-    if (baseline !== null && computeHash() !== baseline) {
-      saveStatus.value = { kind: 'dirty', baseline }
+    const s = saveStatus.value
+    if (s.kind === 'untracked' || s.baseline === null) {
+      return
+    }
+    const changed = computeHash() !== s.baseline
+    if (s.kind === 'saving' || s.kind === 'error') {
+      if (s.dirty !== changed) {
+        saveStatus.value = { ...s, dirty: changed }
+      }
+      return
+    }
+    // reverting the edits makes the patch clean again
+    const kind = changed ? 'dirty' : 'saved'
+    if (s.kind !== kind) {
+      saveStatus.value = { kind, baseline: s.baseline }
     }
   }
 
   function saveStarted() {
     saveStatus.value = { kind: 'saving', baseline: baselineOf(saveStatus.value), dirty: dirty.value }
+  }
+
+  /** `sentHash` is what the request stored; edits made meanwhile stay dirty. */
+  function saveSucceeded(sentHash: string) {
+    saveStatus.value = computeHash() === sentHash
+      ? { kind: 'saved', baseline: sentHash }
+      : { kind: 'dirty', baseline: sentHash }
   }
 
   function saveFailed() {
@@ -108,12 +137,13 @@ export const useDataStore = defineStore('data', () => {
   }
 
   async function save() {
-    if (!currentPatchId.value) {
+    if (!currentPatchId.value || saveStatus.value.kind === 'saving') {
       return
     }
     saveStarted()
     let navigateToUrl: string | null = null
     const obj = toObject()
+    const sentHash = hashOf(currentPatchName.value, obj)
     try {
       if (currentPatchId.value === 'new') {
         const created = await $fetch<PatchApiResponse>('/api/patches', {
@@ -129,7 +159,7 @@ export const useDataStore = defineStore('data', () => {
           body: { name: currentPatchName.value, nodes: obj.nodes, edges: obj.edges, viewport: obj.viewport },
         })
       }
-      markClean()
+      saveSucceeded(sentHash)
       await fetchPatchList()
     }
     catch {
@@ -141,16 +171,20 @@ export const useDataStore = defineStore('data', () => {
   }
 
   async function saveAs(name: string): Promise<string | null> {
+    if (saveStatus.value.kind === 'saving') {
+      return null
+    }
     saveStarted()
     try {
       const obj = toObject()
+      const sentHash = hashOf(name, obj)
       const created = await $fetch<PatchApiResponse>('/api/patches', {
         method: 'post',
         body: { name, nodes: obj.nodes, edges: obj.edges, viewport: obj.viewport },
       })
       currentPatchId.value = created.id
       currentPatchName.value = name
-      markClean()
+      saveSucceeded(sentHash)
       await fetchPatchList()
       return created.id
     }
@@ -169,12 +203,25 @@ export const useDataStore = defineStore('data', () => {
     patchLoadStarted()
   }
 
+  /** Nothing is open (loading another patch, or it was not found / deleted). */
+  function closePatch() {
+    currentPatchId.value = null
+    currentPatchName.value = 'New patch'
+    nodes.value = []
+    edges.value = []
+    pendingImportData.value = null
+    patchLoadStarted()
+  }
+
   async function newPatch() {
     resetForNewPatch()
     await navigateTo('/patches/new', { replace: true })
   }
 
   async function exportPatch() {
+    if (!currentPatchId.value) {
+      return
+    }
     const obj = toObject()
     const data = {
       version: 1,
@@ -211,26 +258,20 @@ export const useDataStore = defineStore('data', () => {
     await navigateTo('/patches/new', { replace: true })
   }
 
+  /** Throws when the server could not delete the patch. */
   async function deletePatch(id: string) {
-    try {
-      await $fetch(`/api/patches/${id}`, { method: 'delete' })
-      await fetchPatchList()
-      if (currentPatchId.value === id) {
-        currentPatchId.value = null
-        currentPatchName.value = 'New patch'
-        nodes.value = []
-        edges.value = []
-        pendingImportData.value = null
-        patchLoadStarted()
-        await navigateTo('/', { replace: true })
-      }
-    }
-    catch {
-      // silently handled by caller via toast
+    await $fetch(`/api/patches/${id}`, { method: 'delete' })
+    await fetchPatchList()
+    if (currentPatchId.value === id) {
+      closePatch()
+      await navigateTo('/', { replace: true })
     }
   }
 
   async function copyCurrentPatch() {
+    if (!currentPatchId.value) {
+      return
+    }
     const newName = `Copy of ${currentPatchName.value}`
     const obj = toObject()
     pendingImportData.value = { nodes: obj.nodes, edges: obj.edges, viewport: obj.viewport }
@@ -251,6 +292,7 @@ export const useDataStore = defineStore('data', () => {
     saveAs,
     newPatch,
     resetForNewPatch,
+    closePatch,
     patchLoadStarted,
     markClean,
     exportPatch,

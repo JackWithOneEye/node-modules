@@ -13,7 +13,7 @@ const visible = computed({
 
 async function confirm() {
   const name = newName.value.trim()
-  if (!name) {
+  if (!name || store.saveState === 'saving') {
     return
   }
   const id = await store.saveAs(name)
@@ -62,6 +62,7 @@ watch(() => props.visible, (v) => {
             label="Save"
             size="xs"
             :disabled="!newName.trim()"
+            :loading="store.saveState === 'saving'"
             @click="confirm"
           />
         </div>

@@ -90,11 +90,20 @@ onEdgesChange((changes) => {
   }
 })
 
+// Wire the loaded edges once every module they connect has registered, then
+// take the clean baseline. Edges to nodes that are not in the patch can never
+// register and would otherwise block wiring and dirty tracking forever.
+const loadedNodeIds = new Set(initialData.nodes.map(n => n.id))
 const { stop } = watch(() => audioCtxStore.registeredCount, () => {
   const requiredIds = new Set<string>()
   for (const { source, target } of edges.value) {
     requiredIds.add(source)
     requiredIds.add(target)
+  }
+  for (const id of requiredIds) {
+    if (!loadedNodeIds.has(id)) {
+      requiredIds.delete(id)
+    }
   }
 
   const allRegistered = requiredIds.size === 0 || requiredIds.values().every(id => audioCtxStore.isRegistered(id))
@@ -110,6 +119,16 @@ const { stop } = watch(() => audioCtxStore.registeredCount, () => {
   }
   stop()
 })
+if (initialData.nodes.length === 0) {
+  // Nothing will register on its own: the first registration would be a
+  // module the user adds, which must not become the clean baseline.
+  stop()
+  void nextTick(() => {
+    if (dataStore.currentPatchId) {
+      dataStore.markClean()
+    }
+  })
+}
 
 history.attach({
   audioConnect: (s, sh, t, th) => audioCtxStore.connectModules(s, sh, t, th),

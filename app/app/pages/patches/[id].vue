@@ -49,6 +49,8 @@ async function load(patchId: string) {
     return
   }
   view.value = { kind: 'loading' }
+  // the toolbar must not act on the previous patch while this one loads
+  store.closePatch()
   try {
     const data = await $fetch<PatchResponse>(`/api/patches/${patchId}`)
     if (patchId !== id.value) {
@@ -64,10 +66,21 @@ async function load(patchId: string) {
       return
     }
     view.value = { kind: 'notFound' }
-    // nothing is open: keep the toolbar from saving into the previous patch
-    store.currentPatchId = null
   }
 }
+
+// Browser back/forward away from an edited patch. Toolbar actions that
+// replace the patch reset the save state first, so they pass straight through;
+// so does the URL swap after saving a new patch.
+const confirmDiscard = useConfirmDiscard()
+async function guardUnsaved(to: { params: Record<string, unknown> }) {
+  if (to.params.id === store.currentPatchId) {
+    return true
+  }
+  return await confirmDiscard()
+}
+onBeforeRouteUpdate(guardUnsaved)
+onBeforeRouteLeave(guardUnsaved)
 
 if (import.meta.client) {
   watch(id, load, { immediate: true })

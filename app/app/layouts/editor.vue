@@ -36,6 +36,9 @@ const statusLabel = computed(() => {
 })
 
 async function saveData() {
+  if (!store.currentPatchId || store.saveState === 'saving') {
+    return
+  }
   await store.save()
   if (store.saveState === 'saved') {
     toast.add({ color: 'success', title: 'Saved', description: `Saved "${store.currentPatchName}"`, duration: 3000 })
@@ -90,14 +93,25 @@ function isTypingTarget(target: EventTarget | null): boolean {
   return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT'
 }
 
+const canDelete = computed(() => !!store.currentPatchId && store.currentPatchId !== 'new')
+
 function confirmDeleteCurrentPatch() {
+  if (!canDelete.value) {
+    return
+  }
   showConfirm({
     title: 'Delete Patch',
     message: `Are you sure you want to delete "${store.currentPatchName}"? This cannot be undone.`,
     confirmLabel: 'Delete',
     confirmVariant: 'error',
     onConfirm: async () => {
-      await store.deletePatch(store.currentPatchId!)
+      try {
+        await store.deletePatch(store.currentPatchId!)
+      }
+      catch {
+        toast.add({ color: 'error', title: 'Delete failed', description: `Could not delete "${store.currentPatchName}"`, duration: 5000 })
+        return
+      }
       toast.add({ color: 'success', title: 'Deleted', description: 'Patch deleted', duration: 3000 })
     },
   })
@@ -116,9 +130,7 @@ function onShortcut(e: KeyboardEvent) {
   // save also works while typing, e.g. right after renaming the patch
   if ((e.metaKey || e.ctrlKey) && !e.shiftKey && e.key.toLowerCase() === 's') {
     e.preventDefault()
-    if (store.currentPatchId) {
-      void saveData()
-    }
+    void saveData()
     return
   }
 
@@ -252,7 +264,7 @@ onBeforeUnmount(() => {
             @save-as="showSaveAsDialog = true"
           />
           <ActionsDropdown
-            :can-delete="!!store.currentPatchId && store.currentPatchId !== 'new'"
+            :can-delete="canDelete"
             @copy="store.copyCurrentPatch()"
             @import="chooseImportFile"
             @export="store.exportPatch()"
@@ -263,6 +275,8 @@ onBeforeUnmount(() => {
         <!-- Mobile file dropdown -->
         <FileDropdown
           class="md:hidden"
+          :has-patch="!!store.currentPatchId"
+          :can-delete="canDelete"
           @new-patch="newPatch"
           @open-patch="showOpenDialog = true"
           @save-patch="saveData"
