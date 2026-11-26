@@ -7,30 +7,42 @@ interface ConfirmOptions {
   onCancel?: () => void
 }
 
-const open = ref(false)
-const config = ref<ConfirmOptions | null>(null)
+/**
+ * closed → (`confirm`) open → (`handleConfirm`) confirming → closed,
+ * or open → (`handleCancel`) closed. One modal is shared app-wide.
+ */
+type ModalPhase
+  = | { kind: 'closed' }
+    | { kind: 'open', config: ConfirmOptions }
+    | { kind: 'confirming', config: ConfirmOptions }
+
+const phase = shallowRef<ModalPhase>({ kind: 'closed' })
+const open = computed(() => phase.value.kind !== 'closed')
+const config = computed(() => phase.value.kind === 'closed' ? null : phase.value.config)
 
 export function useConfirmModal() {
   function confirm(options: ConfirmOptions) {
-    config.value = options
-    open.value = true
+    phase.value = { kind: 'open', config: options }
   }
 
   function close() {
-    open.value = false
-    config.value = null
+    phase.value = { kind: 'closed' }
   }
 
   async function handleConfirm() {
-    if (config.value?.onConfirm) {
-      await config.value.onConfirm()
+    const p = phase.value
+    if (p.kind === 'closed') {
+      return
     }
+    phase.value = { kind: 'confirming', config: p.config }
+    await p.config.onConfirm()
     close()
   }
 
   function handleCancel() {
-    if (config.value?.onCancel) {
-      config.value.onCancel()
+    const p = phase.value
+    if (p.kind !== 'closed') {
+      p.config.onCancel?.()
     }
     close()
   }

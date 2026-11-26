@@ -17,35 +17,38 @@ const route = useRoute()
 const store = useDataStore()
 const id = computed(() => route.params.id as string)
 
-/** Id of the patch the mounted editor shows; `new` for an unsaved patch. */
-const shownId = ref<string | null>(null)
-const editorKey = ref('')
-const editorData = shallowRef<ImportData | null>(null)
-const notFound = ref(false)
+/**
+ * What the page shows. `editor.id` is the patch the mounted editor shows
+ * (`new` for an unsaved patch); `editor.key` remounts the editor when it
+ * changes. Transitions: `load` → loading → editor | notFound; `showNewPatch`
+ * → editor; a save that only swaps the id in the URL keeps the editor.
+ */
+type PageView
+  = | { kind: 'loading' }
+    | { kind: 'editor', id: string, key: string, data: ImportData }
+    | { kind: 'notFound' }
+
+const view = shallowRef<PageView>({ kind: 'loading' })
 let newPatchCount = 0
 
 function showNewPatch(data: ImportData) {
-  editorData.value = data
-  editorKey.value = `new-${newPatchCount++}`
-  shownId.value = 'new'
+  view.value = { kind: 'editor', id: 'new', key: `new-${newPatchCount++}`, data }
 }
 
 async function load(patchId: string) {
   if (patchId === 'new') {
-    notFound.value = false
     showNewPatch(store.pendingImportData ?? { nodes: [], edges: [] })
     store.pendingImportData = null
     return
   }
   // Saving (or "Save As") navigates here with the id the open patch was just
   // stored under; the editor already shows exactly that patch.
-  if (shownId.value && store.currentPatchId === patchId) {
-    shownId.value = patchId
+  const current = view.value
+  if (current.kind === 'editor' && store.currentPatchId === patchId) {
+    view.value = { ...current, id: patchId }
     return
   }
-  notFound.value = false
-  editorData.value = null
-  shownId.value = null
+  view.value = { kind: 'loading' }
   try {
     const data = await $fetch<PatchResponse>(`/api/patches/${patchId}`)
     if (patchId !== id.value) {
@@ -54,15 +57,13 @@ async function load(patchId: string) {
     store.currentPatchId = patchId
     store.currentPatchName = data.name ?? 'New patch'
     store.patchLoadStarted()
-    editorData.value = data
-    editorKey.value = patchId
-    shownId.value = patchId
+    view.value = { kind: 'editor', id: patchId, key: patchId, data }
   }
   catch {
     if (patchId !== id.value) {
       return
     }
-    notFound.value = true
+    view.value = { kind: 'notFound' }
     // nothing is open: keep the toolbar from saving into the previous patch
     store.currentPatchId = null
   }
@@ -83,7 +84,7 @@ if (import.meta.client) {
 <template>
   <ClientOnly>
     <div
-      v-if="notFound"
+      v-if="view.kind === 'notFound'"
       class="flex-1 flex flex-col items-center justify-center gap-4 bg-black text-white"
     >
       <UIcon
@@ -115,9 +116,9 @@ if (import.meta.client) {
       </div>
     </div>
     <ModularEditor
-      v-else-if="editorData"
-      :key="editorKey"
-      :initial-data="editorData"
+      v-else-if="view.kind === 'editor'"
+      :key="view.key"
+      :initial-data="view.data"
     />
     <div
       v-else

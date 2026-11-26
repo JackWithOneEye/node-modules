@@ -21,6 +21,25 @@ const EDGE_COORDINATE_KEYS = new Set(['sourceX', 'sourceY', 'targetX', 'targetY'
 
 export type ImportData = { nodes: Node[], edges: Edge[], viewport?: ViewportTransform }
 
+/**
+ * Save state of the open patch. `baseline` is the hash of the content last
+ * loaded or saved; edits are compared against it.
+ *
+ * - untracked: a patch is loading; no baseline yet, edits are not compared
+ * - saved / dirty: the patch matches / differs from the baseline
+ * - saving: a save request is in flight; `dirty` tracks edits meanwhile
+ * - error: the last save failed; `dirty` tracks unsaved edits
+ *
+ * Transitions: `patchLoadStarted` → untracked, `markClean` → saved, an edit
+ * → `onEdit`, `save`/`saveAs` → saving → saved | error.
+ */
+export type SaveStatus
+  = | { kind: 'untracked' }
+    | { kind: 'saved', baseline: string }
+    | { kind: 'dirty', baseline: string }
+    | { kind: 'saving', baseline: string | null, dirty: boolean }
+    | { kind: 'error', baseline: string | null, dirty: boolean }
+
 export const useDataStore = defineStore('data', () => {
   const flow = useEditorFlow()
   const nodes = flow.nodes // as Ref<Node[]>
@@ -30,9 +49,14 @@ export const useDataStore = defineStore('data', () => {
   const currentPatchId = ref<string | null>(null)
   const currentPatchName = ref('New patch')
   const patches = ref<PatchSummary[]>([])
-  const dirty = ref(false)
-  const saveState = ref<'saved' | 'dirty' | 'saving' | 'error'>('saved')
-  const lastSavedHash = ref<string | null>(null)
+  const saveStatus = shallowRef<SaveStatus>({ kind: 'untracked' })
+  /** What the toolbar shows; an untracked (loading) patch counts as saved. */
+  const saveState = computed(() => saveStatus.value.kind === 'untracked' ? 'saved' : saveStatus.value.kind)
+  /** Whether replacing the open patch would lose edits. */
+  const dirty = computed(() => {
+    const s = saveStatus.value
+    return s.kind === 'dirty' || ((s.kind === 'saving' || s.kind === 'error') && s.dirty)
+  })
   const pendingImportData = ref<ImportData | null>(null)
 
   function computeHash(): string {
@@ -45,26 +69,34 @@ export const useDataStore = defineStore('data', () => {
     )
   }
 
+  function baselineOf(s: SaveStatus): string | null {
+    return s.kind === 'untracked' ? null : s.baseline
+  }
+
   function patchLoadStarted() {
-    lastSavedHash.value = null
-    dirty.value = false
-    saveState.value = 'saved'
+    saveStatus.value = { kind: 'untracked' }
   }
 
   function markClean() {
-    lastSavedHash.value = computeHash()
-    dirty.value = false
-    saveState.value = 'saved'
+    saveStatus.value = { kind: 'saved', baseline: computeHash() }
   }
 
-  watch([nodes, edges, currentPatchName], () => {
-    if (lastSavedHash.value !== null) {
-      if (computeHash() !== lastSavedHash.value) {
-        dirty.value = true
-        saveState.value = 'dirty'
-      }
+  function onEdit() {
+    const baseline = baselineOf(saveStatus.value)
+    if (baseline !== null && computeHash() !== baseline) {
+      saveStatus.value = { kind: 'dirty', baseline }
     }
-  }, { deep: true })
+  }
+
+  function saveStarted() {
+    saveStatus.value = { kind: 'saving', baseline: baselineOf(saveStatus.value), dirty: dirty.value }
+  }
+
+  function saveFailed() {
+    saveStatus.value = { kind: 'error', baseline: baselineOf(saveStatus.value), dirty: dirty.value }
+  }
+
+  watch([nodes, edges, currentPatchName], onEdit, { deep: true })
 
   async function fetchPatchList() {
     try {
@@ -79,7 +111,7 @@ export const useDataStore = defineStore('data', () => {
     if (!currentPatchId.value) {
       return
     }
-    saveState.value = 'saving'
+    saveStarted()
     let navigateToUrl: string | null = null
     const obj = toObject()
     try {
@@ -101,7 +133,7 @@ export const useDataStore = defineStore('data', () => {
       await fetchPatchList()
     }
     catch {
-      saveState.value = 'error'
+      saveFailed()
     }
     if (navigateToUrl) {
       await navigateTo(navigateToUrl, { replace: true })
@@ -109,7 +141,7 @@ export const useDataStore = defineStore('data', () => {
   }
 
   async function saveAs(name: string): Promise<string | null> {
-    saveState.value = 'saving'
+    saveStarted()
     try {
       const obj = toObject()
       const created = await $fetch<PatchApiResponse>('/api/patches', {
@@ -123,7 +155,7 @@ export const useDataStore = defineStore('data', () => {
       return created.id
     }
     catch {
-      saveState.value = 'error'
+      saveFailed()
       return null
     }
   }

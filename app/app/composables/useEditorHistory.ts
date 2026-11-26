@@ -32,14 +32,44 @@ type AttachedFlow = {
   audioDisconnect: AudioWire
 }
 
+/**
+ * Lifecycle of the history against the attached editor.
+ *
+ * - detached: no editor; everything is a no-op
+ * - seeding: attached, waiting for the initial snapshot; commits are dropped
+ * - idle: commits are recorded
+ * - applying: an undo/redo snapshot is being applied; commits and Vue Flow
+ *   audio handlers are suppressed. `cancel` is set while the audio reconnect
+ *   waits for the next tick.
+ *
+ * Transitions: `attach` → seeding → (`seedInitial`) idle; `undo`/`redo` →
+ * applying → idle; `detach` → detached.
+ */
+type Phase
+  = | { kind: 'detached' }
+    | { kind: 'seeding', flow: AttachedFlow }
+    | { kind: 'idle', flow: AttachedFlow }
+    | { kind: 'applying', flow: AttachedFlow, cancel: (() => void) | null }
+
 const stack = ref<Snapshot[]>([])
 const cursor = ref(-1)
-const isApplying = ref(false)
-const initialized = ref(false)
+const phase = shallowRef<Phase>({ kind: 'detached' })
+const isApplying = computed(() => phase.value.kind === 'applying')
 
-let attached: AttachedFlow | null = null
 let cleanupFns: Array<() => void> = []
-let pendingApplyOff: (() => void) | null = null
+
+function idleFlow(): AttachedFlow | null {
+  return phase.value.kind === 'idle' ? phase.value.flow : null
+}
+
+/** Leaves `applying` (cancelling a pending reconnect) for `idle`. */
+function finishApply() {
+  const p = phase.value
+  if (p.kind === 'applying') {
+    p.cancel?.()
+    phase.value = { kind: 'idle', flow: p.flow }
+  }
+}
 
 function snapshotEqual(a: Snapshot, b: Snapshot): boolean {
   if (a.nodes.length !== b.nodes.length) {
@@ -89,7 +119,7 @@ function edgeKey(e: Pick<Edge, 'source' | 'target' | 'sourceHandle' | 'targetHan
 /** Schedule a snapshot commit on the next tick to coalesce burst events. */
 let commitScheduled = false
 function commit() {
-  if (!attached || !initialized.value || isApplying.value) {
+  if (!idleFlow()) {
     return
   }
   if (commitScheduled) {
@@ -98,10 +128,11 @@ function commit() {
   commitScheduled = true
   void Promise.resolve().then(() => {
     commitScheduled = false
-    if (!attached || !initialized.value || isApplying.value) {
+    const flow = idleFlow()
+    if (!flow) {
       return
     }
-    const snap = takeSnapshot(attached.getNodes, attached.getEdges)
+    const snap = takeSnapshot(flow.getNodes, flow.getEdges)
     if (cursor.value >= 0 && snapshotEqual(stack.value[cursor.value] as Snapshot, snap)) {
       return
     }
@@ -118,21 +149,8 @@ function commit() {
   })
 }
 
-function clearPendingApply() {
-  if (pendingApplyOff) {
-    pendingApplyOff()
-    pendingApplyOff = null
-  }
-}
-
-function applySnapshot(snap: Snapshot) {
-  if (!attached) {
-    return
-  }
-  // Cancel any in-flight apply callback so we don't reconnect the
-  // previous snapshot's edges on top of the new one.
-  clearPendingApply()
-  isApplying.value = true
+function applySnapshot(flow: AttachedFlow, snap: Snapshot) {
+  phase.value = { kind: 'applying', flow, cancel: null }
 
   const targetKeys = new Set<string>()
   const snapEdges: Edge[] = []
@@ -150,13 +168,13 @@ function applySnapshot(snap: Snapshot) {
     // need their audio connections explicitly torn down. The Vue Flow
     // `onEdgesChange` audio handler is suppressed during apply, so we
     // must do this ourselves.
-    for (const e of attached.getEdges()) {
+    for (const e of flow.getEdges()) {
       if (!e.sourceHandle || !e.targetHandle) {
         continue
       }
       if (!targetKeys.has(edgeKey(e))) {
         try {
-          attached.audioDisconnect(e.source, e.sourceHandle, e.target, e.targetHandle)
+          flow.audioDisconnect(e.source, e.sourceHandle, e.target, e.targetHandle)
         }
         catch (err) {
           console.warn('history apply: disconnect failed', err)
@@ -164,12 +182,12 @@ function applySnapshot(snap: Snapshot) {
       }
     }
 
-    attached.setNodes(snapNodes)
-    attached.setEdges(snapEdges)
+    flow.setNodes(snapNodes)
+    flow.setEdges(snapEdges)
 
     if (snap.nodes.length === 0) {
       // No nodes to wait for; nothing to reconnect.
-      isApplying.value = false
+      finishApply()
       return
     }
 
@@ -179,9 +197,9 @@ function applySnapshot(snap: Snapshot) {
     // false-to-true transitions and would never fire when the apply
     // is purely a removal.
     let cancelled = false
-    pendingApplyOff = () => {
+    phase.value = { kind: 'applying', flow, cancel: () => {
       cancelled = true
-    }
+    } }
     void nextTick(() => {
       if (cancelled) {
         return
@@ -191,44 +209,39 @@ function applySnapshot(snap: Snapshot) {
           if (!e.sourceHandle || !e.targetHandle) {
             continue
           }
-          attached!.audioConnect(e.source, e.sourceHandle, e.target, e.targetHandle)
+          flow.audioConnect(e.source, e.sourceHandle, e.target, e.targetHandle)
         }
       }
       catch (err) {
         console.warn('history apply: reconnect failed', err)
       }
       finally {
-        isApplying.value = false
-        pendingApplyOff = null
+        finishApply()
       }
     })
   }
   catch (err) {
     console.warn('history apply failed', err)
-    isApplying.value = false
+    finishApply()
   }
 }
 
 function undo() {
-  if (isApplying.value) {
-    return
-  }
-  if (cursor.value <= 0) {
+  const flow = idleFlow()
+  if (!flow || cursor.value <= 0) {
     return
   }
   cursor.value--
-  applySnapshot(stack.value[cursor.value] as Snapshot)
+  applySnapshot(flow, stack.value[cursor.value] as Snapshot)
 }
 
 function redo() {
-  if (isApplying.value) {
-    return
-  }
-  if (cursor.value >= stack.value.length - 1) {
+  const flow = idleFlow()
+  if (!flow || cursor.value >= stack.value.length - 1) {
     return
   }
   cursor.value++
-  applySnapshot(stack.value[cursor.value] as Snapshot)
+  applySnapshot(flow, stack.value[cursor.value] as Snapshot)
 }
 
 function detach() {
@@ -236,10 +249,8 @@ function detach() {
     fn()
   }
   cleanupFns = []
-  clearPendingApply()
-  attached = null
-  initialized.value = false
-  isApplying.value = false
+  finishApply()
+  phase.value = { kind: 'detached' }
   stack.value = []
   cursor.value = -1
 }
@@ -250,7 +261,7 @@ export function useEditorHistory() {
 
     const flow = useEditorFlow()
 
-    attached = {
+    const attached: AttachedFlow = {
       setNodes: nodes => flow.setNodes(nodes),
       setEdges: edges => flow.setEdges(edges),
       getNodes: () => flow.getNodes.value,
@@ -259,19 +270,18 @@ export function useEditorHistory() {
       audioConnect: opts.audioConnect,
       audioDisconnect: opts.audioDisconnect,
     }
+    phase.value = { kind: 'seeding', flow: attached }
 
     // Seed the initial snapshot. Vue Flow populates its node store
     // when the template renders, *after* setup, so we must wait at
     // least one tick. If nodes do exist, also wait for `onNodesInitialized`
     // so dimensions are available (cosmetic for snapshot equality).
-    let seeded = false
     function seedInitial() {
-      if (seeded) {
+      if (phase.value.kind !== 'seeding' || phase.value.flow !== attached) {
         return
       }
-      seeded = true
-      initialized.value = true
-      stack.value = [takeSnapshot(attached!.getNodes, attached!.getEdges)]
+      phase.value = { kind: 'idle', flow: attached }
+      stack.value = [takeSnapshot(attached.getNodes, attached.getEdges)]
       cursor.value = 0
     }
 
@@ -281,9 +291,6 @@ export function useEditorHistory() {
     // initial nodes yet at this tick, and seeding then would record an empty
     // canvas as the first undo step.
     void nextTick(() => {
-      if (!attached) {
-        return
-      }
       if (opts.startsEmpty && attached.getNodes().length === 0) {
         seedInitial()
       }
@@ -321,14 +328,14 @@ export function useEditorHistory() {
   }
 
   return {
-    canUndo: computed(() => !isApplying.value && cursor.value > 0),
-    canRedo: computed(() => !isApplying.value && cursor.value < stack.value.length - 1),
+    canUndo: computed(() => phase.value.kind === 'idle' && cursor.value > 0),
+    canRedo: computed(() => phase.value.kind === 'idle' && cursor.value < stack.value.length - 1),
     undo,
     redo,
     /** Schedule a snapshot commit on the next microtask (deduped). */
     commit,
     attach,
     detach,
-    isApplying: readonly(isApplying),
+    isApplying,
   }
 }
