@@ -83,11 +83,21 @@ export const useDataStore = defineStore('data', () => {
     return s.kind === 'untracked' ? null : s.baseline
   }
 
-  function patchLoadStarted() {
+  /** The loading patch only exists in memory (copied or imported), so it starts unsaved. */
+  let loadingUnsavedContent = false
+
+  function patchLoadStarted(unsavedContent = false) {
+    loadingUnsavedContent = unsavedContent
     saveStatus.value = { kind: 'untracked' }
   }
 
   function markClean() {
+    if (loadingUnsavedContent) {
+      loadingUnsavedContent = false
+      // no stored version to return to: stays dirty until saved
+      saveStatus.value = { kind: 'dirty', baseline: '' }
+      return
+    }
     saveStatus.value = { kind: 'saved', baseline: computeHash() }
   }
 
@@ -254,7 +264,7 @@ export const useDataStore = defineStore('data', () => {
     pendingImportData.value = { nodes: parsed.nodes as Node[], edges: parsed.edges as Edge[], viewport: parsed.viewport as ViewportTransform | undefined }
     currentPatchId.value = 'new'
     currentPatchName.value = (parsed.name as string) ?? 'Imported Patch'
-    patchLoadStarted()
+    patchLoadStarted(true)
     await navigateTo('/patches/new', { replace: true })
   }
 
@@ -277,7 +287,7 @@ export const useDataStore = defineStore('data', () => {
     pendingImportData.value = { nodes: obj.nodes, edges: obj.edges, viewport: obj.viewport }
     currentPatchId.value = 'new'
     currentPatchName.value = newName
-    patchLoadStarted()
+    patchLoadStarted(true)
     await navigateTo('/patches/new', { replace: true })
   }
 

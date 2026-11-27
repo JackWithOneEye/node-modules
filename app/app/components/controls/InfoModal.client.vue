@@ -5,6 +5,9 @@ defineExpose({
   open: () => {
     visible.value = true
   },
+  toggle: () => {
+    visible.value = !visible.value
+  },
 })
 
 function close() {

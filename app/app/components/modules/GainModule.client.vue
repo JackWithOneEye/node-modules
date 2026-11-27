@@ -14,6 +14,9 @@ const props = withDefaults(defineProps<GainModuleProps>(), {
 
 const store = useAudioContextStore()
 const gainNode = new GainNode(store.getAudioContext(), { gain: props.gainEnabled ? props.gain : MIN_GAIN })
+// gain CV goes through this gate, so a disabled module ignores modulation too
+const gainCvNode = new GainNode(store.getAudioContext(), { gain: props.gainEnabled ? 1 : 0 })
+gainCvNode.connect(gainNode.gain)
 
 const gainEnabled = ref(props.gainEnabled)
 // while disabled the knob only changes the level that enabling restores
@@ -30,9 +33,11 @@ const { updateNodeData } = useVueFlow()
 watch(gainEnabled, (curr, prev) => {
   if (!curr && prev) {
     store.setParamValue(gainNode.gain, MIN_GAIN, 'lin')
+    store.setParamValue(gainCvNode.gain, 0, 'lin')
   }
   else if (curr && !prev) {
     store.setParamValue(gainNode.gain, dB2Gain(gain.value), 'exp')
+    store.setParamValue(gainCvNode.gain, 1, 'lin')
   }
   updateNodeData<GainModuleProps>(props.id, { gainEnabled: curr })
 })
@@ -57,11 +62,12 @@ store.registerModule(props.id, {
   },
   getTarget: {
     input: { type: 'audioNode', inputIndex: 0, node: gainNode },
-    gain: { type: 'param', param: gainNode.gain },
+    gain: { type: 'audioNode', inputIndex: 0, node: gainCvNode },
   },
 })
 
 onUnmounted(() => {
+  gainCvNode.disconnect()
   gainNode.disconnect()
   store.unregisterModule(props.id)
 })

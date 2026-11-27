@@ -7,13 +7,20 @@ const state = {
   isDragging: ref(false),
 }
 
+// one watcher for the shared state, not one per caller
+let userSelectWatched = false
+
 export const useDnDModule = () => {
   const { draggedType, isDragOver, isDragging } = state
   const { addModuleAtScreen } = useAddModule()
 
-  watch(isDragging, (dragging) => {
-    document.body.style.userSelect = dragging ? 'none' : ''
-  })
+  if (!userSelectWatched) {
+    userSelectWatched = true
+    // detached: it must outlive the component that happened to create it
+    effectScope(true).run(() => watch(isDragging, (dragging) => {
+      document.body.style.userSelect = dragging ? 'none' : ''
+    }))
+  }
 
   function onDragEnd() {
     isDragging.value = false
@@ -50,7 +57,12 @@ export const useDnDModule = () => {
     }
   }
 
-  function onDragLeave() {
+  function onDragLeave(event: DragEvent) {
+    // moving onto a child element fires dragleave on the canvas too
+    const into = event.relatedTarget
+    if (into instanceof Node && (event.currentTarget as Node | null)?.contains(into)) {
+      return
+    }
     isDragOver.value = false
   }
 

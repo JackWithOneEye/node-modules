@@ -118,8 +118,14 @@ watch(canvasEl, () => {
   resizeCanvas()
   drawCurve()
 
-  window.addEventListener('resize', resizeCanvas)
+  window.addEventListener('resize', onWindowResize)
 }, { once: true })
+
+// setting canvas.width clears it, so a resize (e.g. a zoom or DPR change) must redraw
+function onWindowResize() {
+  resizeCanvas()
+  drawCurve()
+}
 
 watch([waveshaper, modifier], () => {
   cancelAnimationFrame(raf)
@@ -141,7 +147,7 @@ onViewportChange(() => {
 
 onUnmounted(() => {
   cancelAnimationFrame(raf)
-  window.removeEventListener('resize', resizeCanvas)
+  window.removeEventListener('resize', onWindowResize)
   ctx.value = null
   waveshaperNode.disconnect()
   unregisterModule(props.id)

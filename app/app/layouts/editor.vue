@@ -10,16 +10,15 @@ watch(() => route.path, (path) => {
     store.resetForNewPatch()
   }
 }, { immediate: true })
-const themeStore = useThemeStore()
 const { canUndo, canRedo, undo, redo } = useEditorHistory()
 const { copy, paste, duplicate, deleteSelection } = useEditorClipboard()
-const { open: openQuickAdd } = useQuickAdd()
+const { open: openQuickAdd, visible: quickAddVisible } = useQuickAdd()
 const { getNodes, getEdges } = useEditorFlow()
 
 const showOpenDialog = ref(false)
 const showSaveAsDialog = ref(false)
 const importInput = ref<HTMLInputElement>()
-const infoModalRef = ref<{ open: () => void } | null>(null)
+const infoModalRef = ref<{ open: () => void, toggle: () => void } | null>(null)
 
 const statusLabel = computed(() => {
   // a patch that was never saved must not claim to be "Saved"
@@ -134,7 +133,8 @@ function onShortcut(e: KeyboardEvent) {
     return
   }
 
-  if (isTypingTarget(e.target)) {
+  // the quick-add palette handles its own keys while it is open
+  if (isTypingTarget(e.target) || quickAddVisible.value) {
     return
   }
 
@@ -146,7 +146,7 @@ function onShortcut(e: KeyboardEvent) {
 
   if (e.key === '?') {
     e.preventDefault()
-    infoModalRef.value?.open()
+    infoModalRef.value?.toggle()
     return
   }
 
@@ -181,7 +181,6 @@ function onShortcut(e: KeyboardEvent) {
 }
 
 onMounted(() => {
-  themeStore.init()
   window.addEventListener('keydown', onShortcut)
   window.addEventListener('beforeunload', onBeforeUnload)
 })

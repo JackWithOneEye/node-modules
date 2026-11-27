@@ -8,6 +8,22 @@ interface PatchBody {
   viewport?: Record<string, unknown>
 }
 
+// Saves of one patch run one after another, so a read-modify-write cannot
+// interleave with another one and drop its changes.
+const writeQueues = new Map<string, Promise<unknown>>()
+
+function serialised<T>(id: string, task: () => Promise<T>): Promise<T> {
+  const run = (writeQueues.get(id) ?? Promise.resolve()).then(task, task)
+  const tail = run.catch(() => {})
+  writeQueues.set(id, tail)
+  void tail.then(() => {
+    if (writeQueues.get(id) === tail) {
+      writeQueues.delete(id)
+    }
+  })
+  return run
+}
+
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
   if (!id) {
@@ -16,26 +32,28 @@ export default defineEventHandler(async (event) => {
   const body = await readBody<PatchBody>(event)
   const dir = join(process.env.DATA_STORE_DIRECTORY!, 'patches')
   const filePath = join(dir, `${id}.json`)
-  let existing: Record<string, unknown> = {}
-  try {
-    const raw = await readFile(filePath, 'utf8')
-    existing = JSON.parse(raw) as Record<string, unknown>
-  }
-  catch {
+  return serialised(id, async () => {
+    let existing: Record<string, unknown> = {}
+    try {
+      const raw = await readFile(filePath, 'utf8')
+      existing = JSON.parse(raw) as Record<string, unknown>
+    }
+    catch {
     // file doesn't exist yet, create new
-  }
-  const now = new Date().toISOString()
-  const patch = {
-    version: 1,
-    id,
-    name: body.name ?? existing.name ?? 'New patch',
-    createdAt: existing.createdAt ?? now,
-    updatedAt: now,
-    nodes: body.nodes ?? (existing.nodes as Record<string, unknown>[]) ?? [],
-    edges: body.edges ?? (existing.edges as Record<string, unknown>[]) ?? [],
-    viewport: body.viewport ?? existing.viewport,
-  }
-  await mkdir(dir, { recursive: true })
-  await writeFile(filePath, JSON.stringify(patch), { flag: 'w+' })
-  return patch
+    }
+    const now = new Date().toISOString()
+    const patch = {
+      version: 1,
+      id,
+      name: body.name ?? existing.name ?? 'New patch',
+      createdAt: existing.createdAt ?? now,
+      updatedAt: now,
+      nodes: body.nodes ?? (existing.nodes as Record<string, unknown>[]) ?? [],
+      edges: body.edges ?? (existing.edges as Record<string, unknown>[]) ?? [],
+      viewport: body.viewport ?? existing.viewport,
+    }
+    await mkdir(dir, { recursive: true })
+    await writeFile(filePath, JSON.stringify(patch), { flag: 'w+' })
+    return patch
+  })
 })

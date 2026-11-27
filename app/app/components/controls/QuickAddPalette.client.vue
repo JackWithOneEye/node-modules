@@ -66,6 +66,13 @@ const { addModuleAtViewportCenter } = useAddModule()
 
 function open() {
   openQuickAdd()
+}
+
+// every way of opening (shortcut or toolbar button) starts a fresh search
+watch(visible, (v) => {
+  if (!v) {
+    return
+  }
   query.value = ''
   activeIndex.value = 0
   activeCategory.value = 'All'
@@ -73,7 +80,7 @@ function open() {
     const el = inputRef.value?.inputRef as HTMLInputElement | undefined
     el?.focus()
   })
-}
+}, { immediate: true })
 
 function onDialogClose() {
   close()
@@ -169,6 +176,8 @@ onMounted(() => {
 })
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onGlobalKeydown)
+  // `visible` is shared; do not come back already open on the next mount
+  close()
 })
 </script>
 

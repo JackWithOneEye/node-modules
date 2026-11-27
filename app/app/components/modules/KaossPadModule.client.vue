@@ -174,7 +174,11 @@ watch(
     resizeCanvas()
     drawPad()
 
-    window.addEventListener('resize', resizeCanvas, { signal: abortCtrlr.signal })
+    // setting canvas.width clears it, so a resize (e.g. a zoom or DPR change) must redraw
+    window.addEventListener('resize', () => {
+      resizeCanvas()
+      drawPad()
+    }, { signal: abortCtrlr.signal })
   },
   { once: true },
 )

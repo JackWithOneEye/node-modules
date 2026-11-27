@@ -66,6 +66,8 @@ const BLACK_KEY_SEMITONES = [1, 3, 6, 8, 10]
 const BLACK_KEY_LEFT_PCT = [14.2857, 28.5714, 57.1429, 71.4286, 85.7143]
 
 const activeKey = ref<number | null>(null)
+/** Semitone of the held key within the displayed octave; survives an octave change. */
+const activeSemi = ref<number | null>(null)
 const activePointerId = ref<number | null>(null)
 let activePointerType: string | null = null
 
@@ -75,6 +77,7 @@ function midiToFreq(midi: number): number {
 
 function keyOn(midi: number) {
   activeKey.value = midi
+  activeSemi.value = midi - baseMidi.value
   store.setMultipleParamValues(
     [gateNode.offset, 1],
     [noteNode.offset, midiToFreq(midi)],
@@ -86,6 +89,7 @@ function keyOff() {
   if (activeKey.value !== null) {
     activeKey.value = null
   }
+  activeSemi.value = null
   store.setParamValue(gateNode.offset, 0)
 }
 
@@ -199,7 +203,7 @@ onUnmounted(() => {
               v-for="(semi, i) in WHITE_KEY_SEMITONES"
               :key="'w' + i"
               class="flex-1 h-full border border-neutral-400 border-t-0 z-10 cursor-pointer transition-colors duration-50"
-              :class="activeKey === baseMidi + semi ? 'bg-indigo-300' : 'bg-neutral-200 hover:bg-indigo-200'"
+              :class="activeSemi === semi ? 'bg-indigo-300' : 'bg-neutral-200 hover:bg-indigo-200'"
               @pointerdown.prevent="onKeyPointerDown($event, baseMidi + semi)"
             />
           </div>
@@ -208,7 +212,7 @@ onUnmounted(() => {
               v-for="(semi, i) in BLACK_KEY_SEMITONES"
               :key="'b' + i"
               class="absolute w-[calc((100%/7)*0.6)] h-full border border-black border-t-0 -translate-x-1/2 cursor-pointer pointer-events-auto transition-colors duration-50"
-              :class="activeKey === baseMidi + semi ? 'bg-indigo-500' : 'bg-neutral-800 hover:bg-indigo-700'"
+              :class="activeSemi === semi ? 'bg-indigo-500' : 'bg-neutral-800 hover:bg-indigo-700'"
               :style="{ left: BLACK_KEY_LEFT_PCT[i] + '%' }"
               @pointerdown.prevent="onKeyPointerDown($event, baseMidi + semi)"
             />

@@ -44,7 +44,9 @@ const noteNodes: ConstantSourceNode[] = []
 const retriggerNodes: ConstantSourceNode[] = []
 const velocityNodes: ConstantSourceNode[] = []
 
-const activeVoices = new Map<number, { note: number, lastPlayed: number, state: 'on' | 'off' }>()
+const activeVoices = new Map<number, { note: number, velocity: number, lastPlayed: number, state: 'on' | 'off' }>()
+/** Keys still held without a voice (dropped or stolen), in press order; they sound again when a voice frees up. */
+let waitingNotes: { note: number, velocity: number }[] = []
 watch(selectedOutputCount, (curr, prev) => {
   prev ??= 0
   if (curr > prev) {
@@ -66,7 +68,7 @@ watch(selectedOutputCount, (curr, prev) => {
       velocityNode.connect(velocityMergerNode, 0, i)
       velocityNodes.push(velocityNode)
 
-      activeVoices.set(i, { note: 0, lastPlayed: 0, state: 'off' })
+      activeVoices.set(i, { note: 0, velocity: 0, lastPlayed: 0, state: 'off' })
     }
   }
   else if (curr < prev) {
@@ -194,9 +196,11 @@ const onNoteOn = ({ note }: NoteMessageEvent) => {
         channelIdx = oldestIdx!
         break
       case 1:
+        waitingNotes.push({ note: note.number, velocity: note.attack })
         return
       case 2: {
         if (note.number <= lowestNote) {
+          waitingNotes.push({ note: note.number, velocity: note.attack })
           return
         }
         channelIdx = lowestIdx!
@@ -204,21 +208,50 @@ const onNoteOn = ({ note }: NoteMessageEvent) => {
       }
       case 3: {
         if (note.number >= highestNote) {
+          waitingNotes.push({ note: note.number, velocity: note.attack })
           return
         }
         channelIdx = highestIdx!
         break
       }
     }
+    // the stolen key is still held
+    const stolen = activeVoices.get(channelIdx)!
+    waitingNotes.push({ note: stolen.note, velocity: stolen.velocity })
   }
 
-  activeVoices.set(channelIdx, { note: note.number, lastPlayed: Date.now(), state: 'on' })
+  playOnVoice(channelIdx, note.number, note.attack)
+}
+
+function playOnVoice(voice: number, note: number, velocity: number) {
+  activeVoices.set(voice, { note, velocity, lastPlayed: Date.now(), state: 'on' })
   store.setMultipleParamValues(
-    [gateNodes[channelIdx]!.offset, 1],
-    [noteNodes[channelIdx]!.offset, pitchbendFactor.value * midiStore.midiNote2FreqLUT[note.number]!],
-    [retriggerNodes[channelIdx]!.offset, 1, 'pulse'],
-    [velocityNodes[channelIdx]!.offset, note.attack],
+    [gateNodes[voice]!.offset, 1],
+    [noteNodes[voice]!.offset, pitchbendFactor.value * midiStore.midiNote2FreqLUT[note]!],
+    [retriggerNodes[voice]!.offset, 1, 'pulse'],
+    [velocityNodes[voice]!.offset, velocity],
   )
+}
+
+/** The waiting key the priority prefers: newest, oldest, highest or lowest. */
+function takeWaitingNote() {
+  if (waitingNotes.length === 0) {
+    return undefined
+  }
+  let idx = waitingNotes.length - 1
+  if (selectedPriority.value === 1) {
+    idx = 0
+  }
+  else if (selectedPriority.value !== 0) {
+    const pickHigh = selectedPriority.value === 2
+    for (let i = 0; i < waitingNotes.length; i++) {
+      const n = waitingNotes[i]!.note
+      if (pickHigh ? n > waitingNotes[idx]!.note : n < waitingNotes[idx]!.note) {
+        idx = i
+      }
+    }
+  }
+  return waitingNotes.splice(idx, 1)[0]
 }
 
 const onNoteOff = ({ note }: NoteMessageEvent) => {
@@ -231,6 +264,16 @@ const onNoteOff = ({ note }: NoteMessageEvent) => {
     }
   }
   if (oldestMatchingVoice == null) {
+    // a released key that was waiting for a voice
+    const w = waitingNotes.findIndex(w => w.note === note.number)
+    if (w >= 0) {
+      waitingNotes.splice(w, 1)
+    }
+    return
+  }
+  const next = takeWaitingNote()
+  if (next) {
+    playOnVoice(oldestMatchingVoice, next.note, next.velocity)
     return
   }
   const v = activeVoices.get(oldestMatchingVoice)
@@ -245,6 +288,7 @@ const onPitchBend = ({ value }: MessageEvent) => {
 
 /** Closes every gate, e.g. when the device whose note-offs they wait for goes away. */
 function releaseAllVoices() {
+  waitingNotes = []
   for (const [voice, v] of activeVoices.entries()) {
     if (v.state === 'on') {
       v.state = 'off'

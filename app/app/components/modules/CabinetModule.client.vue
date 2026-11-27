@@ -30,17 +30,30 @@ const levelNode = new GainNode(ctx, { gain: props.level })
 convolverNode.connect(makeupNode).connect(levelNode)
 
 let latestLoad = 0
+/** The IR the convolver plays; null until the first load finishes. */
+let loadedName: CabinetImpulseResponse | null = null
 async function loadImpulseResponse(name: CabinetImpulseResponse) {
   const load = ++latestLoad
+  if (name === loadedName) {
+    return // e.g. reverted after a failed load; the newer request above is cancelled
+  }
   try {
     const response = await fetch(`/impulse-responses/${name}.wav`)
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
     const buffer = await ctx.decodeAudioData(await response.arrayBuffer())
     if (load === latestLoad) {
       convolverNode.buffer = buffer
+      loadedName = name
     }
   }
   catch (e) {
     console.warn(`failed to load impulse response "${name}"`, e)
+    // keep the selector (and the saved patch) on what is actually playing
+    if (load === latestLoad && loadedName) {
+      impulseResponse.value = loadedName
+    }
   }
 }
 

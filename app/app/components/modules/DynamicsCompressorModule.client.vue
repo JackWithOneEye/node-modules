@@ -36,15 +36,22 @@ const [release] = useAudioParam('release', props.release, value => store.setPara
 
 // Read-only reduction meter
 const reduction = ref(0)
-let animationFrame: number
+let animationFrame = 0
 
 function updateReduction() {
   reduction.value = compressorNode.reduction
   animationFrame = requestAnimationFrame(updateReduction)
 }
 
+// the reduction cannot change while the context is suspended
 onMounted(() => {
-  updateReduction()
+  watch(() => store.state, (state) => {
+    cancelAnimationFrame(animationFrame)
+    animationFrame = 0
+    if (state === 'running') {
+      updateReduction()
+    }
+  }, { immediate: true })
 })
 
 store.registerModule(props.id, {

@@ -151,6 +151,9 @@ async function measure(scenario: Scenario) {
   document.body.append(frame)
   const realm = frame.contentWindow as Window & typeof globalThis
   try {
+    if (stopRequested.value) {
+      return null
+    }
     // first render is a warm-up (script fetch, wasm compilation)
     await render(scenario, realm)
     const times: number[] = []
@@ -162,6 +165,10 @@ async function measure(scenario: Scenario) {
       rms = result.rms
     }
     times.sort((a, b) => a - b)
+    // a scenario interrupted by Stop has fewer runs than requested
+    if (times.length < runs.value) {
+      return null
+    }
     return { median: times[times.length >> 1] ?? NaN, min: times[0] ?? NaN, max: times.at(-1) ?? NaN, rms }
   }
   finally {
@@ -177,9 +184,9 @@ async function run() {
     const selected = scenarioId.value === ALL ? scenarios : scenarios.filter(s => s.id === scenarioId.value)
     const base = await measure(baseline)
     for (const scenario of selected) {
-      const m = await measure(scenario)
-      // a scenario interrupted by Stop has fewer runs than recorded, so it is discarded
-      if (stopRequested.value) {
+      const m = base && await measure(scenario)
+      // only a scenario cut short by Stop is discarded; one that finished all its runs is kept
+      if (!base || !m) {
         break
       }
       results.value.unshift({
