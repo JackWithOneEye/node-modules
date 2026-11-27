@@ -1,25 +1,61 @@
 export const useAudioContextStore = defineStore('audioContextStore', () => {
   const audioContext = ref<AudioContext>()
+  /** Mirrors `audioContext.state`; `closed` also means there is no context. */
   const state = ref<AudioContextState>('closed')
+  /** A suspend/resume in flight; further toggles wait for it instead of racing it. */
+  let transition: Promise<void> | null = null
   const moduleRegistry = ref<Map<ModuleId, ModuleRegistration>>(new Map())
+
+  function syncState(this: AudioContext) {
+    if (this === audioContext.value) {
+      state.value = this.state
+    }
+  }
 
   async function init() {
     const ctx = new AudioContext({ latencyHint: 0 })
-    await ctx.audioWorklet.addModule('/api/audio-processors-script')
+    try {
+      await ctx.audioWorklet.addModule('/api/audio-processors-script')
+    }
+    catch (e) {
+      void ctx.close()
+      throw e
+    }
     audioContext.value = ctx
-    state.value = audioContext.value.state
+    transition = null
+    // the browser can also suspend or interrupt the context on its own
+    ctx.addEventListener('statechange', syncState)
+    state.value = ctx.state
   }
 
   async function destroy() {
-    await audioContext.value!.close()
+    const ctx = audioContext.value!
+    // Clear now: by the time close() resolves a new editor may have
+    // initialised and registered its modules.
     moduleRegistry.value.clear()
+    state.value = 'closed'
+    await ctx.close()
   }
 
   function getAudioContext() {
     return audioContext.value!
   }
 
-  async function suspend() {
+  function suspend() {
+    transition = (transition ?? Promise.resolve()).then(doSuspend).finally(() => {
+      transition = null
+    })
+    return transition
+  }
+
+  function resume() {
+    transition = (transition ?? Promise.resolve()).then(doResume).finally(() => {
+      transition = null
+    })
+    return transition
+  }
+
+  async function doSuspend() {
     if (audioContext.value!.state === 'closed' || audioContext.value!.state === 'suspended') {
       return
     }
@@ -36,7 +72,7 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
     state.value = audioContext.value!.state
   }
 
-  async function resume() {
+  async function doResume() {
     if (audioContext.value!.state === 'closed' || audioContext.value!.state === 'running') {
       return
     }

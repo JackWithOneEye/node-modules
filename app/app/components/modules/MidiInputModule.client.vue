@@ -143,7 +143,8 @@ const pitchBendRangeOptions = Array.from({ length: 24 }, (_, i) => ({
   value: i + 1,
 }))
 
-const pitchbendFactor = ref(1)
+const pitchbendValue = ref(0)
+const pitchbendFactor = computed(() => Math.pow(2, pitchbendValue.value * selectedPitchBendRange.value / 12))
 const onNoteOn = ({ note }: NoteMessageEvent) => {
   let oldestPlayed = Infinity
   let oldestIdx: number | undefined
@@ -211,7 +212,6 @@ const onNoteOn = ({ note }: NoteMessageEvent) => {
     }
   }
 
-  console.log('NOTE ON?', note)
   activeVoices.set(channelIdx, { note: note.number, lastPlayed: Date.now(), state: 'on' })
   store.setMultipleParamValues(
     [gateNodes[channelIdx]!.offset, 1],
@@ -233,7 +233,6 @@ const onNoteOff = ({ note }: NoteMessageEvent) => {
   if (oldestMatchingVoice == null) {
     return
   }
-  console.log('NOTE OFF?', note)
   const v = activeVoices.get(oldestMatchingVoice)
   v!.state = 'off'
   activeVoices.set(oldestMatchingVoice, v!)
@@ -241,8 +240,18 @@ const onNoteOff = ({ note }: NoteMessageEvent) => {
 }
 
 const onPitchBend = ({ value }: MessageEvent) => {
-  const semitones = (value as number) * selectedPitchBendRange.value
-  pitchbendFactor.value = Math.pow(2, semitones / 12)
+  pitchbendValue.value = value as number
+}
+
+/** Closes every gate, e.g. when the device whose note-offs they wait for goes away. */
+function releaseAllVoices() {
+  for (const [voice, v] of activeVoices.entries()) {
+    if (v.state === 'on') {
+      v.state = 'off'
+      store.setParamValue(gateNodes[voice]!.offset, 0)
+    }
+  }
+  pitchbendValue.value = 0
 }
 
 watch(pitchbendFactor, (curr) => {
@@ -254,11 +263,16 @@ watch(pitchbendFactor, (curr) => {
 })
 
 const currentInput = computed(() => midiStore.midiInputs.find(({ id }) => id === selectedMidiInput.value))
+function unbind(input: NonNullable<typeof currentInput.value>) {
+  input.removeListener('noteon', onNoteOn)
+  input.removeListener('noteoff', onNoteOff)
+  input.removeListener('pitchbend', onPitchBend)
+}
 watch(currentInput, (curr, prev) => {
   if (prev) {
-    prev.removeListener('noteon', onNoteOn)
-    prev.removeListener('noteoff', onNoteOff)
-    prev.removeListener('pitchbend', onPitchBend)
+    unbind(prev)
+    // a switched or unplugged device never sends the note-offs
+    releaseAllVoices()
   }
   if (curr) {
     curr.addListener('noteon', onNoteOn)
@@ -268,6 +282,10 @@ watch(currentInput, (curr, prev) => {
 }, { immediate: true })
 
 onUnmounted(() => {
+  // WebMIDI inputs outlive this module
+  if (currentInput.value) {
+    unbind(currentInput.value)
+  }
   for (const gn of gateNodes) {
     gn.disconnect()
     gn.stop()
