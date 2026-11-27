@@ -16,6 +16,11 @@ class SequencerWorkletNodeBase extends AudioWorkletNode {
 
   private prevStep = -1
 
+  /** Report the next step even if it equals the last one (the display was cleared). */
+  forgetStep() {
+    this.prevStep = -1
+  }
+
   set values(vals: number[]) {
     const currentTime = this.context.currentTime
     for (let i = 0; i < NUM_VALUES; i++) {

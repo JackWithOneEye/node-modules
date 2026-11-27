@@ -78,7 +78,7 @@ store.registerModule(props.id, {
   },
 })
 
-onUnmounted(() => {
+function teardown() {
   // release the device so the browser's recording indicator turns off
   mediaStream?.getTracks().forEach(track => track.stop())
   audioSourceNode?.disconnect()
@@ -86,7 +86,14 @@ onUnmounted(() => {
   splitter.disconnect()
   outputNode.disconnect()
   store.unregisterModule(props.id)
-})
+}
+// Removed while the permission prompt was open: onUnmounted will never run.
+if (getCurrentInstance()?.isUnmounted) {
+  teardown()
+}
+else {
+  onUnmounted(teardown)
+}
 </script>
 
 <template>

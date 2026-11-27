@@ -84,6 +84,7 @@ registerModule(props.id, {
   },
   onSuspend: () => {
     sequencerNode.reset()
+    sequencerNode.forgetStep()
     currentStep.value = -1
   },
 })

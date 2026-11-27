@@ -15,8 +15,13 @@ const props = withDefaults(defineProps<GainModuleProps>(), {
 const store = useAudioContextStore()
 const gainNode = new GainNode(store.getAudioContext(), { gain: props.gainEnabled ? props.gain : MIN_GAIN })
 
-const gain = useGainParam('gain', props.gain, value => store.setParamValue(gainNode.gain, value, 'exp'))
 const gainEnabled = ref(props.gainEnabled)
+// while disabled the knob only changes the level that enabling restores
+const gain = useGainParam('gain', props.gain, (value) => {
+  if (gainEnabled.value) {
+    store.setParamValue(gainNode.gain, value, 'exp')
+  }
+})
 const minGain = -100
 const maxGain = 60
 

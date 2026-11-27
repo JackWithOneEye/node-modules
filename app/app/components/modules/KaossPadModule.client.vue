@@ -124,6 +124,9 @@ const onPointerDown = (event: PointerEvent) => {
   updateFromPointer(event)
   document.addEventListener('pointermove', onPointerMove, { signal: abortCtrlr.signal })
   document.addEventListener('pointerup', onPointerUp, { signal: abortCtrlr.signal })
+  // a cancelled touch gesture never sends pointerup
+  document.addEventListener('pointercancel', onPointerUp, { signal: abortCtrlr.signal })
+  window.addEventListener('blur', onPointerUp, { signal: abortCtrlr.signal })
 }
 
 const onPointerMove = (event: PointerEvent) => {
@@ -136,6 +139,8 @@ const onPointerUp = () => {
   isDragging.value = false
   document.removeEventListener('pointermove', onPointerMove)
   document.removeEventListener('pointerup', onPointerUp)
+  document.removeEventListener('pointercancel', onPointerUp)
+  window.removeEventListener('blur', onPointerUp)
 }
 
 registerModule(props.id, {

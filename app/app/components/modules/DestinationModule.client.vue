@@ -19,8 +19,13 @@ const gainNode = new GainNode(audioContext, { gain: props.muted ? MIN_GAIN : pro
 const destinationNode = audioContext.destination
 gainNode.connect(destinationNode)
 
-const gain = useGainParam('gain', props.gain, value => store.setParamValue(gainNode.gain, value, 'exp'))
 const muted = ref(props.muted)
+// while muted the knob only changes the level that unmuting restores
+const gain = useGainParam('gain', props.gain, (value) => {
+  if (!muted.value) {
+    store.setParamValue(gainNode.gain, value, 'exp')
+  }
+})
 const minGain = -100
 const maxGain = 0
 

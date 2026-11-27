@@ -67,6 +67,7 @@ const BLACK_KEY_LEFT_PCT = [14.2857, 28.5714, 57.1429, 71.4286, 85.7143]
 
 const activeKey = ref<number | null>(null)
 const activePointerId = ref<number | null>(null)
+let activePointerType: string | null = null
 
 function midiToFreq(midi: number): number {
   return Math.round(Math.pow(2, (midi - 69) / 12) * 440 * 100) * 0.01
@@ -93,6 +94,7 @@ function onKeyPointerDown(event: PointerEvent, midi: number) {
     return
   }
   activePointerId.value = event.pointerId
+  activePointerType = event.pointerType
   keyOn(midi)
 }
 
@@ -113,6 +115,10 @@ function onWindowPointerCancel(event: PointerEvent) {
 }
 
 function onWindowMouseUp() {
+  // touch taps elsewhere emit compatibility mouseups; only a mouse press ends here
+  if (activePointerId.value !== null && activePointerType !== 'mouse') {
+    return
+  }
   if (activePointerId.value !== null) {
     activePointerId.value = null
   }

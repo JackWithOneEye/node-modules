@@ -281,7 +281,7 @@ watch(currentInput, (curr, prev) => {
   }
 }, { immediate: true })
 
-onUnmounted(() => {
+function teardown() {
   // WebMIDI inputs outlive this module
   if (currentInput.value) {
     unbind(currentInput.value)
@@ -307,7 +307,14 @@ onUnmounted(() => {
   }
   velocityMergerNode.disconnect()
   store.unregisterModule(props.id)
-})
+}
+// Removed while Web MIDI was being enabled: onUnmounted will never run.
+if (getCurrentInstance()?.isUnmounted) {
+  teardown()
+}
+else {
+  onUnmounted(teardown)
+}
 </script>
 
 <template>

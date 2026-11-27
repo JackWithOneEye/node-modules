@@ -101,6 +101,8 @@ export const useAudioContextStore = defineStore('audioContextStore', () => {
 
   function internalSetParamValue(param: AudioParam, value: number, ramp: Ramp, currentTime: number, rampTime: number) {
     const clampedVal = Math.max(param.minValue, Math.min(param.maxValue, value))
+    // the newest value wins: drop ramps still pending from earlier changes
+    param.cancelScheduledValues(currentTime)
     if (ramp === 'none') {
       param.setValueAtTime(clampedVal, currentTime)
       return

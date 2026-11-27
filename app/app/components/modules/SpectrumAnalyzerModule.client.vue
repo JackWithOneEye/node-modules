@@ -54,6 +54,8 @@ const sound = shallowRef<Sound>()
 
 const initializeSound = () => {
   if (sound.value) {
+    // analyze() connected gainNode to the old analyser; drop that input too
+    gainNode.disconnect(sound.value.analyzer.node)
     sound.value.analyzer.node.disconnect()
   }
   sound.value = Sound.from(gainNode, audioContext).analyze(fftSize.value)

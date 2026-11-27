@@ -153,7 +153,9 @@ function onPointerMove(e: PointerEvent) {
 
 function onPointerUp(e: PointerEvent) {
   isDragging.value = false
-  knobRef.value?.releasePointerCapture(e.pointerId)
+  if (knobRef.value?.hasPointerCapture(e.pointerId)) {
+    knobRef.value.releasePointerCapture(e.pointerId)
+  }
 }
 
 function onKeydown(e: KeyboardEvent) {
@@ -202,6 +204,8 @@ function onKeydown(e: KeyboardEvent) {
       @pointerdown="onPointerDown"
       @pointermove="onPointerMove"
       @pointerup="onPointerUp"
+      @pointercancel="onPointerUp"
+      @lostpointercapture="onPointerUp"
       @keydown="onKeydown"
     >
       <svg

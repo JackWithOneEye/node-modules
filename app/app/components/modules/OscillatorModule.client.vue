@@ -18,7 +18,10 @@ const props = withDefaults(defineProps<OscillatorModuleProps>(), {
 })
 
 function updateFrequency(value: number) {
-  store.setParamValue(oscillatorNode.frequency, value, 'exp')
+  // while disabled the knob only changes the frequency that enabling restores
+  if (frequencyEnabled.value) {
+    store.setParamValue(oscillatorNode.frequency, value, 'exp')
+  }
 }
 
 const {
@@ -58,7 +61,8 @@ watch(frequencyEnabled, (curr, prev) => {
     store.setParamValue(oscillatorNode.frequency, 0, 'lin')
   }
   else if (curr && !prev) {
-    updateFrequency(frequencyHz.value)
+    // an exponential ramp cannot start at 0 Hz: it would hold 0 until its end
+    store.setParamValue(oscillatorNode.frequency, frequencyHz.value)
   }
   updateNodeData<OscillatorModuleProps>(props.id, { frequencyEnabled: curr })
 })
