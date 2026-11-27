@@ -1,5 +1,3 @@
-use web_sys::console;
-
 use crate::dsp::{circular_buffer::InterpolationType, linkwitz_riley_filter::LinkwitzRileyFilter};
 
 use super::{
@@ -8,7 +6,12 @@ use super::{
     vasv_filter::{pre_feedback_loop_hipass, VASVFilter},
 };
 
-// const MIN_READ_DELAY: f32 = 0.0;
+// Read delays are relative to the input buffer's write head, read before the next write:
+// delay 1 is the newest sample and delay 0 the oldest one, which is about to be overwritten.
+// Cubic interpolation also reads the neighbours at delay - 1 and delay + 2, so a grain
+// must stay within [2, buffer size - 3] to read only written, current audio.
+const MIN_READ_DELAY: f32 = 2.0;
+const MAX_READ_DELAY_MARGIN: usize = 3;
 
 #[derive(Copy, Clone, PartialEq)]
 enum GrainDirection {
@@ -161,20 +164,17 @@ impl GranularProcessor {
         self.current_input_size = grain_size_samples * pitch_shift_factor;
         self.next_stretch_factor = stretch_factor;
 
-        // on note-on: deactivate both grains so they respawn cleanly
-        // if trigger_stretch {
-        //     self.output_1_process_params.active = false;
-        //     self.output_2_process_params.active = false;
-        // }
         if trigger_stretch {
             self.stretch_state.trigger_stretch = true;
-            // console::log_2(&stretch_factor.into(), &trigger_stretch.into());
         }
 
         let overlap_width = grain_size_samples * overlap;
         let stride = grain_size_samples - overlap_width;
 
-        if self.written_samples_ctr >= stride {
+        // wait for a free grain slot: a slot can still be busy when the grain size shrinks
+        let grain_slot_free =
+            !self.output_1_process_params.active || !self.output_2_process_params.active;
+        if self.written_samples_ctr >= stride && grain_slot_free {
             self.written_samples_ctr = 0.0;
 
             self.stretch_factor = self.next_stretch_factor;
@@ -239,13 +239,16 @@ impl GranularProcessor {
             }
         }
 
+        let max_read_delay = (self.input_buffer_size - MAX_READ_DELAY_MARGIN) as f32;
         let o1_out = Self::process_grain(
             &self.input_buffer,
+            max_read_delay,
             &mut self.output_1_process_params,
             pitch_shift_factor,
         );
         let o2_out = Self::process_grain(
             &self.input_buffer,
+            max_read_delay,
             &mut self.output_2_process_params,
             pitch_shift_factor,
         );
@@ -280,21 +283,29 @@ impl GranularProcessor {
     #[inline]
     fn process_grain(
         input_buffer: &CircularBuffer,
+        max_read_delay: f32,
         grain: &mut GrainOutputProcessParams,
         pitch_shift_factor: f32,
     ) -> f32 {
-        if !grain.active || grain.read_index >= grain.output_size {
-            grain.active = false;
+        if !grain.active {
             return 0.0;
         }
 
         let window = window_func(grain.read_index, grain.output_size, grain.overlap_width);
-        let sample = input_buffer.read_fractional(grain.delay, InterpolationType::Cubic);
+        // the delay drifts with the current pitch, which can change during the grain
+        let sample = input_buffer.read_fractional(
+            grain.delay.clamp(MIN_READ_DELAY, max_read_delay),
+            InterpolationType::Cubic,
+        );
         grain.delay += match grain.direction {
             GrainDirection::Forward => 1.0 - pitch_shift_factor,
             GrainDirection::Reverse => 1.0 + pitch_shift_factor,
         };
         grain.read_index += 1.0;
+        // free the slot right after the last sample, so a grain due on the next sample can spawn
+        if grain.read_index >= grain.output_size {
+            grain.active = false;
+        }
 
         sample * window
     }
