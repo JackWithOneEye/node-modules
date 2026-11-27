@@ -17,7 +17,8 @@ impl AllpassFilter {
             // sample_rate,
             sample_rate_inv: 1.0 / sample_rate,
 
-            f_c: 1000.0,
+            // NaN: the first set_params always computes alpha
+            f_c: f32::NAN,
             alpha: 0.0,
             state: 0.0,
         }
@@ -53,7 +54,6 @@ impl AllpassFilter {
     }
 
     pub fn reset(&mut self) {
-        self.alpha = 0.0;
         self.state = 0.0;
     }
 }

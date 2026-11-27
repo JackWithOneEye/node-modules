@@ -4,7 +4,8 @@ use wasm_utils::IOBufferPtrs;
 #[wasm_bindgen]
 #[derive(IOBufferPtrs)]
 pub struct Sequencer {
-    current_step: usize,
+    /// `None` until the first clock, which plays step 0; values[0] is output meanwhile.
+    current_step: Option<usize>,
     prev_gate_value: f32,
 
     #[io_buffer]
@@ -22,8 +23,9 @@ impl Sequencer {
         crate::utils::set_panic_hook();
 
         Sequencer {
-            current_step: 0,
-            prev_gate_value: -1.0,
+            current_step: None,
+            // a gate already high at start or after a reset is not a clock
+            prev_gate_value: f32::INFINITY,
 
             gate_in_buffer: vec![0.0; buffer_frame_length],
             output_buffer: vec![0.0; buffer_frame_length],
@@ -40,20 +42,21 @@ impl Sequencer {
             .zip(self.gate_in_buffer.iter())
         {
             if *gate_value > gate_thresh && self.prev_gate_value <= gate_thresh {
-                self.current_step += 1;
-                if self.current_step >= steps {
-                    self.current_step = 0;
-                }
+                self.current_step = Some(self.current_step.map_or(0, |s| s + 1));
+            }
+            // also wraps a step left out of range by lowering num_steps
+            if self.current_step.is_some_and(|s| s >= steps) {
+                self.current_step = Some(0);
             }
             self.prev_gate_value = *gate_value;
-            *out = self.values_buffer[self.current_step];
+            *out = self.values_buffer[self.current_step.unwrap_or(0)];
         }
 
-        self.current_step
+        self.current_step.unwrap_or(0)
     }
 
     pub fn reset(&mut self) {
-        self.current_step = 0;
-        self.prev_gate_value = 0.0;
+        self.current_step = None;
+        self.prev_gate_value = f32::INFINITY;
     }
 }

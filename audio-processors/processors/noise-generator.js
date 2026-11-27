@@ -92,13 +92,13 @@ class BrownianNoiseGenerator {
         }
 
         const rangeInv = 1 / (max - min);
-        for (let i = 1; i < RENDER_QUANTUM_FRAMES; i++) {
+        for (let i = 0; i < RENDER_QUANTUM_FRAMES; i++) {
             const diff = this.#unnormalisedSamples[i] - min;
             this.normalisedSamples[i] = 0.8 * ((diff + diff) * rangeInv - 1);
         }
     }
 
     reset() {
-        this.#unnormalisedSamples.with(-1, 0);
+        this.#unnormalisedSamples[RENDER_QUANTUM_FRAMES - 1] = 0;
     }
 }

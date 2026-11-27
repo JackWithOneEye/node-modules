@@ -92,6 +92,8 @@ impl EnvelopeTracker {
     pub fn reset(&mut self) {
         self.sensitivity.reset();
         self.threshold.reset();
+        // otherwise the held envelope re-opens the gate right after resume
+        self.envelope_follower.reset();
         self.note_currently_on = false;
     }
 }

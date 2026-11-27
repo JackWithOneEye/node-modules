@@ -67,6 +67,8 @@ export class HeapAudioBuffer {
      */
     setChannelData(buffer, channelIndex) {
         if (!buffer) {
+            // a disconnected input is silence, not a replay of the last block
+            this.#data[channelIndex].fill(0);
             return;
         }
         this.#data[channelIndex].set(buffer);

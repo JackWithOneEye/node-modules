@@ -158,8 +158,9 @@ impl ADSRUnit {
             -1.0
         };
 
-        self.release_rate = if self.release_rate > 0.0 {
-            self.sustain_lvl / (self.release_sec * self.sample_rate)
+        // like note_off: release from the current level, not from sustain
+        self.release_rate = if self.release_sec > 0.0 {
+            self.envelope_val / (self.release_sec * self.sample_rate)
         } else {
             -1.0
         };
@@ -182,5 +183,31 @@ impl ADSRUnit {
             }
             _ => (),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn param_change_during_release_keeps_releasing() {
+        let sr = 1000.0;
+        let mut adsr = ADSRUnit::new(sr);
+        adsr.set_params(0.01, 0.01, 0.0, 1.0);
+        // sustain 0: the old rate formula gave a release rate of 0
+        adsr.note_on();
+        for _ in 0..5 {
+            adsr.get_next_sample();
+        }
+        adsr.note_off();
+        let before = adsr.get_next_sample();
+        assert!(before > 0.0);
+        // a knob move mid-release must not cut the note off
+        adsr.set_params(0.02, 0.01, 0.0, 1.0);
+        let after = adsr.get_next_sample();
+        assert!(after > 0.0 && after < before, "release cut off: {before} -> {after}");
+        let samples = (0..2000).map(|_| adsr.get_next_sample()).take_while(|v| *v > 0.0).count();
+        assert!(samples > 100, "release ended after {samples} samples");
     }
 }
